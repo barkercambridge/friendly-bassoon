@@ -3,7 +3,7 @@
 # DevStan R08: Validate and package the acceptance distribution with required files.
 param(
     [ValidatePattern('^\d+\.\d+$')]
-    [string]$Version = '0.4',
+    [string]$Version = '0.1',
     [Parameter(Mandatory = $true)]
     [ValidatePattern('^[0-9a-f]{40}$')]
     [string]$Commit,
@@ -43,7 +43,7 @@ else {
 }
 
 # A release is invalid when the report is missing or differs from JSON.
-& (Join-Path $PSScriptRoot '..\\tests\\test-format-checks-alignment.ps1')
+& (Join-Path $PSScriptRoot '..\\tests\\test-format-checks-alignment.ps1') -Version $Version
 if ($LASTEXITCODE -ne 0) { throw 'FR-012: text formatting check register differs from JSON.' }
 
 $stage = Join-Path $env:TEMP ('virtual-admin-package-' + [guid]::NewGuid().ToString('N'))
