@@ -60,4 +60,9 @@ try {
  if($recorded.Count -eq 0){throw 'Engine execution produced no numeric coverage hits'}
 } finally {
  if($breakpoints.Count -gt 0){$breakpoints | Remove-PSBreakpoint}
+}  if(-not (Test-Path -LiteralPath $env:VA_COVERAGE_HITS)){throw 'Engine execution produced no coverage hit file'}
+  $recorded=@(Get-Content -LiteralPath $env:VA_COVERAGE_HITS | Where-Object {$_ -match '^[0-9]+$'})
+  if($recorded.Count -eq 0){throw 'Engine execution produced no numeric coverage hits'}
+} finally {
+ if($breakpoints.Count -gt 0){$breakpoints | Remove-PSBreakpoint}
 }
