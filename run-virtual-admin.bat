@@ -2,7 +2,7 @@
 rem FR-007, FR-002, FR-003, FR-010: Select local inputs and launch the interactive comparison.
 setlocal EnableExtensions DisableDelayedExpansion
 cd /d "%~dp0"
-rem Archive previous output files before selecting the input DOCX.
+rem FR-006: Archive previous output files before selecting the input DOCX.
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0src\archive-previous-outputs.ps1" -LauncherDirectory "%~dp0"
 if errorlevel 1 (
   echo ERROR: Could not archive previous output documents. Comparison cancelled.
