@@ -24,9 +24,14 @@ foreach($relative in $files){
   $invalidHits=@()
   if($relative -in @('src/compare-formatting.ps1','src/archive-previous-outputs.ps1')){
    foreach($file in @(Get-ChildItem -LiteralPath $CoverageDirectory -Filter $(if($relative -eq 'src/compare-formatting.ps1'){'engine-*.hits'}else{'archive-*.hits'}) -File -ErrorAction SilentlyContinue)){
-    $observed+=@(Get-Content -LiteralPath $file.FullName | Where-Object {$_ -match '^\d+$'} | ForEach-Object {[int]$_})
+    $hitFiles += $file.Name
+    foreach($entry in @(Get-Content -LiteralPath $file.FullName)){
+     if($entry -match '^\d+$'){$observed += [int]$entry}
+     elseif(-not [string]::IsNullOrWhiteSpace($entry)){$invalidHits += $entry}
+    }
    }
   }
+  $reason=if($hitFiles.Count -eq 0){'No coverage hit files were created'}elseif($invalidHits.Count -gt 0){'Coverage hit files contain nonnumeric entries'}elseif($observed.Count -eq 0){'Coverage hit files contain no recorded lines'}else{$null}
   $hit=@($executable | Where-Object {$_ -in $observed})
   $miss=@($executable | Where-Object {$_ -notin $observed})
   $records+=@{path=$relative;sha256=$hash;diagnostic_reason=$reason;hit_file_count=$hitFiles.Count;invalid_hit_count=$invalidHits.Count;measurement=$(if($relative -in @('src/compare-formatting.ps1','src/archive-previous-outputs.ps1') -and $observed.Count -gt 0 -and $invalidHits.Count -eq 0){'MEASURED'}else{'NOT MEASURED'});executable_lines=@($executable);covered_lines=@($hit);uncovered_lines=@($miss);coverage_percentage=$(if($executable.Count -gt 0){[math]::Round(100.0*$hit.Count/$executable.Count,2)}else{$null});excluded=$false}
