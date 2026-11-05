@@ -43,13 +43,21 @@ try {
 $breakpoints=@()
 try {
  foreach($line in $lines){
-  $breakpoints+=Set-PSBreakpoint -Script $engine -Line $line -Action {
-   [IO.File]::AppendAllText($env:VA_COVERAGE_HITS,([string]$PSDebugContext.Breakpoint.Line+[Environment]::NewLine))
-  }
+  # Embed the validated numeric line in the action instead of relying on debugger variables.
+  $action=[scriptblock]::Create('[IO.File]::AppendAllText($env:VA_COVERAGE_HITS, "'+[int]$line+'"+[Environment]::NewLine)')
+  $breakpoints+=Set-PSBreakpoint -Script $engine -Line $line -Action $action
  }
+ # Fail immediately if instrumentation did not register any script breakpoints.
+ if($breakpoints.Count -eq 0){throw 'No coverage breakpoints were registered'}
  if($LauncherDirectory){$arguments=@{LauncherDirectory=$LauncherDirectory}}else{$arguments=@{TemplatePath=$TemplatePath;DocumentPath=$DocumentPath}}
  if($SpecificationPath){$arguments.SpecificationPath=$SpecificationPath}
  & $engine @arguments
+ if(-not (Test-Path -LiteralPath $env:VA_COVERAGE_HITS)){throw 'Engine execution produced no coverage hit file'}
+ $recorded=@(Get-Content -LiteralPath $env:VA_COVERAGE_HITS | Where-Object {$_ -match '^\d+
+ if($breakpoints.Count -gt 0){$breakpoints | Remove-PSBreakpoint}
+}
+})
+ if($recorded.Count -eq 0){throw 'Engine execution produced no numeric coverage hits'}
 } finally {
  if($breakpoints.Count -gt 0){$breakpoints | Remove-PSBreakpoint}
 }
