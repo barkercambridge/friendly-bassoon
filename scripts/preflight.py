@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+"""Read-only, fail-closed validation before release preparation."""
+import pathlib
+import datetime as dt
+import json
+import re
+import py_compile
+import subprocess
+import sys
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+
+def main():
+    import yaml
+    errors = []
+    workflows = sorted((ROOT / ".github/workflows").glob("*.yml"))
+    if not workflows:
+        errors.append("No GitHub Actions workflows found")
+    for path in workflows:
+        try:
+            document = yaml.safe_load(path.read_text(encoding="utf-8-sig"))
+            if not isinstance(document, dict) or "jobs" not in document:
+                raise ValueError("Missing jobs mapping")
+            if "on" not in document and True not in document:
+                raise ValueError("Missing workflow triggers")
+            print("PASS workflow:", path.relative_to(ROOT))
+        except (yaml.YAMLError, ValueError) as exc:
+            errors.append(f"{path.relative_to(ROOT)}: {exc}")
+    for path in sorted(ROOT.rglob("*.py")):
+        if ".git" in path.parts:
+            continue
+        try:
+            py_compile.compile(str(path), cfile=str(path.parent / "__pycache__" / (path.stem + ".preflight.pyc")), doraise=True)
+        except (SyntaxError, OSError, py_compile.PyCompileError) as exc:
+            errors.append(f"Python syntax {path.relative_to(ROOT)}: {exc}")
+    rtm = json.loads((ROOT / "traceability.json").read_text(encoding="utf-8-sig"))
+    valid_fr = {r["id"] for r in rtm["requirements"]}
+    commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+    if not re.fullmatch(r"[0-9a-f]{40}", commit):
+        raise ValueError("Invalid source commit")
+    suites = rtm.get('regression_suites', [])
+    if (not suites or len({row['id'] for row in suites}) != len(suites) or
+        any(not re.fullmatch(r'RT-\d{3}', row['id']) for row in suites) or
+        len({row['file'] for row in suites}) != len(suites) or
+        any(not (ROOT / row['file']).is_file() or not row['file'].startswith('tests/') or
+            not row['requirements'] or len(row['requirements']) != len(set(row['requirements'])) or
+            not set(row['requirements']).issubset(valid_fr) for row in suites)):
+        raise ValueError('Invalid authoritative regression suite mappings')
+    records = []
+    for row in suites:
+        test_id, test, requirements = row['id'], row['file'], row['requirements']
+        if not set(requirements).issubset(valid_fr):
+            raise ValueError("Regression mapping references unknown FR")
+        try:
+            result = subprocess.run([sys.executable, test], cwd=ROOT, capture_output=True, text=True, timeout=180)
+            status = "PASS" if result.returncode == 0 else "FAIL"
+            detail = (result.stdout + "\n" + result.stderr)[-12000:]
+        except subprocess.TimeoutExpired:
+            status, detail = "BLOCKED", "Regression suite timed out"
+        records.append({"test_id": test_id, "file": test, "requirements": requirements, "status": status,
+                        "detail": detail, "timestamp_utc": dt.datetime.now(dt.timezone.utc).isoformat()})
+        print(f"{status} regression: {test_id} {test}")
+        if status != "PASS":
+            errors.append(f"{test_id}: {detail[-3000:]}")
+    report = {"schema_version": 1, "application": "virtual-admin", "version": rtm["version"],
+              "source_commit": commit, "timestamp_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+              "tests": records}
+    evidence_path = ROOT / "release-evidence/regression-results.json"
+    evidence_path.parent.mkdir(parents=True, exist_ok=True)
+    evidence_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, "scripts/verify-documentation-evidence.py", "--acceptance-build"],
+        cwd=ROOT, capture_output=True, text=True,
+    )
+    print(f"{'PASS' if result.returncode == 0 else 'FAIL'} evidence alignment")
+    if result.returncode:
+        errors.append("Evidence alignment: " + (result.stdout + result.stderr)[-3000:])
+    results_dir = ROOT / "tests/results"
+    if results_dir.exists():
+        if not results_dir.is_dir():
+            errors.append("Acceptance results path must be a directory")
+        else:
+            entries = list(results_dir.iterdir())
+            if any(not p.is_file() or p.name not in ("acceptance-results.json", "code-coverage.json") for p in entries):
+                errors.append("Historical or unexpected acceptance evidence found")
+            elif any(p.name == "acceptance-results.json" for p in entries):
+                try:
+                    data = json.loads((results_dir / "acceptance-results.json").read_text(encoding="utf-8-sig"))
+                    if not isinstance(data, dict) or not isinstance(data.get("tests"), list):
+                        errors.append("Invalid acceptance JSON schema")
+                except (ValueError, OSError):
+                    errors.append("Unreadable acceptance JSON")
+    for message in errors:
+        print("FAIL:", message, file=sys.stderr)
+    print(f"Preflight: {'FAIL' if errors else 'PASS'} ({len(errors)} issues)")
+    return int(bool(errors))
+
+if __name__ == "__main__":
+    sys.exit(main())

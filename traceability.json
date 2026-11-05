@@ -1,0 +1,165 @@
+{
+  "application": "virtual-admin",
+  "version": "0.4",
+  "environment": "Windows",
+  "requirements": [
+    {
+      "id": "FR-001",
+      "source": [
+        "src/compare-formatting.ps1"
+      ],
+      "tests": [
+        "AT-001"
+      ]
+    },
+    {
+      "id": "FR-002",
+      "source": [
+        "run-virtual-admin.bat"
+      ],
+      "tests": [
+        "AT-006",
+        "AT-007"
+      ]
+    },
+    {
+      "id": "FR-003",
+      "source": [
+        "run-virtual-admin.bat"
+      ],
+      "tests": [
+        "AT-006",
+        "AT-007"
+      ]
+    },
+    {
+      "id": "FR-004",
+      "source": [
+        "src/compare-formatting.ps1"
+      ],
+      "tests": [
+        "AT-002"
+      ]
+    },
+    {
+      "id": "FR-005",
+      "source": [
+        "src/compare-formatting.ps1"
+      ],
+      "tests": [
+        "AT-004"
+      ]
+    },
+    {
+      "id": "FR-006",
+      "source": [
+        "src/compare-formatting.ps1",
+        "src/archive-previous-outputs.ps1",
+        "run-virtual-admin.bat"
+      ],
+      "tests": [
+        "AT-003"
+      ]
+    },
+    {
+      "id": "FR-007",
+      "source": [
+        "run-virtual-admin.bat"
+      ],
+      "tests": [
+        "AT-001"
+      ]
+    },
+    {
+      "id": "FR-008",
+      "status": "planned",
+      "source": [],
+      "tests": []
+    },
+    {
+      "id": "FR-009",
+      "source": [
+        "src/compare-formatting.ps1"
+      ],
+      "tests": [
+        "AT-005"
+      ]
+    },
+    {
+      "id": "FR-010",
+      "source": [
+        "run-virtual-admin.bat"
+      ],
+      "tests": [
+        "AT-006"
+      ]
+    },
+    {
+      "id": "FR-011",
+      "source": [
+        "src/compare-formatting.ps1"
+      ],
+      "tests": [
+        "AT-008"
+      ]
+    },
+    {
+      "id": "FR-012",
+      "source": [
+        "config/format-checks.json",
+        "scripts/build-formatting-checks.py",
+        "tests/test-format-checks-alignment.ps1"
+      ],
+      "tests": [
+        "AT-010",
+        "AT-011"
+      ]
+    }
+  ],
+  "regression_suites": [
+    {
+      "id": "RT-001",
+      "file": "tests/test-document-register.py",
+      "requirements": [
+        "FR-012"
+      ]
+    },
+    {
+      "id": "RT-002",
+      "file": "tests/test-documentation-evidence.py",
+      "requirements": [
+        "FR-012"
+      ]
+    },
+    {
+      "id": "RT-003",
+      "file": "tests/test-devstan-info-rules.py",
+      "requirements": [
+        "FR-012"
+      ]
+    },
+    {
+      "id": "RT-004",
+      "file": "tests/test-comparison-progress.py",
+      "requirements": [
+        "FR-004",
+        "FR-005",
+        "FR-011"
+      ]
+    },
+    {
+      "id": "RT-005",
+      "file": "tests/test-formatting-pdf-layout.py",
+      "requirements": [
+        "FR-012"
+      ]
+    },
+    {
+      "id": "RT-006",
+      "file": "tests/test-regression-workflow.py",
+      "requirements": [
+        "FR-012"
+      ]
+    }
+  ]
+}

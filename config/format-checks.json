@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "description": "CHAR-001 compares each paragraph's font family, size, bold and italic against its corresponding named template style; non-positional, with a four-property uniform fast path.",
+  "checks": [
+    {
+      "id": "CHAR-001",
+      "scope": "Character",
+      "property": "Name",
+      "enabled": true,
+      "description": "Compare font family, point size, bold and italic for each character against the paragraph's matching named template style; skip character inspection only when all four properties uniformly match."
+    }
+  ]
+}

@@ -1,0 +1,265 @@
+{
+  "schema_version": 1,
+  "application": "virtual-admin",
+  "authoritative_sources": [
+    {
+      "information_type": "development-rules",
+      "path": "docs/devstan.md"
+    },
+    {
+      "information_type": "functional-requirements",
+      "path": "docs/functional-specification.md"
+    },
+    {
+      "information_type": "application-version-and-traceability",
+      "path": "traceability.json"
+    },
+    {
+      "information_type": "document-inventory-and-version-mappings",
+      "path": "docs/document-register.json"
+    },
+    {
+      "information_type": "acceptance-test-results",
+      "path": "tests/results/acceptance-results.json"
+    },
+    {
+      "information_type": "python-syntax-defects",
+      "path": "docs/python-defect-register.md"
+    },
+    {
+      "information_type": "development-defects",
+      "path": "docs/development-defect-register.md"
+    }
+  ],
+  "documents": [
+    {
+      "path": "config/release-input-exemptions.json",
+      "role": "release-input-policy",
+      "authority": "Shared exact release-input exclusions",
+      "verification": "required"
+    },
+    {
+      "path": "docs/document-register.json",
+      "role": "document-register",
+      "authority": "Controlled document inventory and authoritative source assignments",
+      "verification": "required"
+    },
+    {
+      "path": "docs/devstan.md",
+      "role": "governing-standard",
+      "authority": "Validated runtime copy of pinned miniature-memory/docs/devstan.md; pin in config/central-standards.json",
+      "verification": "required",
+      "version_source": "docs/devstan.md"
+    },
+    {
+      "path": "docs/development-defect-register.md",
+      "role": "development-defect-register",
+      "authority": "Validated runtime copy of shared defect lessons from pinned miniature-memory commit; application incident history remains in Git",
+      "verification": "required",
+      "version_source": "docs/development-defect-register.md"
+    },
+    {
+      "path": "docs/python-defect-register.md",
+      "role": "python-defect-register",
+      "authority": "Validated runtime copy of pinned miniature-memory/docs/python-defect-register.md",
+      "verification": "required",
+      "version_source": "docs/python-defect-register.md"
+    },
+    {
+      "path": "docs/functional-specification.md",
+      "role": "functional-specification",
+      "authority": "Requirement wording, acceptance criteria and historical status",
+      "verification": "required",
+      "version_source": "docs/functional-specification.md"
+    },
+    {
+      "path": "traceability.json",
+      "role": "traceability",
+      "authority": "FR-to-source and AT mappings; application version",
+      "verification": "required"
+    },
+    {
+      "path": "README.md",
+      "role": "user-guide",
+      "authority": "User-facing overview and usage",
+      "verification": "required",
+      "version_source": "README.md"
+    },
+    {
+      "path": "docs/installation.md",
+      "role": "installation-guide",
+      "authority": "Installation and upgrade instructions",
+      "verification": "required",
+      "version_source": "docs/installation.md"
+    },
+    {
+      "path": "config/format-checks.json",
+      "role": "formatting-config",
+      "authority": "Project-specific required file defined by functional specification FR-012",
+      "verification": "required",
+      "requirement": "FR-012",
+      "purpose": "Machine-readable formatting checks"
+    },
+    {
+      "path": "info/formatting-checks.pdf",
+      "role": "formatting-register",
+      "authority": "Project-specific readable register defined by functional specification FR-012",
+      "verification": "required",
+      "requirement": "FR-012",
+      "purpose": "Human-readable mirror of formatting configuration"
+    },
+    {
+      "path": "info/release.pdf",
+      "role": "release-changes-report",
+      "authority": "DevStan R08 production-only Git-derived release changes report",
+      "verification": "generated",
+      "purpose": "Changes since the previous application release"
+    },
+    {
+      "path": "scripts/verify-devstan.py",
+      "role": "compliance-verifier",
+      "authority": "Devstan assessment implementation",
+      "verification": "required"
+    },
+    {
+      "path": "scripts/verify-documentation-evidence.py",
+      "role": "document-verifier",
+      "authority": "Document and evidence consistency",
+      "verification": "required"
+    },
+    {
+      "path": "scripts/verify-document-register.py",
+      "role": "document-register-verifier",
+      "authority": "Controlled document validation and release evidence generation",
+      "verification": "required"
+    },
+    {
+      "path": "tests/test-documentation-evidence.py",
+      "role": "document-verifier-tests",
+      "authority": "Regression tests for documentation verification",
+      "verification": "required"
+    },
+    {
+      "path": ".github/workflows/preflight.yml",
+      "role": "preflight-workflow",
+      "authority": "Mandatory current-commit preflight and workspace evidence freshness",
+      "verification": "required"
+    },
+    {
+      "path": "scripts/acceptance-evidence-freshness.py",
+      "role": "evidence-freshness-verifier",
+      "authority": "Release-input fingerprint and stale acceptance evidence validation",
+      "verification": "required"
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "role": "release-workflow",
+      "authority": "Release gate and evidence generation",
+      "verification": "required"
+    },
+    {
+      "path": "tests/results/acceptance-results.json",
+      "role": "acceptance-json",
+      "authority": "Single current acceptance test JSON; production gate validates tested source",
+      "verification": "conditional"
+    },
+    {
+      "path": "release-evidence/devstan.json",
+      "role": "devstan-report",
+      "authority": "Generated per-run Devstan verification",
+      "verification": "generated"
+    },
+    {
+      "path": "release-evidence/devstan-reviews.json",
+      "role": "independent-reviews",
+      "authority": "Attributable independent review evidence",
+      "verification": "conditional"
+    },
+    {
+      "path": "release-evidence/production-approval.json",
+      "role": "production-approval",
+      "authority": "Generated only after production gates PASS",
+      "verification": "generated"
+    },
+    {
+      "path": "release-evidence/source-equivalence.json",
+      "role": "source-equivalence",
+      "authority": "Generated tested-to-release commit comparison",
+      "verification": "generated"
+    },
+    {
+      "path": "release-evidence/powershell-syntax.json",
+      "role": "syntax-evidence",
+      "authority": "Generated Windows PowerShell 5.1 parser results",
+      "verification": "generated"
+    },
+    {
+      "path": "release-evidence/evidence-manifest.json",
+      "role": "release-evidence-manifest",
+      "authority": "Generated checksums and provenance for release evidence",
+      "verification": "generated"
+    },
+    {
+      "path": "tests/test-document-register.py",
+      "role": "document-register-tests",
+      "authority": "Regression tests for controlled document inventory",
+      "verification": "required"
+    },
+    {
+      "path": "info/test-results.pdf",
+      "role": "production-test-results-report",
+      "authority": "DevStan R08 production report generated from verified acceptance JSON",
+      "verification": "generated",
+      "purpose": "Human-readable production acceptance results"
+    },
+    {
+      "path": "info/test-evidence.pdf",
+      "role": "production-test-evidence-report",
+      "authority": "DevStan R08 production report generated from verified acceptance JSON",
+      "verification": "generated",
+      "purpose": "Human-readable production supporting test evidence"
+    },
+    {
+      "path": "info/traceability.xlsx",
+      "role": "traceability-workbook",
+      "authority": "DevStan R08 release-generated FR, AT and Devstan traceability evidence",
+      "verification": "generated",
+      "purpose": "Excel FR, AT and Devstan traceability evidence"
+    },
+    {
+      "path": "info/test-coverage.pdf",
+      "role": "production-code-coverage-report",
+      "authority": "DevStan R08 production report generated from verified acceptance code coverage JSON",
+      "verification": "generated",
+      "purpose": "Human-readable production code coverage report"
+    },
+    {
+      "path": "tests/results/code-coverage.json",
+      "role": "acceptance-code-coverage",
+      "authority": "Machine-readable measured and unmeasured code coverage from extracted acceptance ZIP",
+      "verification": "conditional"
+    },
+    {
+      "path": "config/central-standards.json",
+      "role": "central-standard-pin",
+      "authority": "Exact approved private central standards commit and document paths",
+      "verification": "required"
+    },
+    {
+      "path": "scripts/fetch-central-docs.py",
+      "role": "central-standard-retrieval",
+      "authority": "Fail-closed authenticated retrieval and Git blob integrity verification",
+      "verification": "required"
+    }
+  ],
+  "version_authorities": [
+    {
+      "version_type": "application",
+      "path": "traceability.json"
+    },
+    {
+      "version_type": "release",
+      "path": "traceability.json"
+    }
+  ]
+}

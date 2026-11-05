@@ -1,0 +1,77 @@
+name: Virtual Admin Preflight
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Retrieve pinned central DevStan and Python defect register
+        shell: pwsh
+        env:
+          STANDARDS_READ_TOKEN: ${{ secrets.STANDARDS_READ_TOKEN }}
+        run: |
+          python scripts/fetch-central-docs.py
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned central standards unavailable or invalid' }
+      - name: Invalidate stale acceptance evidence in preflight workspace
+        shell: pwsh
+        run: |
+          python scripts/acceptance-evidence-freshness.py --clean-stale-workspace
+          if ($LASTEXITCODE -ne 0) { throw 'Acceptance evidence freshness check failed' }
+      - name: Install workflow validation dependency
+        shell: pwsh
+        run: |
+          python -m pip install PyYAML
+          if ($LASTEXITCODE -ne 0) { throw 'PyYAML installation failed' }
+      - name: Validate workflow YAML, Python syntax, regression and evidence
+        shell: pwsh
+        run: |
+          python scripts/preflight.py
+          if ($LASTEXITCODE -ne 0) { throw 'Preflight validation failed' }
+      - name: Validate Windows PowerShell 5.1 syntax and record evidence
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($PSVersionTable.PSVersion.Major -ne 5 -or $PSVersionTable.PSVersion.Minor -ne 1) { throw 'Windows PowerShell 5.1 required' }
+          $paths = @(Get-ChildItem -Path 'src','tests','scripts' -Recurse -File -Filter '*.ps1')
+          if ($paths.Count -eq 0) { throw 'No PowerShell scripts found' }
+          $records = @()
+          foreach ($file in $paths) {
+            $tokens = $null
+            $parseErrors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($file.FullName, [ref]$tokens, [ref]$parseErrors)
+            $bytes = [IO.File]::ReadAllBytes($file.FullName)
+            $bom = $bytes.Length -ge 3 -and $bytes[0] -eq 239 -and $bytes[1] -eq 187 -and $bytes[2] -eq 191
+            $nonAscii = @($bytes | Where-Object { $_ -ge 128 }).Count -gt 0
+            $valid = ($parseErrors.Count -eq 0 -and (-not $nonAscii -or $bom))
+            $records += [pscustomobject]@{path=$file.FullName;result=$(if($valid){"PASS"}else{"FAIL"});encoding_compatible=(-not $nonAscii -or $bom);errors=@($parseErrors | ForEach-Object { $_.ToString() })}
+            if (-not $valid) {
+              foreach ($problem in @($parseErrors)) { Write-Host ("Parser error: " + $problem.ToString()) }
+              if ($nonAscii -and -not $bom) { Write-Host "Windows PowerShell 5.1 encoding requires UTF-8 BOM for non-ASCII source" }
+              throw "PowerShell syntax or Windows PowerShell 5.1 encoding error: $($file.FullName)"
+            }
+          }
+          New-Item -ItemType Directory -Path 'release-evidence' -Force | Out-Null
+          $report = [ordered]@{application='virtual-admin';source_commit='${{ github.sha }}';powershell_version=$PSVersionTable.PSVersion.ToString();timestamp_utc=(Get-Date).ToUniversalTime().ToString('o');scripts=$records}
+          $report | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath 'release-evidence/powershell-syntax.json' -Encoding UTF8
+      - name: Record preflight evidence
+        shell: pwsh
+        run: python scripts/record-preflight.py
+      - name: Upload preflight verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: virtual-admin-preflight-evidence
+          path: |
+            release-evidence/powershell-syntax.json
+            release-evidence/regression-results.json
+            release-evidence/preflight-results.json
+          if-no-files-found: warn

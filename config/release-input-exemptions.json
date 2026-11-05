@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "evidence_paths": [
+    "tests/results/acceptance-results.json",
+    "tests/results/code-coverage.json"
+  ],
+  "editorial_paths": [
+    "README.md"
+  ]
+}
