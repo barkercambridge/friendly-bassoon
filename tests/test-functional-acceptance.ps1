@@ -320,12 +320,25 @@ try {
  $record=[ordered]@{application='virtual-admin';version=$evidenceVersion;source_commit=$sourceCommit;release_input_fingerprint=$buildMetadata.release_input_fingerprint;acceptance_zip_sha256=$packageSha256;run_id=$run;timestamp_utc=(Get-Date).ToUniversalTime().ToString('o');computer=$env:COMPUTERNAME;operating_system=[Environment]::OSVersion.VersionString;powershell=$PSVersionTable.PSVersion.ToString();word_version=$wordVersion;engine_path=$EnginePath;passed=$pass;failed=$fail;blocked=$blocked;tests=@($results.ToArray())}
  try {
   & (Join-Path $PSScriptRoot 'compile-code-coverage.ps1') -PackageRoot $packageRoot -ResultsDirectory $ResultsDirectory -CoverageDirectory $coverageDirectory -Version $evidenceVersion -SourceCommit $sourceCommit -AcceptanceZipSha256 $packageSha256
+  $coverageDiagnostics=Get-Content -LiteralPath (Join-Path $ResultsDirectory 'coverage-diagnostics.json') -Raw | ConvertFrom-Json
+  if($coverageDiagnostics.status -ne 'PASS'){
+   Write-Warning 'Coverage measurement failed; see coverage-diagnostics.json'
+   $fail++
+   $record.failed=$fail
+  }
  } catch {
   Write-Warning ("Coverage collection failed: "+$_.Exception.Message)
   $fail++
   $record.failed=$fail
  }
- if(Test-Path -LiteralPath $coverageDirectory){Remove-Item -LiteralPath $coverageDirectory -Recurse -Force -ErrorAction SilentlyContinue}
+ if(Test-Path -LiteralPath $coverageDirectory){
+  if($fail -gt 0){
+   $diagnosticHits=Join-Path $ResultsDirectory 'coverage-hit-files'
+   New-Item -ItemType Directory -Path $diagnosticHits -Force | Out-Null
+   Copy-Item -Path (Join-Path $coverageDirectory '*.hits') -Destination $diagnosticHits -ErrorAction SilentlyContinue
+  }
+  Remove-Item -LiteralPath $coverageDirectory -Recurse -Force -ErrorAction SilentlyContinue
+ }
  $base=Join-Path $ResultsDirectory 'acceptance-results'
  $record|ConvertTo-Json -Depth 8|Set-Content -LiteralPath ($base+'.json') -Encoding UTF8
  Write-Host "Evidence: $base.json"
