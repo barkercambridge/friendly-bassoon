@@ -127,6 +127,7 @@ try {
  $launcher=Join-Path $packageRoot 'run-virtual-admin.bat'
  $launchContent=Get-Content -LiteralPath $launcher -Raw
  Assert ($launchContent -match '%~dp0\*\.dotx' -and $launchContent -match '%~dp0\*\.docx' -and $launchContent -match '/on') 'Launcher must select first alphabetically sorted DOTX and DOCX'
+ Assert ($launchContent.Contains('-LauncherDirectory "%%~dp0."'.Replace('%%','%'))) 'Launcher must pass archive directory without a trailing backslash before the closing quote'
  Record 'AT-007' 'PASS' 'Launcher selects first alphabetically sorted DOTX and DOCX beside launcher (Word execution not checked)'
  $launcherDir=Join-Path $work 'launcher-negative'
  New-Item -ItemType Directory -Force -Path $launcherDir | Out-Null
