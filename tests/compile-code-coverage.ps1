@@ -20,6 +20,8 @@ foreach($relative in $files){
   $executable=@($ast.FindAll({param($node) $node -is [System.Management.Automation.Language.StatementAst]},$true) |
     ForEach-Object {$_.Extent.StartLineNumber} | Sort-Object -Unique)
   $observed=@()
+  $hitFiles=@()
+  $invalidHits=@()
   if($relative -in @('src/compare-formatting.ps1','src/archive-previous-outputs.ps1')){
    foreach($file in @(Get-ChildItem -LiteralPath $CoverageDirectory -Filter $(if($relative -eq 'src/compare-formatting.ps1'){'engine-*.hits'}else{'archive-*.hits'}) -File -ErrorAction SilentlyContinue)){
     $observed+=@(Get-Content -LiteralPath $file.FullName | Where-Object {$_ -match '^\d+$'} | ForEach-Object {[int]$_})
@@ -27,7 +29,7 @@ foreach($relative in $files){
   }
   $hit=@($executable | Where-Object {$_ -in $observed})
   $miss=@($executable | Where-Object {$_ -notin $observed})
-  $records+=@{path=$relative;sha256=$hash;measurement=$(if($relative -in @('src/compare-formatting.ps1','src/archive-previous-outputs.ps1') -and $observed.Count -gt 0){'MEASURED'}else{'NOT MEASURED'});executable_lines=@($executable);covered_lines=@($hit);uncovered_lines=@($miss);coverage_percentage=$(if($executable.Count -gt 0){[math]::Round(100.0*$hit.Count/$executable.Count,2)}else{$null});excluded=$false}
+  $records+=@{path=$relative;sha256=$hash;diagnostic_reason=$reason;hit_file_count=$hitFiles.Count;invalid_hit_count=$invalidHits.Count;measurement=$(if($relative -in @('src/compare-formatting.ps1','src/archive-previous-outputs.ps1') -and $observed.Count -gt 0 -and $invalidHits.Count -eq 0){'MEASURED'}else{'NOT MEASURED'});executable_lines=@($executable);covered_lines=@($hit);uncovered_lines=@($miss);coverage_percentage=$(if($executable.Count -gt 0){[math]::Round(100.0*$hit.Count/$executable.Count,2)}else{$null});excluded=$false}
  } else {
   $records+=@{path=$relative;sha256=$hash;measurement='NOT MEASURED';reason='Batch launcher execution coverage instrumentation not available';executable_lines=@();covered_lines=@();uncovered_lines=@();coverage_percentage=$null;excluded=$true}
  }
@@ -43,4 +45,6 @@ $report=[ordered]@{
  files=@($records)
 }
 $report | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath (Join-Path $ResultsDirectory 'code-coverage.json') -Encoding UTF8
+$diagnostics=[ordered]@{timestamp_utc=(Get-Date).ToUniversalTime().ToString('o');source_commit=$SourceCommit;status=$(if(@($records | Where-Object {-not $_.excluded -and $_.measurement -ne 'MEASURED'}).Count -eq 0){'PASS'}else{'FAIL'});files=@($records | Where-Object {-not $_.excluded} | ForEach-Object {@{path=$_.path;measurement=$_.measurement;reason=$_.diagnostic_reason;hit_file_count=$_.hit_file_count;invalid_hit_count=$_.invalid_hit_count}})}
+$diagnostics | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $ResultsDirectory 'coverage-diagnostics.json') -Encoding UTF8
 Write-Host "Coverage: $(@($records | Where-Object {$_.measurement -eq 'MEASURED'}).Count) measured files; $(@($records | Where-Object {$_.measurement -ne 'MEASURED'}).Count) unmeasured files."
