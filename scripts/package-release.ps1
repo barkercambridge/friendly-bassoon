@@ -19,7 +19,16 @@ if (-not (Test-Path -LiteralPath $traceabilityPath -PathType Leaf)) {
     throw 'Authoritative traceability.json is missing.'
 }
 $authoritativeVersion = [string]((Get-Content -LiteralPath $traceabilityPath -Raw | ConvertFrom-Json).version)
-if ($authoritativeVersion -cnotmatch '^(0|[1-9][0-9]*)[.](0|[1-9][0-9]*)
+if ($authoritativeVersion -cnotmatch '^(0|[1-9][0-9]*)[.](0|[1-9][0-9]*)$') {
+    throw 'Invalid application version in traceability.json.'
+}
+if ([string]::IsNullOrWhiteSpace($Version)) {
+    $Version = $authoritativeVersion
+}
+elseif ($Version -cne $authoritativeVersion) {
+    throw "Package version $Version does not match authoritative traceability.json version $authoritativeVersion."
+}
+
 $checkedOutCommit = (& git rev-parse HEAD).Trim()
 if ($LASTEXITCODE -ne 0 -or $checkedOutCommit -cne $Commit) {
     throw 'Package source commit does not match the checked-out Git commit.'
