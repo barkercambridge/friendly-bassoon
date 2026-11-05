@@ -18,6 +18,35 @@ if(@($parseErrors).Count -gt 0){throw 'Cannot instrument invalid PowerShell sour
 $lines=@($ast.FindAll({param($node) $node -is [System.Management.Automation.Language.StatementAst]},$true) |
  ForEach-Object {$_.Extent.StartLineNumber} | Sort-Object -Unique)
 if($lines.Count -eq 0){throw 'No executable statements identified'}
+# Verify breakpoint callbacks in the same Windows PowerShell process before measuring released code.
+$probe=Join-Path $CoverageDirectory ('coverage-probe-'+[guid]::NewGuid().ToString('N')+'.ps1')
+$probeHits=Join-Path $CoverageDirectory ('coverage-probe-'+[guid]::NewGuid().ToString('N')+'.hits')
+[IO.File]::WriteAllText($probe, '$coverageProbeValue = 1' + [Environment]::NewLine)
+$probeBreakpoint=$null
+try {
+ $probeBreakpoint=Set-PSBreakpoint -Script $probe -Line 1 -Action {
+  [IO.File]::AppendAllText($probeHits, '1'+[Environment]::NewLine)
+ }
+ & $probe
+ if(-not (Test-Path -LiteralPath $probeHits) -or -not ((Get-Content -LiteralPath $probeHits -Raw) -match '(?m)^1\s*
+ foreach($line in $lines){
+  $breakpoints+=Set-PSBreakpoint -Script $engine -Line $line -Action {
+   [System.IO.File]::AppendAllText($env:VA_COVERAGE_HITS,([string]$PSDebugContext.Breakpoint.Line+[Environment]::NewLine))
+  }
+ }
+ if($LauncherDirectory){$arguments=@{LauncherDirectory=$LauncherDirectory}}else{$arguments=@{TemplatePath=$TemplatePath;DocumentPath=$DocumentPath}}
+ if($SpecificationPath){$arguments.SpecificationPath=$SpecificationPath}
+ & $engine @arguments
+} finally {
+ if($breakpoints.Count -gt 0){$breakpoints | Remove-PSBreakpoint}
+}
+)) {
+  throw 'Coverage breakpoint self-test produced no numeric hit; instrumentation unavailable'
+ }
+} finally {
+ if($probeBreakpoint){$probeBreakpoint | Remove-PSBreakpoint}
+ Remove-Item -LiteralPath $probe,$probeHits -Force -ErrorAction SilentlyContinue
+}
 $breakpoints=@()
 try {
  foreach($line in $lines){
