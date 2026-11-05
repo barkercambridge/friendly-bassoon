@@ -1,0 +1,103 @@
+{
+  "application": "virtual-admin",
+  "version": "0.1",
+  "source_commit": "a2312e562897a5258676fdc30c6b4029dd77bc18",
+  "release_input_fingerprint": "2478d70999b18594748d8f25a52d47e32595e6508f94930faa3f30fab18e6535",
+  "acceptance_zip_sha256": "6ad5a72e7e7abbc471183de6dba51f0863ca7dcffacb9196f047f7a8efb69888",
+  "run_id": "20261105T145037113Z",
+  "timestamp_utc": "2026-11-05T14:51:30.0717615Z",
+  "computer": "T14S-T4409",
+  "operating_system": "Microsoft Windows NT 10.0.26300.0",
+  "powershell": "5.1.26100.9711",
+  "word_version": "16.0",
+  "engine_path": "C:\\Users\\barker.j.uk\\Desktop\\virtual-admin-acceptance-v0.1\\src\\compare-formatting.ps1",
+  "passed": 10,
+  "failed": 0,
+  "blocked": 0,
+  "tests": [
+    {
+      "test_id": "AT-011",
+      "requirements": [
+        "FR-012"
+      ],
+      "status": "PASS",
+      "details": "Extracted release has required subdirectories, PDF register in info/ and no other root-level files"
+    },
+    {
+      "test_id": "AT-007",
+      "requirements": [
+        "FR-002",
+        "FR-003"
+      ],
+      "status": "PASS",
+      "details": "Launcher selects first alphabetically sorted DOTX and DOCX beside launcher (Word execution not checked)"
+    },
+    {
+      "test_id": "AT-006",
+      "requirements": [
+        "FR-002",
+        "FR-003",
+        "FR-010"
+      ],
+      "status": "PASS",
+      "details": "Missing input combinations return nonzero with error"
+    },
+    {
+      "test_id": "AT-010",
+      "requirements": [
+        "FR-012"
+      ],
+      "status": "PASS",
+      "details": "All register entries aligned; deliberately mismatched description rejected"
+    },
+    {
+      "test_id": "AT-008",
+      "requirements": [
+        "FR-011"
+      ],
+      "status": "PASS",
+      "details": "Activity report retained detected formatting difference and failed-check diagnostic; inputs preserved"
+    },
+    {
+      "test_id": "AT-005",
+      "requirements": [
+        "FR-009"
+      ],
+      "status": "PASS",
+      "details": "Verified text difference and input integrity"
+    },
+    {
+      "test_id": "AT-002",
+      "requirements": [
+        "FR-004"
+      ],
+      "status": "PASS",
+      "details": "Font family, size, bold and italic differences highlighted; inputs preserved"
+    },
+    {
+      "test_id": "AT-003",
+      "requirements": [
+        "FR-006"
+      ],
+      "status": "PASS",
+      "details": "Engine overwrite refusal and launcher timestamped archival verified"
+    },
+    {
+      "test_id": "AT-001",
+      "requirements": [
+        "FR-001",
+        "FR-007"
+      ],
+      "status": "PASS",
+      "details": "Word COM and comparison engine ran"
+    },
+    {
+      "test_id": "AT-004",
+      "requirements": [
+        "FR-005"
+      ],
+      "status": "PASS",
+      "details": "Highlighted document and activity report generated and checked"
+    }
+  ]
+}
