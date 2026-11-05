@@ -162,7 +162,7 @@ try {
   $alignmentScript=Join-Path $PSScriptRoot 'test-format-checks-alignment.ps1'
   $pdfRegister=Join-Path $packageRoot 'info/formatting-checks.pdf'
   Assert (Test-Path -LiteralPath $alignmentScript) 'Alignment verifier script is missing'
-  $alignmentOutput=& powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $alignmentScript -JsonPath $specification -PDFPath $pdfRegister 2>&1
+  $alignmentOutput=& powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $alignmentScript -JsonPath $specification -PDFPath $pdfRegister -Version $buildMetadata.version 2>&1
   Assert ($LASTEXITCODE -eq 0) ('Matching JSON and PDF were rejected: '+($alignmentOutput|Out-String))
   $modified=Get-Content -LiteralPath $specification -Raw|ConvertFrom-Json
   $modified.checks[0].description=[string]$modified.checks[0].description+' - deliberate acceptance mismatch'
@@ -173,7 +173,7 @@ try {
   $priorErrorPreference=$ErrorActionPreference
   try {
    $ErrorActionPreference='Continue'
-   $rejected=& powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $alignmentScript -JsonPath $misaligned -PDFPath $pdfRegister 2>&1
+   $rejected=& powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $alignmentScript -JsonPath $misaligned -PDFPath $pdfRegister -Version $buildMetadata.version 2>&1
    $rejectedExitCode=$LASTEXITCODE
   } finally { $ErrorActionPreference=$priorErrorPreference }
   Assert ($rejectedExitCode -ne 0) 'Misaligned JSON and PDF were incorrectly accepted'
@@ -289,8 +289,8 @@ try {
   $oldFolder=Join-Path $archiveFixture 'old'
   $saved=@(Get-ChildItem -LiteralPath $oldFolder -File)
   Assert ($saved.Count -eq 2) 'Expected two archived documents'
-  Assert (@($saved | Where-Object { $_.Name -match '^sample-HIGHLIGHT-\d{8}-\d{9}(?:-\d+)?[.]docx$' }).Count -eq 1) 'Highlighted archive timestamp missing'
-  Assert (@($saved | Where-Object { $_.Name -match '^activity-\d{8}-\d{9}(?:-\d+)?[.]docx$' }).Count -eq 1) 'Activity archive timestamp missing'
+  Assert (@($saved | Where-Object { $_.Name -match '^sample-HIGHLIGHT-\d{8}-\d{6}-\d{3}(?:-\d+)?[.]docx$' }).Count -eq 1) 'Highlighted archive timestamp missing'
+  Assert (@($saved | Where-Object { $_.Name -match '^activity-\d{8}-\d{6}-\d{3}(?:-\d+)?[.]docx$' }).Count -eq 1) 'Activity archive timestamp missing'
   Assert (@($saved | Where-Object { (Get-Content -LiteralPath $_.FullName -Raw) -match 'previous' }).Count -eq 2) 'Archived content was altered'
   Record 'AT-003' 'PASS' 'Engine overwrite refusal and launcher timestamped archival verified'
  } catch {Record 'AT-003' 'FAIL' $_.Exception.Message}
