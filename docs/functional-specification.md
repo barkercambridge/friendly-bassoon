@@ -1,6 +1,6 @@
 # Functional Specification — virtual-admin
 
-**Application version:** `traceability.json` (0.1; new repository baseline)
+**Application version:** `traceability.json`
 **Document version:** See Section 10, Change history
 
 **Repository:** barkercambridge/friendly-bassoon  
