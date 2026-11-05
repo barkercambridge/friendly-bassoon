@@ -1,0 +1,21 @@
+{
+  "timestamp_utc": "2026-11-05T15:32:09.8721112Z",
+  "source_commit": "926578af62809fbbd2ec4ee0b6c924dc9da1cd14",
+  "status": "PASS",
+  "files": [
+    {
+      "hit_file_count": 7,
+      "path": "src/compare-formatting.ps1",
+      "measurement": "MEASURED",
+      "invalid_hit_count": 0,
+      "reason": null
+    },
+    {
+      "hit_file_count": 1,
+      "path": "src/archive-previous-outputs.ps1",
+      "measurement": "MEASURED",
+      "invalid_hit_count": 0,
+      "reason": null
+    }
+  ]
+}
