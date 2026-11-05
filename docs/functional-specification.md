@@ -1,9 +1,9 @@
 # Functional Specification — virtual-admin
 
-**Application version:** `traceability.json`
+**Application version:** `traceability.json` (0.1; new repository baseline)
 **Document version:** See Section 10, Change history
 
-**Repository:** barkercambridge/virtual-admin  
+**Repository:** barkercambridge/friendly-bassoon  
 **Governing development standard:** `docs/devstan.md`  
 **Status:** Functional requirements and acceptance criteria are defined here. Acceptance-test results are uploaded as machine-readable JSON to `tests/results/`; no separate test-results document is maintained.
 
