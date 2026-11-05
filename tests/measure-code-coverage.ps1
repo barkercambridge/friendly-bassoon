@@ -10,7 +10,8 @@ param(
 $ErrorActionPreference='Stop'
 $engine=(Resolve-Path -LiteralPath $EnginePath).Path
 New-Item -ItemType Directory -Path $CoverageDirectory -Force | Out-Null
-$env:VA_COVERAGE_HITS=Join-Path $CoverageDirectory ($(if($LauncherDirectory){'archive-'}else{'engine-'})+[guid]::NewGuid().ToString('N')+'.hits')
+$prefix=if($LauncherDirectory){'archive-'}else{'engine-'}
+$env:VA_COVERAGE_HITS=Join-Path $CoverageDirectory ($prefix+[guid]::NewGuid().ToString('N')+'.hits')
 $tokens=$null
 $parseErrors=$null
 $ast=[System.Management.Automation.Language.Parser]::ParseFile($engine,[ref]$tokens,[ref]$parseErrors)
@@ -19,7 +20,6 @@ $lines=@($ast.FindAll({param($node) $node -is [System.Management.Automation.Lang
  ForEach-Object {$_.Extent.StartLineNumber} | Sort-Object -Unique)
 if($lines.Count -eq 0){throw 'No executable statements identified'}
 
-# Check that breakpoint actions write numeric hit data before running the engine.
 $probe=Join-Path $CoverageDirectory ('coverage-probe-'+[guid]::NewGuid().ToString('N')+'.ps1')
 $env:VA_COVERAGE_PROBE_HITS=Join-Path $CoverageDirectory ('coverage-probe-'+[guid]::NewGuid().ToString('N')+'.hits')
 [IO.File]::WriteAllText($probe, '$coverageProbeValue = 1' + [Environment]::NewLine)
@@ -32,37 +32,37 @@ try {
  if(-not (Test-Path -LiteralPath $env:VA_COVERAGE_PROBE_HITS)){
   throw 'Coverage breakpoint self-test created no hit file'
  }
- if(-not ((Get-Content -LiteralPath $env:VA_COVERAGE_PROBE_HITS -Raw) -match '(?m)^1\s*$')){
-  throw 'Coverage breakpoint self-test produced no numeric hit'
- }
+ $probeLines=@(Get-Content -LiteralPath $env:VA_COVERAGE_PROBE_HITS)
+ if(-not ($probeLines -contains '1')){throw 'Coverage breakpoint self-test produced no numeric hit'}
 } finally {
  if($probeBreakpoint){$probeBreakpoint | Remove-PSBreakpoint}
  Remove-Item -LiteralPath $probe,$env:VA_COVERAGE_PROBE_HITS -Force -ErrorAction SilentlyContinue
  Remove-Item Env:VA_COVERAGE_PROBE_HITS -ErrorAction SilentlyContinue
 }
+
 $breakpoints=@()
 try {
  foreach($line in $lines){
-  # Embed the validated numeric line in the action instead of relying on debugger variables.
-  $action=[scriptblock]::Create('[IO.File]::AppendAllText($env:VA_COVERAGE_HITS, "'+[int]$line+'"+[Environment]::NewLine)')
+  $actionText='[IO.File]::AppendAllText($env:VA_COVERAGE_HITS, "'+[string][int]$line+'"+[Environment]::NewLine)'
+  $action=[scriptblock]::Create($actionText)
   $breakpoints+=Set-PSBreakpoint -Script $engine -Line $line -Action $action
  }
- # Fail immediately if instrumentation did not register any script breakpoints.
  if($breakpoints.Count -eq 0){throw 'No coverage breakpoints were registered'}
- if($LauncherDirectory){$arguments=@{LauncherDirectory=$LauncherDirectory}}else{$arguments=@{TemplatePath=$TemplatePath;DocumentPath=$DocumentPath}}
+ if($LauncherDirectory){
+  $arguments=@{LauncherDirectory=$LauncherDirectory}
+ } else {
+  $arguments=@{TemplatePath=$TemplatePath;DocumentPath=$DocumentPath}
+ }
  if($SpecificationPath){$arguments.SpecificationPath=$SpecificationPath}
  & $engine @arguments
- if(-not (Test-Path -LiteralPath $env:VA_COVERAGE_HITS)){throw 'Engine execution produced no coverage hit file'}
- $recorded=@(Get-Content -LiteralPath $env:VA_COVERAGE_HITS | Where-Object {$_ -match '^\d+
- if($breakpoints.Count -gt 0){$breakpoints | Remove-PSBreakpoint}
-}
-})
+ if(-not (Test-Path -LiteralPath $env:VA_COVERAGE_HITS)){
+  throw 'Engine execution produced no coverage hit file'
+ }
+ $recorded=@(Get-Content -LiteralPath $env:VA_COVERAGE_HITS | Where-Object {
+  $value=0
+  [int]::TryParse($_,[ref]$value)
+ })
  if($recorded.Count -eq 0){throw 'Engine execution produced no numeric coverage hits'}
-} finally {
- if($breakpoints.Count -gt 0){$breakpoints | Remove-PSBreakpoint}
-}  if(-not (Test-Path -LiteralPath $env:VA_COVERAGE_HITS)){throw 'Engine execution produced no coverage hit file'}
-  $recorded=@(Get-Content -LiteralPath $env:VA_COVERAGE_HITS | Where-Object {$_ -match '^[0-9]+$'})
-  if($recorded.Count -eq 0){throw 'Engine execution produced no numeric coverage hits'}
 } finally {
  if($breakpoints.Count -gt 0){$breakpoints | Remove-PSBreakpoint}
 }
