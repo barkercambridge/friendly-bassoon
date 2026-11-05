@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate release.pdf from Git commits since the preceding application version."""
+"""Generate release.pdf, including a new-repository baseline without prior versions."""
 import re
 import json
 import subprocess
@@ -48,22 +48,24 @@ def main():
         if candidate and candidate != current:
             previous, baseline = candidate, sha
             break
-    if not baseline:
-        raise SystemExit("Cannot identify a previous application version from Git history")
-    raw = git("log", "--reverse", "--no-merges", "--format=%h%x09%s", baseline + "..HEAD")
-    changes = [line.split("\t", 1) for line in raw.splitlines() if "\t" in line]
-    if not changes:
-        raise SystemExit("No changes since previous application version")
+    if baseline:
+        raw = git("log", "--reverse", "--no-merges", "--format=%h%x09%s", baseline + "..HEAD")
+        changes = [line.split("\t", 1) for line in raw.splitlines() if "\t" in line]
+        if not changes:
+            raise SystemExit("No changes since previous application version")
+    else:
+        # A clean repository has no earlier application version to compare.
+        changes = []
     styles = getSampleStyleSheet()
     styles.add(ParagraphStyle(name="ReleaseEntry", parent=styles["BodyText"], spaceAfter=7, leading=12))
     story = [
         Paragraph("Virtual Admin - Release changes", styles["Title"]),
         Paragraph(f"Current version: <b>{escape(current)}</b>", styles["BodyText"]),
-        Paragraph(f"Previous version: <b>{escape(previous)}</b>", styles["BodyText"]),
+        Paragraph(f"Previous version: <b>{escape(previous)}</b>" if baseline else "Baseline release: no earlier application version exists in this repository.", styles["BodyText"]),
         Paragraph(f"Release source: <b>{escape(git('rev-parse', '--short=12', 'HEAD'))}</b>", styles["BodyText"]),
         Spacer(1, 16),
-        Paragraph("Changes since the previous version", styles["Heading2"]),
-        Paragraph("The following entries are Git commit summaries, not acceptance-test results.", styles["BodyText"]),
+        Paragraph("Changes since the previous version" if baseline else "Initial repository baseline", styles["Heading2"]),
+        Paragraph("The following entries are Git commit summaries, not acceptance-test results." if baseline else "This repository starts with the current application snapshot. Historical releases and changes from the previous repository are not represented.", styles["BodyText"]),
         Spacer(1, 10),
     ]
     for sha, message in changes:
@@ -77,11 +79,11 @@ def main():
         canvas.setStrokeColor(colors.lightgrey)
         canvas.line(42, 35, 553, 35)
         canvas.setFont("Helvetica", 8)
-        canvas.drawString(42, 24, f"Virtual Admin {current} - changes since {previous}")
+        canvas.drawString(42, 24, f"Virtual Admin {current} - changes since {previous}" if baseline else f"Virtual Admin {current} - baseline release")
         canvas.drawRightString(553, 24, f"Page {document.page}")
         canvas.restoreState()
     doc.build(story, onFirstPage=footer, onLaterPages=footer)
-    print(f"Generated release.pdf: {previous} -> {current}, {len(changes)} commits")
+    print(f"Generated release.pdf: {previous} -> {current}, {len(changes)} commits" if baseline else f"Generated baseline release.pdf for v{current}")
 
 if __name__ == "__main__":
     main()
