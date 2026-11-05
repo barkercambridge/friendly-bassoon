@@ -154,6 +154,15 @@ class RegressionWorkflowTests(unittest.TestCase):
         self.assertIn('Historical or unexpected acceptance evidence found', preflight)
         self.assertNotIn('cleanup-test-results.py', preflight)
 
+    def test_clean_repository_release_notes_have_baseline_fallback(self):
+        notes = (ROOT / "scripts/build-release-notes.py").read_text(encoding="utf-8")
+        self.assertIn("if baseline:", notes)
+        self.assertIn("changes = []", notes)
+        self.assertIn("Baseline release: no earlier application version", notes)
+        self.assertNotIn('raise SystemExit("Cannot identify a previous application version from Git history")', notes)
+        import json
+        self.assertEqual(json.loads((ROOT / "traceability.json").read_text(encoding="utf-8"))["version"], "0.1")
+
     def test_release_pdf_is_production_only(self):
         package = (ROOT / "scripts/package-release.ps1").read_text(encoding="utf-8")
         archive = (ROOT / "tests/test-package-archive.ps1").read_text(encoding="utf-8")
