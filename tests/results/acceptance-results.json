@@ -1,17 +1,17 @@
 {
   "application": "virtual-admin",
-  "version": "0.1",
-  "source_commit": "921f457094db335f605d2153b53201528f16af74",
-  "release_input_fingerprint": "0c4ba85458cc49eacaf0262bd82ea1a93616f5dcd716dd7f69fea371fa3aed82",
-  "acceptance_zip_sha256": "6b272c50c2ab6b750857d855a7d053a61a677fb0c43a091ee95b9b018c188be0",
-  "run_id": "20261106T130720128Z",
-  "timestamp_utc": "2026-11-06T13:08:09.1400009Z",
+  "version": "0.2",
+  "source_commit": "79cee8b41b152f3548eb23d72118fde04bfec082",
+  "release_input_fingerprint": "ea29fbf130f18ab6e55d2239626bef0fdf24ab9a6b1a1cfae51c6cdb885bf0c0",
+  "acceptance_zip_sha256": "ad65a6b2c604869266a95ea36388f8790f4c0f6c08c7bafcfe39093c36fee703",
+  "run_id": "20261106T152207595Z",
+  "timestamp_utc": "2026-11-06T15:23:00.9560900Z",
   "computer": "T14S-T4409",
   "operating_system": "Microsoft Windows NT 10.0.26300.0",
   "powershell": "5.1.26100.9711",
   "word_version": "16.0",
-  "engine_path": "C:\\Users\\barker.j.uk\\Desktop\\virtual-admin-acceptance-v0.1\\src\\compare-formatting.ps1",
-  "passed": 10,
+  "engine_path": "C:\\Users\\barker.j.uk\\Desktop\\virtual-admin-acceptance-v0.2\\src\\compare-formatting.ps1",
+  "passed": 11,
   "failed": 0,
   "blocked": 0,
   "tests": [
@@ -99,6 +99,15 @@
       ],
       "status": "PASS",
       "details": "Highlighted document and activity report generated and checked"
+    },
+    {
+      "test_id": "AT-012",
+      "requirements": [
+        "FR-013",
+        "FR-014"
+      ],
+      "status": "PASS",
+      "details": "PowerShell 5.1 syntax/encoding, provenance and actual measured coverage verified"
     }
   ]
 }
