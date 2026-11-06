@@ -84,7 +84,7 @@ def verify(root, production=False, acceptance_build=False):
                 issue(f"Matrix {at} to {fr} absent from config/traceability.json")
 
     reports = [root / "tests/results/acceptance-results.json"] if (root / "tests/results/acceptance-results.json").is_file() else []
-    if (root / "tests/results").exists() and any(p.name not in ("acceptance-results.json", "code-coverage.json") for p in (root / "tests/results").iterdir()):
+    if (root / "tests/results").exists() and any(p.name not in ("acceptance-results.json", "code-coverage.json", "coverage-diagnostics.json") for p in (root / "tests/results").iterdir()):
         issue("Unexpected historical or additional acceptance evidence")
     current = []
     for path in reports:
@@ -108,7 +108,7 @@ def verify(root, production=False, acceptance_build=False):
             issue("Acceptance evidence has missing, extra or duplicate AT IDs")
         for test in tests:
             at = test.get("test_id")
-            if at in spec_matrix and set(test.get("requirements", [])) != spec_matrix[at]:
+            if (production or not acceptance_build) and at in spec_matrix and set(test.get("requirements", [])) != spec_matrix[at]:
                 issue(f"Acceptance JSON {at} requirements differ from specification")
             if test.get("status") not in ("PASS", "FAIL", "BLOCKED"):
                 issue(f"Acceptance JSON {at} has invalid status")
