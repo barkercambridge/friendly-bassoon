@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "repository": "barkercambridge/miniature-memory",
-  "commit": "78dc6c19b23ce2c8650a390f241f5475b2881833",
+  "commit": "711bec064f982ba47bd60ac2b641add3ff0d2d5d",
   "documents": [
     "docs/development-standards.md",
     "docs/python-defect-register.md",
-    "docs/document-register.json",
+    "docs/development-standards-register.json",
     "docs/development-defect-register.md"
   ],
-  "note": "Shared documents are materialized into the workflow workspace from this pinned private commit. The local docs/document-register.json remains the application-specific inventory; the central register is saved under external/miniature-memory/docs/document-register.json."
+  "note": "Shared documents are materialized from the pinned central commit. The application inventory remains docs/document-register.json; the central register is saved under external/miniature-memory/docs/development-standards-register.json."
 }
