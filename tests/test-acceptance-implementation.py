@@ -40,7 +40,7 @@ class ImplementationTests(unittest.TestCase):
         path = self.root / "tests/test-functional-acceptance.ps1"
         source = path.read_text(encoding="utf-8")
         self.assertIn("Record 'AT-012' 'PASS'", source)
-        path.write_text(source.replace("Record 'AT-012' 'PASS'", "Write-Host 'AT-012' 'PASS'"), encoding="utf-8")
+        path.write_text(source.replace("Record 'AT-012' 'PASS'", "Write-Host 'AT-012' 'PASS'").replace("Record 'AT-012' 'FAIL'", "Write-Host 'AT-012' 'FAIL'"), encoding="utf-8")
         self.assertTrue(any("AT-012" in x for x in module.verify(self.root)))
 
 if __name__ == "__main__":
