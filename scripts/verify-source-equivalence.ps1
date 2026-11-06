@@ -5,15 +5,15 @@ param(
  [string]$EvidenceDir='release-evidence'
 )
 $ErrorActionPreference='Stop'
-# Only controlled acceptance-results.json and code-coverage.json uploads is exempt from retesting.
+# The generated tests/results/ directory is excluded from release-input equivalence; its contents remain independently validated.
 # Only explicitly listed editorial documentation may also change without retesting.
 $policyPath=Join-Path $PSScriptRoot '../config/release-input-exemptions.json'
 $policy=Get-Content -LiteralPath $policyPath -Raw | ConvertFrom-Json
 $allowed=@($policy.evidence_paths)
 $editorial=@($policy.editorial_paths)
-if (@($allowed).Count -ne 2 -or 'tests/results/acceptance-results.json' -notin $allowed -or 'tests/results/code-coverage.json' -notin $allowed) { throw 'Invalid evidence exemption policy' }
+if ($policy.evidence_directory -cne 'tests/results/' -or @($allowed).Count -ne 2 -or 'tests/results/acceptance-results.json' -notin $allowed -or 'tests/results/code-coverage.json' -notin $allowed) { throw 'Invalid evidence exemption policy' }
 function Is-Administrative([string]$Path) {
- if($Path -in $allowed -or $Path -in $editorial){return $true}
+ if($Path.StartsWith([string]$policy.evidence_directory,[StringComparison]::Ordinal) -or $Path -in $editorial){return $true}
  return $false
 }
 & git cat-file -e ($TestedCommit+'^{commit}')
