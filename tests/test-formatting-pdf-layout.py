@@ -20,7 +20,7 @@ class PdfLayoutTests(unittest.TestCase):
 
     def test_release_version_uses_authoritative_traceability(self):
         source = (ROOT / "scripts/build-formatting-checks.py").read_text(encoding="utf-8")
-        self.assertIn('root / "traceability.json"', source)
+        self.assertIn('root / "config/traceability.json"', source)
         self.assertIn('Invalid application version in traceability.json', source)
         self.assertNotIn('Missing release version in functional specification', source)
         self.assertNotIn('**Version:**', source)
