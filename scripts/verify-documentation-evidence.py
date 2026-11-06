@@ -7,7 +7,6 @@ import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-REQUIRED = {f"AT-{i:03d}" for i in range(1, 9)} | {"AT-010", "AT-011"}
 SHA = re.compile(r"^[0-9a-f]{40}$")
 
 def verify(root, production=False, acceptance_build=False):
@@ -55,6 +54,38 @@ def verify(root, production=False, acceptance_build=False):
                              (row.get("status", "").lower() == "planned")):
             issue(f"{fr} planned/implemented status mismatch")
 
+    # FR-013, FR-015: Derive required test IDs and stages from traceability.
+    inventory = rtm.get("acceptance_tests", [])
+    if not isinstance(inventory, list) or not inventory:
+        issue("Authoritative acceptance test inventory missing")
+        inventory = []
+    inventory_by_id = {}
+    mapped_tests = {}
+    for fr, row in fr_rtm.items():
+        for test_id in row.get("tests", []):
+            mapped_tests.setdefault(test_id, set()).add(fr)
+    for entry in inventory:
+        if not isinstance(entry, dict):
+            issue("Invalid acceptance test inventory entry")
+            continue
+        test_id = entry.get("id")
+        if not isinstance(test_id, str) or not re.fullmatch(r"AT-\d{3}", test_id):
+            issue("Invalid acceptance test inventory ID")
+            continue
+        if test_id in inventory_by_id:
+            issue("Duplicate acceptance test inventory ID: " + test_id)
+        inventory_by_id[test_id] = entry
+        if (entry.get("status") not in ("required", "planned", "obsolete")
+                or entry.get("stage") not in ("Acceptance", "Production")
+                or not isinstance(entry.get("requirements"), list)
+                or set(entry["requirements"]) != mapped_tests.get(test_id, set())
+                or not entry.get("implementation") or not entry.get("verification")):
+            issue("Invalid acceptance test inventory mapping: " + test_id)
+    if set(inventory_by_id) != set(mapped_tests):
+        issue("Acceptance test inventory and FR mappings differ")
+    required = {test_id for test_id, row in inventory_by_id.items()
+                if row.get("status") == "required" and row.get("stage") == "Acceptance"}
+
     spec_matrix = {}
     section = spec.split("## 5. Acceptance test matrix", 1)
     if len(section) != 2:
@@ -69,11 +100,13 @@ def verify(root, production=False, acceptance_build=False):
                 spec_matrix[test_id] = set(re.findall(r"FR-\d{3}", cells[1]))
                 if re.match(r"^(PASS|FAIL|BLOCKED|NOT VERIFIED)\b", cells[3]):
                     issue("Test result stored in functional specification: " + cells[0])
-    if not REQUIRED.issubset(spec_matrix):
-        issue("Specification acceptance matrix omits mandatory tests")
+    if set(spec_matrix) != set(inventory_by_id):
+        issue("Specification acceptance matrix differs from authoritative inventory")
     pending_tests = set(re.findall(r"(?m)^\|\s*(AT-\d{3})\s*\[Pending\]", spec))
-    if set(spec_matrix) - REQUIRED != pending_tests:
-        issue("Additional acceptance matrix tests must be explicitly marked Pending")
+    expected_pending = {test_id for test_id, row in inventory_by_id.items()
+                        if row.get("status") == "planned" or row.get("stage") == "Production"}
+    if pending_tests != expected_pending:
+        issue("Pending matrix tests differ from non-Acceptance inventory entries")
     for fr, row in fr_rtm.items():
         for at in row.get("tests", []):
             if at not in spec_matrix or fr not in spec_matrix[at]:
@@ -104,7 +137,7 @@ def verify(root, production=False, acceptance_build=False):
             issue("Acceptance tests must be a list of records")
             tests = []
         ids = [t.get("test_id") for t in tests]
-        if set(ids) != REQUIRED or len(ids) != len(REQUIRED):
+        if set(ids) != required or len(ids) != len(required):
             issue("Acceptance evidence has missing, extra or duplicate AT IDs")
         for test in tests:
             at = test.get("test_id")
@@ -117,7 +150,7 @@ def verify(root, production=False, acceptance_build=False):
         if any(data.get(key) != counts[status] for key, status in
                (("passed", "PASS"), ("failed", "FAIL"), ("blocked", "BLOCKED"))):
             issue("Acceptance JSON totals do not match individual test statuses")
-        if production and counts != {"PASS": len(REQUIRED), "FAIL": 0, "BLOCKED": 0}:
+        if production and counts != {"PASS": len(required), "FAIL": 0, "BLOCKED": 0}:
             issue("Production requires all mandatory acceptance tests PASS")
 
 
