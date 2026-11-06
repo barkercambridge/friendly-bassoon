@@ -22,7 +22,10 @@ $results=New-Object 'System.Collections.Generic.List[object]'
 $word=$null
 $work=Join-Path ([IO.Path]::GetTempPath()) ('virtual-admin-test-'+[guid]::NewGuid().ToString('N'))
 $ids=@('AT-001','AT-002','AT-003','AT-004','AT-005','AT-006','AT-007','AT-008','AT-010','AT-011')
-$mapping=@{'AT-001'=@('FR-001','FR-007');'AT-002'=@('FR-004');'AT-003'=@('FR-006');'AT-004'=@('FR-005');'AT-005'=@('FR-009');'AT-006'=@('FR-002','FR-003','FR-010');'AT-007'=@('FR-002','FR-003');'AT-008'=@('FR-011');'AT-010'=@('FR-012');'AT-011'=@('FR-012')}
+$traceability=Get-Content -LiteralPath (Join-Path $packageRoot 'config\traceability.json') -Raw | ConvertFrom-Json
+$mapping=@{}
+foreach($requirement in $traceability.requirements){foreach($testId in @($requirement.tests)){if(-not $mapping.ContainsKey($testId)){$mapping[$testId]=@()};$mapping[$testId]+=[string]$requirement.id}}
+foreach($testId in $ids){if(-not $mapping.ContainsKey($testId)){throw "Mandatory acceptance test has no FR mapping: $testId"}}
 function Record([string]$id,[string]$status,[string]$detail) {
  $script:results.Add([pscustomobject]@{test_id=$id;requirements=@($script:mapping[$id]);status=$status;details=$detail})
 }
