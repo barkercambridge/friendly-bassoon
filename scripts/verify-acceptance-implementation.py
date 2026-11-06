@@ -6,7 +6,6 @@ import re
 
 ROOT = Path(__file__).resolve().parent.parent
 RECORD = re.compile(r"(?m)^\s*Record\s+['\"](AT-\d{3})['\"]\s+['\"](PASS|FAIL|BLOCKED)['\"]")
-DYNAMIC = re.compile(r"(?m)^\s*Record\s+\$id\s+['\"](PASS|FAIL|BLOCKED)['\"]")
 # A static path check is necessary but not sufficient: actual execution is independently
 # verified from the authoritative acceptance evidence by the production gate.
 def verify(root=ROOT):
@@ -26,6 +25,7 @@ def verify(root=ROOT):
     return errors
 
 if __name__ == "__main__":
-    for issue in verify():
+    issues = verify()
+    for issue in issues:
         print("FAIL:", issue)
-    raise SystemExit(bool(verify()))
+    raise SystemExit(bool(issues))
