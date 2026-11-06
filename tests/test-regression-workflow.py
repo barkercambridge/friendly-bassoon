@@ -161,7 +161,7 @@ class RegressionWorkflowTests(unittest.TestCase):
         self.assertIn("Baseline release: no earlier application version", notes)
         self.assertNotIn('raise SystemExit("Cannot identify a previous application version from Git history")', notes)
         import json
-        self.assertEqual(json.loads((ROOT / "traceability.json").read_text(encoding="utf-8"))["version"], "0.1")
+        self.assertEqual(json.loads((ROOT / "config/traceability.json").read_text(encoding="utf-8"))["version"], "0.1")
 
     def test_release_pdf_is_production_only(self):
         package = (ROOT / "scripts/package-release.ps1").read_text(encoding="utf-8")
@@ -243,7 +243,7 @@ class RegressionWorkflowTests(unittest.TestCase):
 
     def test_verifier_and_approval_use_current_governing_devstan_version(self):
         """Release evidence and approval must derive the same live Devstan version."""
-        devstan = (ROOT / "docs/devstan.md").read_text(encoding="utf-8")
+        devstan = (ROOT / "docs/development-standards.md").read_text(encoding="utf-8")
         self.assertRegex(devstan, r"(?m)^\| \d{4}-\d{2}-\d{2} \| v\d+\.\d+ \|")
         verifier = (ROOT / "scripts/verify-devstan.py").read_text(encoding="utf-8")
         approval = (ROOT / "scripts/record-production-approval.py").read_text(encoding="utf-8")
