@@ -39,6 +39,25 @@ def check(production=False):
     rtm = json.loads((ROOT / "config/traceability.json").read_text(encoding="utf-8-sig"))
     spec = (ROOT / "docs/functional-specification.md").read_text(encoding="utf-8-sig")
     mandatory = mandatory_acceptance(rtm)
+    inventory = rtm["acceptance_tests"]
+    inventory_ids = [row.get("id") for row in inventory]
+    if len(inventory_ids) != len(set(inventory_ids)):
+        raise ValueError("Duplicate acceptance test IDs")
+    mapping = {}
+    for req in rtm["requirements"]:
+        for test_id in req.get("tests", []):
+            mapping.setdefault(test_id, set()).add(req["id"])
+    for row in inventory:
+        test_id = row.get("id")
+        if (row.get("status") not in ("required", "planned", "obsolete")
+                or row.get("stage") not in ("Acceptance", "Production")
+                or not re.fullmatch(r"AT-\\d{3}", test_id or "")
+                or set(row.get("requirements", [])) != mapping.get(test_id, set())
+                or not row.get("implementation") or not (ROOT / row["implementation"]).is_file()
+                or not row.get("verification")):
+            raise ValueError("Invalid authoritative acceptance inventory entry: " + str(test_id))
+    if set(mapping) != set(inventory_ids):
+        raise ValueError("Acceptance inventory and FR mappings differ")
     checks = []
     def add(rule, passed, evidence, detail, pending=False):
         checks.append(dict(rule=f"R{rule:02d}", status="NOT VERIFIED" if pending else ("PASS" if passed else "FAIL"),
