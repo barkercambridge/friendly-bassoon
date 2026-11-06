@@ -114,6 +114,48 @@
         "AT-010",
         "AT-011"
       ]
+    },
+    {
+      "id": "FR-013",
+      "source": [
+        "tests/test-functional-acceptance.ps1",
+        "tests/measure-code-coverage.ps1"
+      ],
+      "tests": [
+        "AT-012"
+      ]
+    },
+    {
+      "id": "FR-014",
+      "source": [
+        "tests/measure-code-coverage.ps1",
+        "tests/compile-code-coverage.ps1"
+      ],
+      "tests": [
+        "AT-012"
+      ]
+    },
+    {
+      "id": "FR-015",
+      "source": [
+        "scripts/package-release.ps1",
+        ".github/workflows/release.yml"
+      ],
+      "tests": [
+        "AT-011",
+        "AT-013"
+      ]
+    },
+    {
+      "id": "FR-016",
+      "source": [
+        "scripts/build-release-notes.py",
+        "scripts/build-test-reports.py",
+        "scripts/build-traceability.py"
+      ],
+      "tests": [
+        "AT-013"
+      ]
     }
   ],
   "regression_suites": [
