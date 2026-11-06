@@ -24,6 +24,7 @@ def exemptions():
     return evidence, editorial
 
 EVIDENCE = {"acceptance-results.json", "code-coverage.json"}
+SUPPORTING_DIAGNOSTICS = {"coverage-diagnostics.json"}
 
 def git(*args):
     return subprocess.check_output(["git", *args], cwd=ROOT, text=True, stderr=subprocess.PIPE).strip()
@@ -46,9 +47,9 @@ def freshness():
     files = list(RESULTS.iterdir())
     if not files:
         return "ABSENT", "No acceptance evidence"
-    if any(not p.is_file() or p.name not in EVIDENCE for p in files):
+    if any(not p.is_file() or p.name not in (EVIDENCE | SUPPORTING_DIAGNOSTICS) for p in files):
         return "INVALID", "Unexpected results files"
-    if {p.name for p in files} != EVIDENCE:
+    if not EVIDENCE.issubset({p.name for p in files}):
         return "INVALID", "Incomplete evidence pair"
     try:
         acceptance = json.loads((RESULTS / "acceptance-results.json").read_text(encoding="utf-8-sig"))
