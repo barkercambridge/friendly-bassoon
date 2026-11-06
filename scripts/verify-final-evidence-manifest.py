@@ -20,7 +20,7 @@ def verify(root=ROOT):
     manifest = json.loads((root / "release-evidence/evidence-manifest.json").read_text(encoding="utf-8-sig"))
     approval = json.loads((root / "release-evidence/production-approval.json").read_text(encoding="utf-8-sig"))
     head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
-    version = json.loads((root / "traceability.json").read_text(encoding="utf-8-sig"))["version"]
+    version = json.loads((root / "config/traceability.json").read_text(encoding="utf-8-sig"))["version"]
     if manifest.get("edition") != "production" or manifest.get("source_commit") != head or manifest.get("version") != version or manifest.get("devstan_production_ready") is not True:
         errors.append("Manifest provenance or production gate invalid")
     if approval.get("approval_status") != "APPROVED" or approval.get("release_commit") != head or approval.get("version") != version:
