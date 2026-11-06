@@ -32,16 +32,16 @@ def verify(root, production=False, acceptance_build=False):
         issue("Specification governing Devstan source reference missing or invalid")
     elif not (root / standard_ref.group(1)).is_file():
         issue("Specification governing Devstan document missing")
-    if not re.search(r"(?m)^\*\*Application version:\*\* \x60traceability.json\x60\s*$", spec):
+    if not re.search(r"(?m)^\*\*Application version:\*\* \x60config/traceability.json\x60\s*$", spec):
         issue("Specification authoritative application version reference missing")
     if not re.search(r"(?m)^\*\*Document version:\*\* See Section 10, Change history\s*$", spec):
         issue("Specification document version history reference missing")
-    rtm = load("traceability.json")
+    rtm = load("config/traceability.json")
     if not isinstance(rtm, dict):
         return issues
     version = rtm.get("version")
     if not isinstance(version, str) or not re.fullmatch(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)", version):
-        issue("Invalid MAJOR.MINOR application release version in traceability.json")
+        issue("Invalid MAJOR.MINOR application release version in config/traceability.json")
     fr_spec = {}
     for match in re.finditer(r"(?m)^- \*\*(FR-\d{3}) \[([^]]+)\]\*\*", spec):
         if match.group(1) in fr_spec:
@@ -49,7 +49,7 @@ def verify(root, production=False, acceptance_build=False):
         fr_spec[match.group(1)] = match.group(2)
     fr_rtm = {r["id"]: r for r in rtm.get("requirements", []) if isinstance(r, dict) and "id" in r}
     if set(fr_spec) != set(fr_rtm) or len(fr_rtm) != len(rtm.get("requirements", [])):
-        issue("FR identifiers do not match traceability.json")
+        issue("FR identifiers do not match config/traceability.json")
     for fr, row in fr_rtm.items():
         if fr in fr_spec and (("planned" in fr_spec[fr].lower()) !=
                              (row.get("status", "").lower() == "planned")):
@@ -77,7 +77,7 @@ def verify(root, production=False, acceptance_build=False):
     for at, frs in spec_matrix.items():
         for fr in frs:
             if at not in fr_rtm.get(fr, {}).get("tests", []):
-                issue(f"Matrix {at} to {fr} absent from traceability.json")
+                issue(f"Matrix {at} to {fr} absent from config/traceability.json")
 
     reports = [root / "tests/results/acceptance-results.json"] if (root / "tests/results/acceptance-results.json").is_file() else []
     if (root / "tests/results").exists() and any(p.name not in ("acceptance-results.json", "code-coverage.json") for p in (root / "tests/results").iterdir()):
