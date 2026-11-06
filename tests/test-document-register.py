@@ -32,7 +32,7 @@ class DocumentRegisterTests(unittest.TestCase):
                 path.touch()
         spec = ROOT / "docs/functional-specification.md"
         shutil.copyfile(spec, self.root / "docs/functional-specification.md")
-        shutil.copyfile(ROOT / "docs/devstan.md", self.root / "docs/devstan.md")
+        shutil.copyfile(ROOT / "docs/development-standards.md", self.root / "docs/development-standards.md")
         shutil.copyfile(ROOT / "AGENTS.md", self.root / "AGENTS.md")
         shutil.copyfile(ROOT / "README.md", self.root / "README.md")
         for entry in self.register["documents"]:
@@ -89,17 +89,17 @@ class DocumentRegisterTests(unittest.TestCase):
         self.assertTrue(any("Invalid application/release version authority" in x for x in module.validate(self.root)))
 
     def test_missing_governing_document_fails(self):
-        (self.root / "docs/devstan.md").unlink()
+        (self.root / "docs/development-standards.md").unlink()
         self.assertTrue(any("Missing required document" in x for x in module.validate(self.root)))
 
     def test_missing_governing_source_reference_fails(self):
         path = self.root / "AGENTS.md"
-        path.write_text(path.read_text().replace("docs/devstan.md", "docs/other-standard.md"))
+        path.write_text(path.read_text().replace("docs/development-standards.md", "docs/other-standard.md"))
         self.assertTrue(any("Missing authoritative Devstan reference: AGENTS.md" in x for x in module.validate(self.root)))
 
     def test_missing_readme_governing_reference_fails(self):
         path = self.root / "README.md"
-        path.write_text(path.read_text().replace("docs/devstan.md", "docs/other-standard.md"))
+        path.write_text(path.read_text().replace("docs/development-standards.md", "docs/other-standard.md"))
         self.assertTrue(any("Missing authoritative Devstan reference: README.md" in x for x in module.validate(self.root)))
 
     def test_missing_application_version_source_fails(self):
