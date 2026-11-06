@@ -275,6 +275,35 @@ class RegressionWorkflowTests(unittest.TestCase):
         self.assertIn("$entries[0].invalid_hit_count -ne 0", verifier)
         self.assertIn("$c.release_input_fingerprint -cne $e.release_input_fingerprint", verifier)
 
+    def test_report_and_approval_use_authoritative_acceptance_inventory(self):
+        import importlib.util
+        import json
+        import tempfile
+        from unittest.mock import patch
+        scripts = ("build-test-reports", "record-production-approval")
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "config").mkdir()
+            inventory = {"acceptance_tests": [
+                {"id": "AT-101", "stage": "Acceptance", "status": "required"},
+                {"id": "AT-102", "stage": "Acceptance", "status": "required"},
+                {"id": "AT-999", "stage": "Production", "status": "required"}]}
+            (root / "config/traceability.json").write_text(json.dumps(inventory), encoding="utf-8")
+            for name in scripts:
+                spec = importlib.util.spec_from_file_location(name.replace("-", "_"), ROOT / "scripts" / (name + ".py"))
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                with patch.object(module, "ROOT", root):
+                    self.assertEqual(module.required_acceptance_ids(), {"AT-101", "AT-102"})
+                    inventory["acceptance_tests"].append({"id": "AT-103", "stage": "Acceptance", "status": "required"})
+                    (root / "config/traceability.json").write_text(json.dumps(inventory), encoding="utf-8")
+                    self.assertEqual(module.required_acceptance_ids(), {"AT-101", "AT-102", "AT-103"})
+                    inventory["acceptance_tests"].append({"id": "AT-103", "stage": "Acceptance", "status": "required"})
+                    (root / "config/traceability.json").write_text(json.dumps(inventory), encoding="utf-8")
+                    with self.assertRaises(ValueError):
+                        module.required_acceptance_ids()
+                    inventory["acceptance_tests"] = inventory["acceptance_tests"][:3]
+
     def test_production_approval_records_per_rule_evidence(self):
         approval = (ROOT / "scripts/record-production-approval.py").read_text(encoding="utf-8")
         verifier = (ROOT / "scripts/verify-final-evidence-manifest.py").read_text(encoding="utf-8")
