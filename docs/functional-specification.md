@@ -61,8 +61,8 @@ The required Acceptance and Production test inventory, stage, implementation and
 | AT-010 | FR-012 | Compare every check in the generated PDF report with JSON, including disabled checks and Enabled Y/blank mapping, and verify release version; deliberately alter a check description and confirm mismatch rejection | Read uploaded JSON in `tests/results/` |
 | AT-011 | FR-012, FR-015 | Check the extracted acceptance package contains the PDF report, required files and only batch launchers at its root; the release packaging scripts additionally validate ZIP contents before checksumming | Read uploaded JSON in `tests/results/` |
 
-| AT-012 [Implemented; verification pending] | FR-013, FR-014 | Verify supported Windows syntax/runtime, acceptance JSON provenance, measured execution and diagnostic separation | Read uploaded JSON in `tests/results/` |
-| AT-013 [Pending Production verification] | FR-015, FR-016 | Verify acceptance/production ZIP contents, initial-baseline release report, production-only reports and manifest hashes | Read release verification evidence |
+| AT-012 | FR-013, FR-014 | Verify supported Windows syntax/runtime, acceptance JSON provenance, measured execution and diagnostic separation | Read uploaded JSON in `tests/results/` |
+| AT-013 [Pending] | FR-015, FR-016 | Verify acceptance/production ZIP contents, initial-baseline release report, production-only reports and manifest hashes | Read release verification evidence |
 
 ## 6. Installation and upgrade
 Download or clone repository, install desktop Microsoft Word, and double-click run-virtual-admin.bat in an interactive Windows desktop session. By default, the launcher selects the first `.dotx` and first `.docx` file in alphabetical filename order alongside it. PowerShell script accepts alternative paths. Upgrades replace scripts while retaining documents and reports. FR-006 archives existing outputs on subsequent runs.
