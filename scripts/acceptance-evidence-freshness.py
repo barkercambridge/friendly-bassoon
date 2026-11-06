@@ -19,6 +19,8 @@ def exemptions():
     editorial = set(policy["editorial_paths"])
     if evidence != {"tests/results/acceptance-results.json", "tests/results/code-coverage.json"}:
         raise ValueError("Unexpected authoritative evidence exemptions")
+    if policy.get("evidence_directory") != "tests/results/":
+        raise ValueError("Invalid generated-evidence directory exemption")
     if evidence & editorial or any(p.startswith("tests/results/") for p in editorial):
         raise ValueError("Invalid editorial exemptions")
     return evidence, editorial
@@ -34,7 +36,7 @@ def fingerprint(commit):
     entries = []
     for line in git("ls-tree", "-r", "--full-tree", commit).splitlines():
         metadata, path = line.split("\t", 1)
-        if path in evidence or path in editorial:
+        if path.startswith("tests/results/") or path in editorial:
             continue
         entries.append(path + "\t" + metadata)
     return hashlib.sha256("\n".join(entries).encode()).hexdigest()
