@@ -62,12 +62,13 @@ class RegressionWorkflowTests(unittest.TestCase):
             (module.RESULTS / "code-coverage.json").unlink()
             self.assertEqual(module.freshness()[0], "INVALID")
 
-    def test_unexpected_results_file_changes_fingerprint(self):
+    def test_generated_results_directory_does_not_change_fingerprint(self):
         import importlib.util
         import subprocess
         import tempfile
         import json
         policy = json.loads((ROOT / "config/release-input-exemptions.json").read_text())
+        self.assertEqual(policy["evidence_directory"], "tests/results/")
         self.assertEqual(set(policy["evidence_paths"]), {"tests/results/acceptance-results.json", "tests/results/code-coverage.json"})
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -90,6 +91,14 @@ class RegressionWorkflowTests(unittest.TestCase):
             (root / "tests/results/extra.json").write_text("{}")
             git("add", ".")
             git("commit", "-qm", "extra")
+            self.assertEqual(before, module.fingerprint(git("rev-parse", "HEAD")))
+            (root / "tests/results/extra.json").write_text('{"new":true}')
+            git("add", ".")
+            git("commit", "-qm", "updated diagnostics")
+            self.assertEqual(before, module.fingerprint(git("rev-parse", "HEAD")))
+            (root / "src/app.ps1").write_text("changed")
+            git("add", ".")
+            git("commit", "-qm", "controlled input")
             self.assertNotEqual(before, module.fingerprint(git("rev-parse", "HEAD")))
 
     def test_regression_step_only_writes_run_artifacts(self):
@@ -143,7 +152,7 @@ class RegressionWorkflowTests(unittest.TestCase):
     def test_source_equivalence_allows_only_current_acceptance_upload(self):
         policy = (ROOT / "scripts/verify-source-equivalence.ps1").read_text(encoding="utf-8")
         self.assertIn("$allowed=@($policy.evidence_paths)", policy)
-        self.assertNotIn("if($Path -like 'tests/results/*')", policy)
+        self.assertIn("$Path.StartsWith([string]$policy.evidence_directory", policy)
         self.assertNotIn("if($Path -like '.github/workflows/*')", policy)
         self.assertIn("$editorial=@($policy.editorial_paths)", policy)
         self.assertIn("if(-not $administrative){$invalid+=$path}", policy)
