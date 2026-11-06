@@ -4,10 +4,10 @@
 **Document version:** See Section 10, Change history
 
 **Repository:** barkercambridge/friendly-bassoon  
-**Governing development standard:** `docs/development-standard.md`  
+**Governing development standard:** `docs/development-standards.md`  
 **Status:** Functional requirements and acceptance criteria are defined here. Acceptance-test results are uploaded as machine-readable JSON to `tests/results/`; no separate test-results document is maintained.
 
-This specification is the authoritative source for application-specific packaging, testing, reporting, runtime, file structure and deliverable requirements. The central Development Standards govern common development, verification, evidence integrity, approval and release controls. The `docs/development-standard.md` path is a verified runtime copy retrieved from private `barkercambridge/miniature-memory` at the exact commit pinned in `config/central-standards.json`; it is not maintained independently in this repository.
+This specification is the authoritative source for application-specific packaging, testing, reporting, runtime, file structure and deliverable requirements. The central Development Standards govern common development, verification, evidence integrity, approval and release controls. The `docs/development-standards.md` path is a verified runtime copy retrieved from private `barkercambridge/miniature-memory` at the exact commit pinned in `config/central-standards.json`; it is not maintained independently in this repository.
 
 
 
