@@ -6,5 +6,6 @@
   ],
   "editorial_paths": [
     "README.md"
-  ]
+  ],
+  "evidence_directory": "tests/results/"
 }
