@@ -28,7 +28,7 @@ def git_sha():
         return None
 
 def check(production=False):
-    rtm = json.loads((ROOT / "traceability.json").read_text(encoding="utf-8-sig"))
+    rtm = json.loads((ROOT / "config/traceability.json").read_text(encoding="utf-8-sig"))
     spec = (ROOT / "docs/functional-specification.md").read_text(encoding="utf-8-sig")
     checks = []
     def add(rule, passed, evidence, detail, pending=False):
@@ -74,7 +74,7 @@ def check(production=False):
         preflight_ok = preflight_ok and summary.get("source_commit") == head and summary.get("status") == "PASS" and len(summary.get("checks", [])) >= 4 and all(x.get("status") == "PASS" and x.get("evidence") for x in summary["checks"])
     except (OSError, ValueError, TypeError, KeyError):
         preflight_ok = False
-    add(2, fr_ok and preflight_ok, "traceability.json;docs/functional-specification.md;"
+    add(2, fr_ok and preflight_ok, "config/traceability.json;docs/functional-specification.md;"
         "release-evidence/regression-results.json;release-evidence/powershell-syntax.json",
         "FR identifiers and current preflight regression/syntax evidence verified" if fr_ok and preflight_ok
         else "FR or current preflight evidence incomplete",
@@ -160,7 +160,7 @@ def check(production=False):
     trace_ok = fr_ok and all(mappings) and not missing_comments and (coverage_ok if production else True)
     detail = ("Implemented FR source/AT mappings and FR-linked source comments" if trace_ok
               else "Missing mappings or FR comments: " + "; ".join(missing_comments or ["source/AT mapping invalid"]))
-    add(4, trace_ok, "traceability.json;mapped source-code comments;tests/results/code-coverage.json",
+    add(4, trace_ok, "config/traceability.json;mapped source-code comments;tests/results/code-coverage.json",
         detail if trace_ok else detail + ("; code coverage missing or invalid" if production and not coverage_ok else ""))
 
     # Select the most recent complete original evidence, never a historical approval row.
