@@ -51,7 +51,7 @@ def check(production=False):
         test_id = row.get("id")
         if (row.get("status") not in ("required", "planned", "obsolete")
                 or row.get("stage") not in ("Acceptance", "Production")
-                or not re.fullmatch(r"AT-\\d{3}", test_id or "")
+                or not re.fullmatch(r"AT-\d{3}", test_id or "")
                 or set(row.get("requirements", [])) != mapping.get(test_id, set())
                 or not row.get("implementation") or not (ROOT / row["implementation"]).is_file()
                 or not row.get("verification")):
