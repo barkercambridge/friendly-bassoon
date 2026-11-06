@@ -9,12 +9,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--edition", choices=("production",), required=True)
 args = parser.parse_args()
 root = Path(__file__).resolve().parent.parent
-devstan_text = (root / "docs/devstan.md").read_text(encoding="utf-8-sig")
+devstan_text = (root / "docs/development-standards.md").read_text(encoding="utf-8-sig")
 match = re.search(r"(?m)^\| \d{4}-\d{2}-\d{2} \| v(\d+\.\d+) \|", devstan_text)
 if not match:
     raise ValueError("Devstan version missing")
 devstan_version = match.group(1)
-rtm = json.loads(Path("traceability.json").read_text(encoding="utf-8"))
+rtm = json.loads(Path("config/traceability.json").read_text(encoding="utf-8"))
 result_files = [Path("tests/results/acceptance-results.json")] if Path("tests/results/acceptance-results.json").is_file() else []
 evidence = json.loads(result_files[-1].read_text(encoding="utf-8-sig")) if args.edition == "production" and result_files else {"tests": []}
 standards_path = Path("release-evidence/devstan.json")
