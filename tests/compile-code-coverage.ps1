@@ -1,3 +1,4 @@
+# FR-014: Acceptance code coverage and diagnostics.
 # FR-013: Summarise measured coverage of the extracted acceptance release.
 param(
  [Parameter(Mandatory=$true)][string]$PackageRoot,
