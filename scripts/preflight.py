@@ -38,6 +38,14 @@ def main():
     for source in sorted((ROOT / "scripts").glob("*.py")):
         if obsolete.search(source.read_text(encoding="utf-8-sig")):
             errors.append(f"Obsolete traceability path in {source.relative_to(ROOT)}")
+    # Verify release version consumers use the authoritative source, including Git history lookups.
+    for relative in ("scripts/build-formatting-checks.py", "scripts/build-test-reports.py",
+                     "scripts/verify-final-evidence-manifest.py", "scripts/build-release-notes.py"):
+        source = (ROOT / relative).read_text(encoding="utf-8-sig")
+        if "config/traceability.json" not in source:
+            errors.append(f"Application version source not authoritative: {relative}")
+    if not (ROOT / "config/traceability.json").is_file():
+        errors.append("Authoritative application version file missing")
     rtm = json.loads((ROOT / "config/traceability.json").read_text(encoding="utf-8-sig"))
     valid_fr = {r["id"] for r in rtm["requirements"]}
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
