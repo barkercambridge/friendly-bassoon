@@ -22,7 +22,7 @@ def version_at(revision):
     authoritative; retain that historical fallback only for baseline discovery.
     """
     try:
-        data = git("show", revision + ":traceability.json")
+        data = git("show", revision + ":config/traceability.json")
         value = json.loads(data).get("version")
         if isinstance(value, str) and re.fullmatch(r"\d+\.\d+", value):
             return value
@@ -41,7 +41,7 @@ def main():
         raise SystemExit("Current application version unavailable")
     # Find the most recent preceding version from the actual specification history,
     # even if a previous version was never tagged.
-    history = git("rev-list", "HEAD", "--", "traceability.json", "docs/functional-specification.md").splitlines()
+    history = git("rev-list", "HEAD", "--", "config/traceability.json", "traceability.json", "docs/functional-specification.md").splitlines()
     previous = None
     baseline = None
     for sha in history:
