@@ -1,3 +1,4 @@
+# FR-016: Application-specific acceptance and release evidence.
 #!/usr/bin/env python3
 """Generate release.pdf, including a new-repository baseline without prior versions."""
 import re
