@@ -74,6 +74,8 @@ Structural comparisons may use positional alignment; CHAR-001 formatting checks 
 
 ## 9. Release variants and production approval
 
+**Reserved Release stages:** **Acceptance** produces a prerelease distribution for interactive acceptance testing and does not authorize production use. **Production** produces the approved distribution only after mandatory evidence, provenance and approval gates pass. These names refer to stages, not the activity of acceptance testing.
+
 Application-specific release editions, packaging and reporting are defined in FR-015–FR-016; common evidence integrity, approval and publication controls are governed by the Development Standards R05–R08 and implemented through `.github/workflows/release.yml`.
 
 ## 10. Change history
