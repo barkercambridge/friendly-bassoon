@@ -5,8 +5,6 @@
 import json
 from pathlib import Path
 from xml.sax.saxutils import escape
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet
 
 ROOT = Path(__file__).resolve().parent.parent
 def required_acceptance_ids():
@@ -30,6 +28,8 @@ def main():
         raise ValueError("Acceptance evidence is not fully passing")
     if not isinstance(data.get("source_commit"), str) or len(data["source_commit"]) != 40:
         raise ValueError("Missing tested source commit")
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet
     styles = getSampleStyleSheet()
     (ROOT / "info").mkdir(exist_ok=True)
     for filename, detail in (("test-results.pdf", False), ("test-evidence.pdf", True)):
