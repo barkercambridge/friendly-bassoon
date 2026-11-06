@@ -62,10 +62,11 @@ def verify(root, production=False, acceptance_build=False):
     else:
         for line in section[1].split("\n## ", 1)[0].splitlines():
             cells = [x.strip() for x in line.strip().strip("|").split("|")]
-            if len(cells) >= 4 and re.fullmatch(r"AT-\d{3}", cells[0]):
-                if cells[0] in spec_matrix:
+            if len(cells) >= 4 and re.fullmatch(r"AT-\d{3}(?: \[Pending\])?", cells[0]):
+                test_id = cells[0].split(" ", 1)[0]
+                if test_id in spec_matrix:
                     issue("Duplicate specification matrix test " + cells[0])
-                spec_matrix[cells[0]] = set(re.findall(r"FR-\d{3}", cells[1]))
+                spec_matrix[test_id] = set(re.findall(r"FR-\d{3}", cells[1]))
                 if re.match(r"^(PASS|FAIL|BLOCKED|NOT VERIFIED)\b", cells[3]):
                     issue("Test result stored in functional specification: " + cells[0])
     if not REQUIRED.issubset(spec_matrix):
