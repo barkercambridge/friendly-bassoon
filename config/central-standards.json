@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "repository": "barkercambridge/miniature-memory",
-  "commit": "b50040e10bd5aa35a39bb105bb9d4bc52238f2b9",
+  "commit": "edf15697b5fd9e816c5317ce4f09ea1f1f75da52",
   "documents": [
     "docs/development-standards.md",
     "docs/python-defect-register.md",
