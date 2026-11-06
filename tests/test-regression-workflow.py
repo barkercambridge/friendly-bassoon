@@ -264,6 +264,17 @@ class RegressionWorkflowTests(unittest.TestCase):
         ast.parse(verifier)
         ast.parse(approval)
 
+    def test_production_verifier_uses_current_acceptance_inventory(self):
+        verifier = (ROOT / "scripts/verify-production-approval.ps1").read_text(encoding="utf-8")
+        self.assertIn("'config/traceability.json'", verifier)
+        self.assertIn("$rtm.acceptance_tests", verifier)
+        self.assertIn("$required.Count", verifier)
+        self.assertNotIn("$e.passed -ne 10", verifier)
+        self.assertIn("'coverage-diagnostics.json'", verifier)
+        self.assertIn("$d.source_commit -cne $e.source_commit", verifier)
+        self.assertIn("$entries[0].invalid_hit_count -ne 0", verifier)
+        self.assertIn("$c.release_input_fingerprint -cne $e.release_input_fingerprint", verifier)
+
     def test_production_approval_records_per_rule_evidence(self):
         approval = (ROOT / "scripts/record-production-approval.py").read_text(encoding="utf-8")
         verifier = (ROOT / "scripts/verify-final-evidence-manifest.py").read_text(encoding="utf-8")
