@@ -1,11 +1,11 @@
 {
   "application": "virtual-admin",
   "version": "0.1",
-  "source_commit": "926578af62809fbbd2ec4ee0b6c924dc9da1cd14",
-  "release_input_fingerprint": "80e1dd892616948ef613d7960aa4510edcf8709b7ce81fb7ebde7cd4e266412a",
-  "acceptance_zip_sha256": "4081d6c1cb4302b508ac20a060016b2a660bd491955fc61191e8c6d8c82477bf",
-  "run_id": "20261105T153112309Z",
-  "timestamp_utc": "2026-11-05T15:32:09.4519709Z",
+  "source_commit": "3e89355ad5af5edbfa51945d1892911909dcedb0",
+  "release_input_fingerprint": "7ad406d9ff10616b09dcab8902bf39bca3edcd4a9ddaf4670d7f5605e3282dd9",
+  "acceptance_zip_sha256": "8353f2d693fabee14fc7dde0393151bb75646ad004456ddde657040e9c4ec9f0",
+  "run_id": "20261106T124741570Z",
+  "timestamp_utc": "2026-11-06T12:48:29.5028527Z",
   "computer": "T14S-T4409",
   "operating_system": "Microsoft Windows NT 10.0.26300.0",
   "powershell": "5.1.26100.9711",
@@ -18,7 +18,8 @@
     {
       "test_id": "AT-011",
       "requirements": [
-        "FR-012"
+        "FR-012",
+        "FR-015"
       ],
       "status": "PASS",
       "details": "Extracted release has required subdirectories, PDF register in info/ and no other root-level files"
