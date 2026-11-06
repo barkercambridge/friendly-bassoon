@@ -5,16 +5,16 @@ param(
  [Parameter(Mandatory=$true)][ValidatePattern('^[0-9a-f]{40}$')][string]$Commit
 )
 $ErrorActionPreference='Stop'
-$rtm=Get-Content -LiteralPath 'traceability.json' -Raw | ConvertFrom-Json
+$rtm=Get-Content -LiteralPath 'config/traceability.json' -Raw | ConvertFrom-Json
 if($rtm.version -ne $Version){throw 'Production blocked: traceability version mismatch'}
 $path='tests/results/acceptance-results.json'
 if(-not (Test-Path -LiteralPath $path -PathType Leaf)){throw 'Production blocked: acceptance JSON missing'}
-$other=@(Get-ChildItem -LiteralPath 'tests/results' -Force | Where-Object { $_.Name -notin @('acceptance-results.json','code-coverage.json') })
+$other=@(Get-ChildItem -LiteralPath 'tests/results' -Force | Where-Object { $_.Name -notin @('acceptance-results.json','code-coverage.json','coverage-diagnostics.json') })
 if($other.Count -ne 0){throw 'Production blocked: additional acceptance results found'}
 $e=Get-Content -LiteralPath $path -Raw | ConvertFrom-Json
-$required=@('AT-001','AT-002','AT-003','AT-004','AT-005','AT-006','AT-007','AT-008','AT-010','AT-011')
+$required=@($rtm.acceptance_tests | Where-Object { $_.stage -eq 'Acceptance' -and $_.status -eq 'required' } | ForEach-Object { $_.id })
 if($e.version -ne $Version -or $e.application -ne 'virtual-admin' -or $e.source_commit -cnotmatch '^[0-9a-f]{40}$'){throw 'Production blocked: invalid evidence provenance'}
-if($e.passed -ne 10 -or $e.failed -ne 0 -or $e.blocked -ne 0 -or @($e.tests).Count -ne 10){throw 'Production blocked: acceptance results incomplete'}
+if($e.passed -ne $required.Count -or $e.failed -ne 0 -or $e.blocked -ne 0 -or @($e.tests).Count -ne $required.Count){throw 'Production blocked: acceptance results incomplete'}
 foreach($id in $required){
  $records=@($e.tests | Where-Object {$_.test_id -eq $id})
  if($records.Count -ne 1 -or $records[0].status -ne 'PASS'){throw "Production blocked: expected one PASS for $id"}
