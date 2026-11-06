@@ -1,4 +1,4 @@
-name: Virtual Admin Preflight
+name: Preflight
 on:
   push:
     branches: [main]
