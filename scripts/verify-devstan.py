@@ -270,6 +270,14 @@ def check(production=False):
         results_dir.is_dir() and all(p.is_file() and p.name in ("acceptance-results.json", "code-coverage.json", "coverage-diagnostics.json")
                                      for p in results_dir.iterdir())
     )
+    diagnostics_path = results_dir / "coverage-diagnostics.json"
+    if diagnostics_path.is_file():
+        try:
+            diagnostics = json.loads(diagnostics_path.read_text(encoding="utf-8-sig"))
+            coverage = json.loads((results_dir / "code-coverage.json").read_text(encoding="utf-8-sig"))
+            evidence_format_ok = evidence_format_ok and isinstance(diagnostics, dict) and isinstance(diagnostics.get("files"), list) and bool(diagnostics.get("source_commit")) and diagnostics.get("source_commit") == coverage.get("source_commit")
+        except (OSError, ValueError, AttributeError):
+            evidence_format_ok = False
     if production:
         required_reports = ("info/traceability.xlsx", "info/test-results.pdf",
                             "info/test-evidence.pdf", "info/test-coverage.pdf")
