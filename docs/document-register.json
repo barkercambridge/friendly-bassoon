@@ -4,7 +4,7 @@
   "authoritative_sources": [
     {
       "information_type": "development-rules",
-      "path": "docs/devstan.md"
+      "path": "docs/development-standard.md"
     },
     {
       "information_type": "functional-requirements",
@@ -45,11 +45,11 @@
       "verification": "required"
     },
     {
-      "path": "docs/devstan.md",
+      "path": "docs/development-standard.md",
       "role": "governing-standard",
-      "authority": "Validated runtime copy of pinned miniature-memory/docs/devstan.md; pin in config/central-standards.json",
+      "authority": "Validated runtime copy of pinned miniature-memory/docs/development-standard.md; pin in config/central-standards.json",
       "verification": "required",
-      "version_source": "docs/devstan.md"
+      "version_source": "docs/development-standard.md"
     },
     {
       "path": "docs/development-defect-register.md",
