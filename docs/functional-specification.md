@@ -46,6 +46,8 @@ FR-012 defines the application-specific formatting configuration and its PDF rep
 | `info/formatting-checks.pdf` | FR-012 | Human-readable mirror of formatting configuration | required |
 
 ## 5. Acceptance test matrix
+The required Acceptance and Production test inventory, stage, implementation and FR mappings are maintained in `app-repo:config/traceability.json`. Test runners and verifiers derive required test IDs from that inventory, not duplicate hard-coded lists. Production-stage AT-013 verification is independent of interactive Acceptance test results.
+
 | Test ID | Requirement IDs | Scenario / expected outcome | Results document |
 |---|---|---|---|
 | AT-001 | FR-001, FR-007 | Run Word COM and comparison engine | Read uploaded JSON in `tests/results/` |
@@ -58,8 +60,6 @@ FR-012 defines the application-specific formatting configuration and its PDF rep
 | AT-008 | FR-011 | Inject a formatting property-read failure after a detectable difference; `activity.docx` retains partial findings under Summary of changes and records failed check details under Errors; exits unsuccessfully and leaves inputs unchanged | Read uploaded JSON in `tests/results/` |
 | AT-010 | FR-012 | Compare every check in the generated PDF report with JSON, including disabled checks and Enabled Y/blank mapping, and verify release version; deliberately alter a check description and confirm mismatch rejection | Read uploaded JSON in `tests/results/` |
 | AT-011 | FR-012, FR-015 | Check the extracted acceptance package contains the PDF report, required files and only batch launchers at its root; the release packaging scripts additionally validate ZIP contents before checksumming | Read uploaded JSON in `tests/results/` |
-
-The required Acceptance and Production test inventory, stage, implementation and FR mappings are maintained in `app-repo:config/traceability.json`. Test runners and verifiers derive required test IDs from that inventory, not duplicate hard-coded lists. Production-stage AT-013 verification is independent of interactive Acceptance test results.
 
 | AT-012 [Implemented; verification pending] | FR-013, FR-014 | Verify supported Windows syntax/runtime, acceptance JSON provenance, measured execution and diagnostic separation | Read uploaded JSON in `tests/results/` |
 | AT-013 [Pending Production verification] | FR-015, FR-016 | Verify acceptance/production ZIP contents, initial-baseline release report, production-only reports and manifest hashes | Read release verification evidence |
