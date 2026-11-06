@@ -33,6 +33,11 @@ def main():
             py_compile.compile(str(path), cfile=str(path.parent / "__pycache__" / (path.stem + ".preflight.pyc")), doraise=True)
         except (SyntaxError, OSError, py_compile.PyCompileError) as exc:
             errors.append(f"Python syntax {path.relative_to(ROOT)}: {exc}")
+    # R04: reject executable references to the obsolete repository-root traceability file.
+    obsolete = re.compile(r'(?:ROOT|root|Path\(__file__\)\.resolve\(\)\.parent(?:\.parent)?|Path\(["\x27]\.["\x27]\))\s*/\s*["\x27]traceability\.json["\x27]|Path\(["\x27]traceability\.json["\x27]\)')
+    for source in sorted((ROOT / "scripts").glob("*.py")):
+        if obsolete.search(source.read_text(encoding="utf-8-sig")):
+            errors.append(f"Obsolete traceability path in {source.relative_to(ROOT)}")
     rtm = json.loads((ROOT / "config/traceability.json").read_text(encoding="utf-8-sig"))
     valid_fr = {r["id"] for r in rtm["requirements"]}
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
