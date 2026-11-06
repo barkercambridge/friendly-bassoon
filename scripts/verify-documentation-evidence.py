@@ -32,7 +32,7 @@ def verify(root, production=False, acceptance_build=False):
         issue("Specification governing Devstan source reference missing or invalid")
     elif not (root / standard_ref.group(1).removeprefix("app-repo:")).is_file():
         issue("Specification governing Devstan document missing")
-    if not re.search(r"(?m)^\*\*Application version:\*\* \x60config/traceability.json\x60\s*$", spec):
+    if not re.search(r"(?m)^\*\*Application version:\*\* \x60app-repo:config/traceability.json\x60\s*$", spec):
         issue("Specification authoritative application version reference missing")
     if not re.search(r"(?m)^\*\*Document version:\*\* See Section 10, Change history\s*$", spec):
         issue("Specification document version history reference missing")
