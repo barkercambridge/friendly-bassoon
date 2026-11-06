@@ -1,3 +1,4 @@
+# FR-015: Release package layout and edition controls.
 # DevStan R08: Build and validate acceptance/production ZIP layout and required register files.
 [CmdletBinding()]
 # DevStan R08: Validate and package the acceptance distribution with required files.
