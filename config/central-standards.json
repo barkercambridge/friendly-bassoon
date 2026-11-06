@@ -3,7 +3,7 @@
   "repository": "barkercambridge/miniature-memory",
   "commit": "5c26b1dbb927e68808324dccbd66d975b99158e3",
   "documents": [
-    "docs/development-standard.md",
+    "docs/development-standards.md",
     "docs/python-defect-register.md",
     "docs/document-register.json",
     "docs/development-defect-register.md"
