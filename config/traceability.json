@@ -1,6 +1,6 @@
 {
   "application": "virtual-admin",
-  "version": "0.1",
+  "version": "0.2",
   "environment": "Windows",
   "requirements": [
     {
