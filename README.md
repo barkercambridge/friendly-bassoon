@@ -1,4 +1,4 @@
-# Virtual Admin — Word formatting checker
+# Word formatting checker
 
 Windows proof of concept for comparing a Word document's formatting against an approved example template, highlighting differences in a separate DOCX copy and producing an activity report. Formatting checks are defined in `app-repo:config/format-checks.json`; configuration errors are written to `activity.docx` in the target document directory.
 
@@ -41,7 +41,7 @@ Keep the original acceptance ZIP beside its extracted folder (or pass `-Acceptan
 Every acceptance and production release includes `app-repo:config/format-checks.json`, `info/formatting-checks.pdf` and `info/release.pdf`. **Only production** generates and includes `info/traceability.xlsx` with verified FR/AT/Development Standards evidence, together with `info/test-results.pdf`, `info/test-evidence.pdf` and `info/test-coverage.pdf`. Acceptance includes source-controlled `app-repo:config/traceability.json` for FR/source/AT mappings and no compiled test-evidence reports. Only Windows batch launchers are placed at the ZIP root; PDF reports are under `info/`. Application scripts are under `src/`, JSON check configuration and `virtual-admin-build.json` under `config/`, and documentation under `docs/`. Acceptance packages additionally contain `run-acceptance-tests.bat` at the ZIP root, with PowerShell test scripts in the `tests/` subfolder. The production package contains `run-virtual-admin.bat`, `info/traceability.xlsx`, `info/formatting-checks.pdf`, `info/release.pdf`, `info/test-results.pdf`, `info/test-evidence.pdf` and `info/test-coverage.pdf` under `info/`, and excludes `run-acceptance-tests.bat` and the entire `tests/` subfolder. ZIP layout and report alignment are verified automatically before a release is accepted. Place the first alphabetically sorted `.dotx` and `.docx` files beside the main launcher after extraction; these inputs are not bundled.
 
 ## Release workflow
-Use **Actions → Virtual Admin Release → Run workflow** and choose **Acceptance Testing** or **Production**. The version is read from `app-repo:config/traceability.json`.
+Use **Actions → Release workflow → Run workflow** and choose **Acceptance Testing** or **Production**. The version is read from `app-repo:config/traceability.json`.
 
 **Acceptance Testing** validates PowerShell syntax and FR/AT mappings, builds the acceptance ZIP and checksum, and publishes an unapproved prerelease. Run `run-acceptance-tests.bat` at the extracted ZIP root on an interactive Windows desktop with Microsoft Word. GitHub-hosted CI does not run Word COM acceptance tests.
 
