@@ -104,7 +104,7 @@ class DocumentRegisterTests(unittest.TestCase):
 
     def test_missing_application_version_source_fails(self):
         path = self.root / "docs/functional-specification.md"
-        path.write_text(path.read_text().replace("**Application version:** `config/traceability.json`", "**Application version:** `README.md`"))
+        path.write_text(path.read_text().replace("**Application version:** `app-repo:config/traceability.json`", "**Application version:** `README.md`"))
         self.assertTrue(any("Missing authoritative application version reference" in x for x in module.validate(self.root)))
 
     def test_pdf_register_purpose_matches_specification(self):
