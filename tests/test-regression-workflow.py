@@ -303,6 +303,7 @@ class RegressionWorkflowTests(unittest.TestCase):
                     with self.assertRaises(ValueError):
                         module.required_acceptance_ids()
                     inventory["acceptance_tests"] = inventory["acceptance_tests"][:3]
+                    (root / "config/traceability.json").write_text(json.dumps(inventory), encoding="utf-8")
 
     def test_production_approval_records_per_rule_evidence(self):
         approval = (ROOT / "scripts/record-production-approval.py").read_text(encoding="utf-8")
