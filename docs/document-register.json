@@ -240,6 +240,12 @@
       "verification": "conditional"
     },
     {
+      "path": "tests/results/coverage-diagnostics.json",
+      "role": "supporting-coverage-diagnostics",
+      "authority": "Non-authoritative instrumentation diagnostics linked to coverage evidence; cannot independently establish PASS",
+      "verification": "conditional"
+    },
+    {
       "path": "config/central-standards.json",
       "role": "central-standard-pin",
       "authority": "Exact approved private central standards commit and document paths",
