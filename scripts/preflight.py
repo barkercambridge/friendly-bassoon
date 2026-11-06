@@ -103,6 +103,17 @@ def main():
                         errors.append("Invalid acceptance JSON schema")
                 except (ValueError, OSError):
                     errors.append("Unreadable acceptance JSON")
+    diagnostics_path = results_dir / "coverage-diagnostics.json"
+    if diagnostics_path.is_file():
+        try:
+            diagnostics = json.loads(diagnostics_path.read_text(encoding="utf-8-sig"))
+            coverage = json.loads((results_dir / "code-coverage.json").read_text(encoding="utf-8-sig"))
+            if (not isinstance(diagnostics, dict) or not isinstance(diagnostics.get("files"), list)
+                    or not diagnostics.get("source_commit")
+                    or diagnostics["source_commit"] != coverage.get("source_commit")):
+                errors.append("Coverage diagnostics schema or source association invalid")
+        except (OSError, ValueError, AttributeError):
+            errors.append("Coverage diagnostics or authoritative coverage unreadable")
     for message in errors:
         print("FAIL:", message, file=sys.stderr)
     print(f"Preflight: {'FAIL' if errors else 'PASS'} ({len(errors)} issues)")
