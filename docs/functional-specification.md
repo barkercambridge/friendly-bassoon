@@ -59,8 +59,10 @@ FR-012 defines the application-specific formatting configuration and its PDF rep
 | AT-010 | FR-012 | Compare every check in the generated PDF report with JSON, including disabled checks and Enabled Y/blank mapping, and verify release version; deliberately alter a check description and confirm mismatch rejection | Read uploaded JSON in `tests/results/` |
 | AT-011 | FR-012, FR-015 | Check the extracted acceptance package contains the PDF report, required files and only batch launchers at its root; the release packaging scripts additionally validate ZIP contents before checksumming | Read uploaded JSON in `tests/results/` |
 
-| AT-012 [Pending] | FR-013, FR-014 | Verify supported Windows syntax/runtime, acceptance JSON provenance, measured execution and diagnostic separation | Read uploaded JSON in `tests/results/` |
-| AT-013 [Pending] | FR-015, FR-016 | Verify acceptance/production ZIP contents, initial-baseline release report, production-only reports and manifest hashes | Read release verification evidence |
+The required Acceptance and Production test inventory, stage, implementation and FR mappings are maintained in `app-repo:config/traceability.json`. Test runners and verifiers derive required test IDs from that inventory, not duplicate hard-coded lists. Production-stage AT-013 verification is independent of interactive Acceptance test results.
+
+| AT-012 [Implemented; verification pending] | FR-013, FR-014 | Verify supported Windows syntax/runtime, acceptance JSON provenance, measured execution and diagnostic separation | Read uploaded JSON in `tests/results/` |
+| AT-013 [Pending Production verification] | FR-015, FR-016 | Verify acceptance/production ZIP contents, initial-baseline release report, production-only reports and manifest hashes | Read release verification evidence |
 
 ## 6. Installation and upgrade
 Download or clone repository, install desktop Microsoft Word, and double-click run-virtual-admin.bat in an interactive Windows desktop session. By default, the launcher selects the first `.dotx` and first `.docx` file in alphabetical filename order alongside it. PowerShell script accepts alternative paths. Upgrades replace scripts while retaining documents and reports. FR-006 archives existing outputs on subsequent runs.
@@ -80,6 +82,7 @@ Application-specific release editions, packaging and reporting are defined in FR
 
 ## 10. Change history
 
+| v3.50 | 2026-11-06 | Define authoritative staged acceptance inventory; implement AT-012 validation; retain AT-013 Production verification pending. |
 | v3.49 | 2026-11-06 | Align FR-016 Production-only release and evidence reports with Development Standards R08 and FR-015; correct contradictory Acceptance report requirements. |
 | Version | Date | Summary |
 |---|---|---|
