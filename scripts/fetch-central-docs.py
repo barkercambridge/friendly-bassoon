@@ -15,7 +15,7 @@ from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parent.parent
 PIN = ROOT / "config/central-standards.json"
-EXPECTED = {"docs/devstan.md", "docs/python-defect-register.md", "docs/development-defect-register.md", "docs/document-register.json"}
+EXPECTED = {"docs/development-standards.md", "docs/python-defect-register.md", "docs/development-defect-register.md", "docs/development-standards-register.json"}
 
 def fetch():
     config = json.loads(PIN.read_text(encoding="utf-8"))
@@ -44,13 +44,13 @@ def fetch():
         if blob_sha != obj.get("sha"):
             raise ValueError("Central document blob integrity mismatch: " + path)
         contents[path] = raw
-    central = json.loads(contents["docs/document-register.json"].decode("utf-8-sig"))
+    central = json.loads(contents["docs/development-standards-register.json"].decode("utf-8-sig"))
     registered = {x["path"] for x in central["documents"]}
     if not EXPECTED.issubset(registered):
         raise ValueError("Central document register missing required documents")
     # Write only after every download and integrity check succeeds.
     for path, raw in contents.items():
-        dest = ROOT / path if path != "docs/document-register.json" else ROOT / "external/miniature-memory/docs/document-register.json"
+        dest = ROOT / path if path != "docs/development-standards-register.json" else ROOT / "external/miniature-memory/docs/development-standards-register.json"
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(raw)
     print(f"Central standards verified at {repo}@{commit}; {len(contents)} documents materialized")
