@@ -148,7 +148,7 @@ def validate(root, check_release_files=False):
             section = re.split(r"(?m)^## \d+\. ", spec_text.split(heading, 1)[1], maxsplit=1)[0]
             expected = {}
             for line in section.splitlines():
-                cells = [cell.strip().strip("`") for cell in line.strip().strip("|").split("|")]
+                cells = [cell.strip().strip("`").removeprefix("app-repo:") for cell in line.strip().strip("|").split("|")]
                 if len(cells) == 4 and re.fullmatch(r"FR-\d{3}", cells[1]):
                     if cells[0] in expected:
                         errors.append("Duplicate specification document: " + cells[0])
