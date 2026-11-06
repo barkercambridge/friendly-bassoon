@@ -59,6 +59,12 @@ def main():
             not row['requirements'] or len(row['requirements']) != len(set(row['requirements'])) or
             not set(row['requirements']).issubset(valid_fr) for row in suites)):
         raise ValueError('Invalid authoritative regression suite mappings')
+    implementation = subprocess.run(
+        [sys.executable, "scripts/verify-acceptance-implementation.py"],
+        cwd=ROOT, capture_output=True, text=True,
+    )
+    if implementation.returncode:
+        errors.append("Required Acceptance implementation coverage: " + (implementation.stdout + implementation.stderr)[-3000:])
     records = []
     for row in suites:
         test_id, test, requirements = row['id'], row['file'], row['requirements']
