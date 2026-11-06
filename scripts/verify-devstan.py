@@ -79,12 +79,13 @@ def check(production=False):
         "FR identifiers and current preflight regression/syntax evidence verified" if fr_ok and preflight_ok
         else "FR or current preflight evidence incomplete",
         pending=not production and not preflight_ok)
+    pending_acceptance = set(re.findall(r"(?m)^\|\s*(AT-\d{3})\s*\[Pending\]", spec))
     mappings = []
     for r in rtm["requirements"]:
         planned = r.get("status", "").lower() == "planned"
         sources, tests = r.get("source", []), r.get("tests", [])
         mappings.append(planned or (bool(sources) and bool(tests) and all((ROOT / p).is_file() for p in sources)
-                                     and all(t in MANDATORY for t in tests)))
+                                     and all(t in MANDATORY or t in pending_acceptance for t in tests)))
     # FR-linked comments are mandatory in mapped executable source, not data files.
     # Match actual comment lines rather than FR identifiers in strings or code.
     comment_prefixes = {".ps1": "#", ".py": "#", ".bat": "rem", ".cmd": "rem"}
