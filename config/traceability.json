@@ -203,5 +203,134 @@
         "FR-012"
       ]
     }
+  ],
+  "acceptance_tests": [
+    {
+      "id": "AT-001",
+      "status": "required",
+      "stage": "Acceptance",
+      "requirements": [
+        "FR-001",
+        "FR-007"
+      ],
+      "implementation": "tests/test-functional-acceptance.ps1",
+      "verification": "Windows interactive acceptance runner"
+    },
+    {
+      "id": "AT-002",
+      "status": "required",
+      "stage": "Acceptance",
+      "requirements": [
+        "FR-004"
+      ],
+      "implementation": "tests/test-functional-acceptance.ps1",
+      "verification": "Windows interactive acceptance runner"
+    },
+    {
+      "id": "AT-003",
+      "status": "required",
+      "stage": "Acceptance",
+      "requirements": [
+        "FR-006"
+      ],
+      "implementation": "tests/test-functional-acceptance.ps1",
+      "verification": "Windows interactive acceptance runner"
+    },
+    {
+      "id": "AT-004",
+      "status": "required",
+      "stage": "Acceptance",
+      "requirements": [
+        "FR-005"
+      ],
+      "implementation": "tests/test-functional-acceptance.ps1",
+      "verification": "Windows interactive acceptance runner"
+    },
+    {
+      "id": "AT-005",
+      "status": "required",
+      "stage": "Acceptance",
+      "requirements": [
+        "FR-009"
+      ],
+      "implementation": "tests/test-functional-acceptance.ps1",
+      "verification": "Windows interactive acceptance runner"
+    },
+    {
+      "id": "AT-006",
+      "status": "required",
+      "stage": "Acceptance",
+      "requirements": [
+        "FR-002",
+        "FR-003",
+        "FR-010"
+      ],
+      "implementation": "tests/test-functional-acceptance.ps1",
+      "verification": "Windows interactive acceptance runner"
+    },
+    {
+      "id": "AT-007",
+      "status": "required",
+      "stage": "Acceptance",
+      "requirements": [
+        "FR-002",
+        "FR-003"
+      ],
+      "implementation": "tests/test-functional-acceptance.ps1",
+      "verification": "Windows interactive acceptance runner"
+    },
+    {
+      "id": "AT-008",
+      "status": "required",
+      "stage": "Acceptance",
+      "requirements": [
+        "FR-011"
+      ],
+      "implementation": "tests/test-functional-acceptance.ps1",
+      "verification": "Windows interactive acceptance runner"
+    },
+    {
+      "id": "AT-010",
+      "status": "required",
+      "stage": "Acceptance",
+      "requirements": [
+        "FR-012"
+      ],
+      "implementation": "tests/test-functional-acceptance.ps1",
+      "verification": "Windows interactive acceptance runner"
+    },
+    {
+      "id": "AT-011",
+      "status": "required",
+      "stage": "Acceptance",
+      "requirements": [
+        "FR-012",
+        "FR-015"
+      ],
+      "implementation": "tests/test-functional-acceptance.ps1",
+      "verification": "Windows interactive acceptance runner"
+    },
+    {
+      "id": "AT-012",
+      "status": "required",
+      "stage": "Acceptance",
+      "requirements": [
+        "FR-013",
+        "FR-014"
+      ],
+      "implementation": "tests/test-functional-acceptance.ps1",
+      "verification": "PowerShell syntax, provenance and measured coverage diagnostics"
+    },
+    {
+      "id": "AT-013",
+      "status": "required",
+      "stage": "Production",
+      "requirements": [
+        "FR-015",
+        "FR-016"
+      ],
+      "implementation": "scripts/verify-devstan.py",
+      "verification": "Independent production ZIP, reports and checksum verification"
+    }
   ]
 }
