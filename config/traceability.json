@@ -202,6 +202,14 @@
       "requirements": [
         "FR-012"
       ]
+    },
+    {
+      "id": "RT-007",
+      "file": "tests/test-acceptance-implementation.py",
+      "requirements": [
+        "FR-013",
+        "FR-014"
+      ]
     }
   ],
   "acceptance_tests": [
