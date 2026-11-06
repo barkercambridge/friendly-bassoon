@@ -5,7 +5,7 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parent.parent
-RECORD = re.compile(r"(?m)^\s*Record\s+['\"](AT-\d{3})['\"]\s+['\"](PASS|FAIL|BLOCKED)['\"]")
+RECORD = re.compile(r"\bRecord\s+['\"](AT-\d{3})['\"]\s+['\"](PASS|FAIL|BLOCKED)['\"]")
 # A static path check is necessary but not sufficient: actual execution is independently
 # verified from the authoritative acceptance evidence by the production gate.
 def verify(root=ROOT):
