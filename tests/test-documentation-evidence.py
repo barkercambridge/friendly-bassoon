@@ -28,7 +28,8 @@ class AlignmentTests(unittest.TestCase):
         for line in spec_text.split("## 5. Acceptance test matrix", 1)[1].split("\n## ", 1)[0].splitlines():
             cells = [c.strip() for c in line.strip().strip("|").split("|")]
             if len(cells) >= 4 and cells[0].startswith("AT-"):
-                mapping[cells[0]] = [x.strip() for x in cells[1].split(",")]
+                if "[Pending]" not in cells[0]:
+                    mapping[cells[0]] = [x.strip() for x in cells[1].split(",")]
         self.data = {"application": "virtual-admin", "version": self.version,
                      "source_commit": "a" * 40, "acceptance_zip_sha256": "b" * 64, "passed": len(mapping), "failed": 0, "blocked": 0,
                      "tests": [{"test_id": k, "requirements": v, "status": "PASS"} for k,v in mapping.items()]}
@@ -90,7 +91,7 @@ class AlignmentTests(unittest.TestCase):
         self.assertTrue(any("totals" in x for x in checker.verify(self.root)))
     def test_application_version_source_reference_fails(self):
         path = self.root / "docs/functional-specification.md"
-        path.write_text(path.read_text().replace("`config/traceability.json`", "`README.md`", 1))
+        path.write_text(path.read_text().replace("`app-repo:config/traceability.json`", "`README.md`", 1))
         self.assertTrue(any("authoritative application version reference missing" in x for x in checker.verify(self.root)))
 
     def test_governing_devstan_source_reference_fails(self):
