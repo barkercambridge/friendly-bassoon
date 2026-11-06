@@ -57,7 +57,7 @@ def validate(root, check_release_files=False):
             errors.append("Unregistered authoritative source: " + repr(path))
         elif not (root / path).is_file() and next((e.get("verification") for e in entries if e.get("path") == path), None) == "required":
             errors.append("Missing authoritative source: " + path)
-    policy_file = root / "docs/devstan.md"
+    policy_file = root / "docs/development-standards.md"
     if policy_file.is_file():
         policy = policy_file.read_text(encoding="utf-8-sig")
         if "### Principal authoritative sources" not in policy:
@@ -109,14 +109,14 @@ def validate(root, check_release_files=False):
         len(version_authorities) != 2):
         errors.append("Invalid application/release version authority")
     # R02/R07: governing documents and version references must remain aligned.
-    required_governance = {"docs/devstan.md", "docs/functional-specification.md", "README.md", "docs/installation.md", "config/traceability.json"}
+    required_governance = {"docs/development-standards.md", "docs/functional-specification.md", "README.md", "docs/installation.md", "config/traceability.json"}
     for missing in sorted(required_governance - set(paths)):
         errors.append("Governing document missing from register: " + missing)
     # Current governing references name the source, not a duplicated version.
     for relative, expected in (
-        ("AGENTS.md", "docs/devstan.md"),
-        ("README.md", "docs/devstan.md"),
-        ("docs/functional-specification.md", "docs/devstan.md"),
+        ("AGENTS.md", "docs/development-standards.md"),
+        ("README.md", "docs/development-standards.md"),
+        ("docs/functional-specification.md", "docs/development-standards.md"),
     ):
         reference_file = root / relative
         if reference_file.is_file() and expected not in reference_file.read_text(encoding="utf-8-sig"):
