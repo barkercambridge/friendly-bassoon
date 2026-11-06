@@ -93,6 +93,18 @@ jobs:
         run: |
           python scripts/verify-devstan.py
           if ($LASTEXITCODE -ne 0) { throw 'Devstan verification failed' }
+      - name: Clear previous Acceptance evidence in ephemeral checkout
+        if: inputs.edition == 'Acceptance'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($path in @('tests/results/acceptance-results.json', 'tests/results/code-coverage.json', 'tests/results/coverage-diagnostics.json')) {
+            if (Test-Path -LiteralPath $path) {
+              Remove-Item -LiteralPath $path -Force -ErrorAction Stop
+            }
+            if (Test-Path -LiteralPath $path) { throw "Stale Acceptance evidence remains: $path" }
+          }
+          Write-Host 'Prior acceptance and coverage evidence excluded from this ephemeral build.'
       - name: Verify edition-specific acceptance evidence
         shell: pwsh
         run: |
@@ -106,7 +118,9 @@ jobs:
         if: inputs.edition == 'Acceptance'
         shell: pwsh
         run: |
-          Write-Host 'AT-001 through AT-008, AT-010 and AT-011 have NOT been run on this GitHub-hosted runner.'
+          $inventory = (Get-Content -LiteralPath 'config/traceability.json' -Raw | ConvertFrom-Json).acceptance_tests
+          $required = @($inventory | Where-Object { $_.status -eq 'required' -and $_.stage -eq 'Acceptance' } | ForEach-Object { $_.id })
+          Write-Host ("Required Acceptance tests not run on this GitHub-hosted runner: " + ($required -join ', '))
           Write-Host 'Use run-acceptance-tests.bat at the ZIP root on an interactive Windows desktop with Microsoft Word.'
           Write-Host 'This package is for acceptance testing, not production approval.'
       - name: Package acceptance-test distribution
@@ -153,7 +167,7 @@ jobs:
           if ($LASTEXITCODE -eq 0) { throw "Release $tag already exists; refusing to replace published assets" }
           $notes = @'
           Acceptance-testing distribution only. NOT approved for production.
-          Acceptance tests AT-001 through AT-008, AT-010 and AT-011 have not been executed by this GitHub-hosted workflow.
+          Required Acceptance tests listed in config/traceability.json have not been executed by this GitHub-hosted workflow.
           Run run-acceptance-tests.bat at the ZIP root on an interactive Windows computer with Microsoft Word installed.
           Devstan production checks may remain NOT VERIFIED; production publication is separately blocked.
           '@
