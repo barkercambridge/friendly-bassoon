@@ -1,4 +1,4 @@
-# Functional Specification — virtual-admin
+# Functional Specification
 
 **Application version:** `app-repo:config/traceability.json`
 **Document version:** See Section 10, Change history
