@@ -105,11 +105,11 @@ def validate(root, check_release_files=False):
     version_authorities = register.get("version_authorities", [])
     if (not isinstance(version_authorities, list) or
         {(x.get("version_type"), x.get("path")) for x in version_authorities if isinstance(x, dict)} !=
-        {("application", "traceability.json"), ("release", "traceability.json")} or
+        {("application", "config/traceability.json"), ("release", "config/traceability.json")} or
         len(version_authorities) != 2):
         errors.append("Invalid application/release version authority")
     # R02/R07: governing documents and version references must remain aligned.
-    required_governance = {"docs/devstan.md", "docs/functional-specification.md", "README.md", "docs/installation.md", "traceability.json"}
+    required_governance = {"docs/devstan.md", "docs/functional-specification.md", "README.md", "docs/installation.md", "config/traceability.json"}
     for missing in sorted(required_governance - set(paths)):
         errors.append("Governing document missing from register: " + missing)
     # Current governing references name the source, not a duplicated version.
@@ -124,7 +124,7 @@ def validate(root, check_release_files=False):
     spec_file = root / "docs/functional-specification.md"
     if spec_file.is_file():
         spec_text = spec_file.read_text(encoding="utf-8-sig")
-        if not re.search(r"(?m)^\*\*Application version:\*\* \x60traceability.json\x60\s*$", spec_text):
+        if not re.search(r"(?m)^\*\*Application version:\*\* \x60config/traceability.json\x60\s*$", spec_text):
             errors.append("Missing authoritative application version reference")
         if not re.search(r"(?m)^\*\*Document version:\*\* See Section 10, Change history\s*$", spec_text):
             errors.append("Missing authoritative document version history reference")
@@ -167,7 +167,7 @@ def produce(root, edition):
     errors = validate(root, check_release_files=True)
     if errors:
         raise ValueError("; ".join(errors))
-    rtm = read_json(root / "traceability.json")
+    rtm = read_json(root / "config/traceability.json")
     devstan_path = root / "release-evidence/devstan.json"
     devstan = read_json(devstan_path) if devstan_path.is_file() else None
     if not isinstance(devstan, dict):
