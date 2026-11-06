@@ -131,7 +131,7 @@ def validate(root, check_release_files=False):
     spec_file = root / "docs/functional-specification.md"
     if spec_file.is_file():
         spec_text = spec_file.read_text(encoding="utf-8-sig")
-        if not re.search(r"(?m)^\*\*Application version:\*\* \x60config/traceability.json\x60\s*$", spec_text):
+        if not re.search(r"(?m)^\*\*Application version:\*\* \x60app-repo:config/traceability.json\x60\s*$", spec_text):
             errors.append("Missing authoritative application version reference")
         if not re.search(r"(?m)^\*\*Document version:\*\* See Section 10, Change history\s*$", spec_text):
             errors.append("Missing authoritative document version history reference")
