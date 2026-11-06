@@ -104,7 +104,12 @@ jobs:
             }
             if (Test-Path -LiteralPath $path) { throw "Stale Acceptance evidence remains: $path" }
           }
-          Write-Host 'Prior acceptance and coverage evidence excluded from this ephemeral build.'
+          $diagnosticPath = 'tests/results/coverage-hit-files'
+          if (Test-Path -LiteralPath $diagnosticPath) {
+            Remove-Item -LiteralPath $diagnosticPath -Recurse -Force -ErrorAction Stop
+          }
+          if (Test-Path -LiteralPath $diagnosticPath) { throw "Stale Acceptance diagnostics remain: $diagnosticPath" }
+          Write-Host 'Prior acceptance, coverage and run-specific diagnostics excluded from this ephemeral build.'
       - name: Verify edition-specific acceptance evidence
         shell: pwsh
         run: |
