@@ -256,9 +256,9 @@ try {
    Assert ((Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -eq $before) 'Input changed'
    Assert ((Get-FileHash -LiteralPath $template -Algorithm SHA256).Hash -eq $referenceBefore) 'Template changed'
    $passedCases[$kind]=$true
-   if($kind -eq 'text'){Record $id 'PASS' ('Verified '+$kind+' difference and input integrity')}
+   if($kind -eq 'text'){Record 'AT-005' 'PASS' ('Verified '+$kind+' difference and input integrity')}
   } catch {
-   if($kind -eq 'text'){Record $id 'FAIL' $_.Exception.Message}
+   if($kind -eq 'text'){Record 'AT-005' 'FAIL' $_.Exception.Message}
    else {$formatFailures.Add($kind+': '+$_.Exception.Message)}
   }
  }
