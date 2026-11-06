@@ -68,8 +68,11 @@ def verify(root, production=False, acceptance_build=False):
                 spec_matrix[cells[0]] = set(re.findall(r"FR-\d{3}", cells[1]))
                 if re.match(r"^(PASS|FAIL|BLOCKED|NOT VERIFIED)\b", cells[3]):
                     issue("Test result stored in functional specification: " + cells[0])
-    if set(spec_matrix) != REQUIRED:
-        issue("Specification acceptance matrix IDs differ from mandatory tests")
+    if not REQUIRED.issubset(spec_matrix):
+        issue("Specification acceptance matrix omits mandatory tests")
+    pending_tests = set(re.findall(r"(?m)^\|\s*(AT-\d{3})\s*\[Pending\]", spec))
+    if set(spec_matrix) - REQUIRED != pending_tests:
+        issue("Additional acceptance matrix tests must be explicitly marked Pending")
     for fr, row in fr_rtm.items():
         for at in row.get("tests", []):
             if at not in spec_matrix or fr not in spec_matrix[at]:
