@@ -13,7 +13,7 @@ REQUIRED = {f"AT-{i:03d}" for i in range(1, 9)} | {"AT-010", "AT-011"}
 
 def main():
     data = json.loads((ROOT / "tests/results/acceptance-results.json").read_text(encoding="utf-8-sig"))
-    version = json.loads((ROOT / "traceability.json").read_text(encoding="utf-8-sig"))["version"]
+    version = json.loads((ROOT / "config/traceability.json").read_text(encoding="utf-8-sig"))["version"]
     tests = data["tests"]
     if data["version"] != version or len(tests) != 10 or {t["test_id"] for t in tests} != REQUIRED:
         raise ValueError("Invalid acceptance version or test coverage")
