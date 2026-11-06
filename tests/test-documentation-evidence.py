@@ -16,11 +16,11 @@ class AlignmentTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
-        for rel in ("docs/functional-specification.md", "docs/devstan.md", "traceability.json"):
+        for rel in ("docs/functional-specification.md", "docs/devstan.md", "config/traceability.json"):
             dest = self.root / rel
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / rel, dest)
-        self.version = json.loads((self.root / "traceability.json").read_text())["version"]
+        self.version = json.loads((self.root / "config/traceability.json").read_text())["version"]
         self.evidence = self.root / "tests/results/acceptance-results.json"
         self.evidence.parent.mkdir(parents=True)
         mapping = {}
@@ -90,7 +90,7 @@ class AlignmentTests(unittest.TestCase):
         self.assertTrue(any("totals" in x for x in checker.verify(self.root)))
     def test_application_version_source_reference_fails(self):
         path = self.root / "docs/functional-specification.md"
-        path.write_text(path.read_text().replace("`traceability.json`", "`README.md`", 1))
+        path.write_text(path.read_text().replace("`config/traceability.json`", "`README.md`", 1))
         self.assertTrue(any("authoritative application version reference missing" in x for x in checker.verify(self.root)))
 
     def test_governing_devstan_source_reference_fails(self):
