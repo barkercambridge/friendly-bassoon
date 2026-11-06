@@ -16,7 +16,7 @@ class AlignmentTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
-        for rel in ("docs/functional-specification.md", "docs/devstan.md", "config/traceability.json"):
+        for rel in ("docs/functional-specification.md", "docs/development-standards.md", "config/traceability.json"):
             dest = self.root / rel
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / rel, dest)
@@ -95,7 +95,7 @@ class AlignmentTests(unittest.TestCase):
 
     def test_governing_devstan_source_reference_fails(self):
         path = self.root / "docs/functional-specification.md"
-        path.write_text(path.read_text().replace("**Governing development standard:** `docs/devstan.md`", "**Governing development standard:** `docs/other.md`", 1))
+        path.write_text(path.read_text().replace("**Governing development standard:** `docs/development-standards.md`", "**Governing development standard:** `docs/other.md`", 1))
         self.assertTrue(any("governing Devstan source reference missing or invalid" in x for x in checker.verify(self.root)))
 
 if __name__ == "__main__":
