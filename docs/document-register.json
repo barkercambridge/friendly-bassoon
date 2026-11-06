@@ -12,7 +12,7 @@
     },
     {
       "information_type": "application-version-and-traceability",
-      "path": "traceability.json"
+      "path": "config/traceability.json"
     },
     {
       "information_type": "document-inventory-and-version-mappings",
@@ -73,7 +73,7 @@
       "version_source": "docs/functional-specification.md"
     },
     {
-      "path": "traceability.json",
+      "path": "config/traceability.json",
       "role": "traceability",
       "authority": "FR-to-source and AT mappings; application version",
       "verification": "required"
@@ -255,11 +255,11 @@
   "version_authorities": [
     {
       "version_type": "application",
-      "path": "traceability.json"
+      "path": "config/traceability.json"
     },
     {
       "version_type": "release",
-      "path": "traceability.json"
+      "path": "config/traceability.json"
     }
   ]
 }
