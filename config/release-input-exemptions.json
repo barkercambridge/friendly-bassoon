@@ -7,5 +7,13 @@
   "editorial_paths": [
     "README.md"
   ],
-  "evidence_directory": "tests/results/"
+  "evidence_directory": "tests/results/",
+  "editorial_approvals": [
+    {
+      "path": "README.md",
+      "reason": "User-facing editorial documentation only; not an application behaviour, test, verification, packaging or mandatory-control input",
+      "approved_by": "application owner",
+      "approval_record": "Explicit owner approval in ChatGPT conversation on 2026-11-06 at 20:34:57 UTC"
+    }
+  ]
 }
