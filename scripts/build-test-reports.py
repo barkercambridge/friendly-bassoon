@@ -1,3 +1,4 @@
+# FR-016: Application-specific acceptance and release evidence.
 #!/usr/bin/env python3
 # DevStan R08: Compile production-only human-readable acceptance and coverage evidence.
 """DevStan R08: Generate human-readable production reports from acceptance JSON."""
