@@ -43,6 +43,41 @@ class AlignmentTests(unittest.TestCase):
     def test_valid_json_passes_without_markdown_register(self):
         self.assertEqual(checker.verify(self.root, production=True), [])
         self.assertFalse((self.root / "docs/test-results.md").exists())
+    def test_authoritative_inventory_change_updates_expected_evidence(self):
+        """R02: an added required AT must invalidate evidence until it is executed."""
+        path = self.root / "config/traceability.json"
+        inventory = json.loads(path.read_text(encoding="utf-8"))
+        candidate = dict(inventory["acceptance_tests"][0])
+        candidate["id"] = "AT-099"
+        candidate["requirements"] = ["FR-001"]
+        inventory["acceptance_tests"].append(candidate)
+        for requirement in inventory["requirements"]:
+            if requirement["id"] == "FR-001":
+                requirement["tests"].append("AT-099")
+                break
+        path.write_text(json.dumps(inventory, indent=2) + "\n", encoding="utf-8")
+        spec_path = self.root / "docs/functional-specification.md"
+        spec_text = spec_path.read_text(encoding="utf-8")
+        marker = "| AT-001 |"
+        original = next(line for line in spec_text.splitlines() if line.startswith(marker))
+        new_row = original.replace("| AT-001 |", "| AT-099 |", 1)
+        spec_path.write_text(spec_text.replace(original, original + "\n" + new_row, 1), encoding="utf-8")
+        problems = checker.verify(self.root, production=True)
+        self.assertTrue(any("missing, extra or duplicate AT IDs" in problem for problem in problems), problems)
+        self.data["tests"].append({"test_id": "AT-099", "requirements": ["FR-001"], "status": "PASS"})
+        self.data["passed"] += 1
+        self.save()
+        self.assertEqual(checker.verify(self.root, production=True), [])
+
+    def test_authoritative_inventory_mapping_change_is_detected(self):
+        """R02: contradictory FR mappings must fail independently of evidence."""
+        path = self.root / "config/traceability.json"
+        inventory = json.loads(path.read_text(encoding="utf-8"))
+        inventory["acceptance_tests"][0]["requirements"] = ["FR-999"]
+        path.write_text(json.dumps(inventory, indent=2) + "\n", encoding="utf-8")
+        problems = checker.verify(self.root, acceptance_build=True)
+        self.assertTrue(any("Invalid acceptance test inventory mapping" in problem for problem in problems), problems)
+
     def test_mismatched_acceptance_zip_checksum_blocks_production(self):
         self.data["acceptance_zip_sha256"] = "c" * 64
         self.save()
