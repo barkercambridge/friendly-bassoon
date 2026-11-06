@@ -94,7 +94,7 @@ def main():
             errors.append("Acceptance results path must be a directory")
         else:
             entries = list(results_dir.iterdir())
-            if any(not p.is_file() or p.name not in ("acceptance-results.json", "code-coverage.json") for p in entries):
+            if any(not p.is_file() or p.name not in ("acceptance-results.json", "code-coverage.json", "coverage-diagnostics.json") for p in entries):
                 errors.append("Historical or unexpected acceptance evidence found")
             elif any(p.name == "acceptance-results.json" for p in entries):
                 try:
