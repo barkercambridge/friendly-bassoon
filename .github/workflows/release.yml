@@ -36,9 +36,9 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $rtm = Get-Content -LiteralPath 'traceability.json' -Raw | ConvertFrom-Json
+          $rtm = Get-Content -LiteralPath 'config/traceability.json' -Raw | ConvertFrom-Json
           $version = [string]$rtm.version
-          if ($version -notmatch '^(0|[1-9][0-9]*)[.](0|[1-9][0-9]*)$') { throw 'Invalid version in traceability.json' }
+          if ($version -notmatch '^(0|[1-9][0-9]*)[.](0|[1-9][0-9]*)$') { throw 'Invalid version in config/traceability.json' }
           "value=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
           Write-Host "Application version: $version"
       - name: Reuse successful main-push preflight for this exact commit
@@ -59,7 +59,7 @@ jobs:
           $regression = Get-Content -LiteralPath 'release-evidence/regression-results.json' -Raw | ConvertFrom-Json
           if ($syntax.source_commit -cne $expected -or $regression.source_commit -cne $expected) { throw 'Preflight evidence commit does not match release commit' }
           if (@($syntax.scripts).Count -eq 0 -or @($syntax.scripts | Where-Object { $_.result -ne 'PASS' }).Count -gt 0) { throw 'PowerShell preflight evidence incomplete or failed' }
-          $expected = @( (Get-Content -LiteralPath 'traceability.json' -Raw | ConvertFrom-Json).regression_suites )
+          $expected = @( (Get-Content -LiteralPath 'config/traceability.json' -Raw | ConvertFrom-Json).regression_suites )
           if (@($regression.tests).Count -ne $expected.Count -or @($regression.tests | Where-Object { $_.status -ne 'PASS' }).Count -gt 0) { throw 'Regression preflight evidence incomplete or failed' }
       - name: Regression-test Git source equivalence policy
         shell: powershell
@@ -141,8 +141,8 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           if ($env:RELEASE_VERSION -notmatch '^[0-9]+[.][0-9]+$') { throw 'Invalid release version (expected MAJOR.MINOR)' }
-          $rtm = Get-Content -LiteralPath 'traceability.json' -Raw | ConvertFrom-Json
-          if ($rtm.version -ne $env:RELEASE_VERSION) { throw 'Version does not match traceability.json' }
+          $rtm = Get-Content -LiteralPath 'config/traceability.json' -Raw | ConvertFrom-Json
+          if ($rtm.version -ne $env:RELEASE_VERSION) { throw 'Version does not match config/traceability.json' }
           $tag = "acceptance-v$($env:RELEASE_VERSION)"
           $zip = "dist/virtual-admin-acceptance-v$($env:RELEASE_VERSION).zip"
           $checksum = "dist/virtual-admin-acceptance-v$($env:RELEASE_VERSION).sha256"
