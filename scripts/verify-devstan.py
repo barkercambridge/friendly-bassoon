@@ -12,7 +12,15 @@ import zipfile
 import hashlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-MANDATORY = [f"AT-{i:03d}" for i in range(1, 9)] + ["AT-010", "AT-011"]
+def mandatory_acceptance(rtm):
+    inventory = rtm.get("acceptance_tests", [])
+    if not isinstance(inventory, list) or not inventory:
+        raise ValueError("Authoritative acceptance-test inventory missing")
+    ids = [item["id"] for item in inventory if item.get("status") == "required" and item.get("stage") == "Acceptance"]
+    if not ids or len(ids) != len(set(ids)):
+        raise ValueError("Missing or duplicate required Acceptance test IDs")
+    return ids
+
 
 def governing_devstan_version():
     text = (ROOT / "docs/development-standards.md").read_text(encoding="utf-8-sig")
@@ -30,6 +38,7 @@ def git_sha():
 def check(production=False):
     rtm = json.loads((ROOT / "config/traceability.json").read_text(encoding="utf-8-sig"))
     spec = (ROOT / "docs/functional-specification.md").read_text(encoding="utf-8-sig")
+    mandatory = mandatory_acceptance(rtm)
     checks = []
     def add(rule, passed, evidence, detail, pending=False):
         checks.append(dict(rule=f"R{rule:02d}", status="NOT VERIFIED" if pending else ("PASS" if passed else "FAIL"),
@@ -85,7 +94,7 @@ def check(production=False):
         planned = r.get("status", "").lower() == "planned"
         sources, tests = r.get("source", []), r.get("tests", [])
         mappings.append(planned or (bool(sources) and bool(tests) and all((ROOT / p).is_file() for p in sources)
-                                     and all(t in MANDATORY or t in pending_acceptance for t in tests)))
+                                     and all(t in mandatory or t in pending_acceptance or any(a.get("id") == t and a.get("stage") == "Production" for a in rtm.get("acceptance_tests", [])) for t in tests)))
     # FR-linked comments are mandatory in mapped executable source, not data files.
     # Match actual comment lines rather than FR identifiers in strings or code.
     comment_prefixes = {".ps1": "#", ".py": "#", ".bat": "rem", ".cmd": "rem"}
@@ -177,10 +186,10 @@ def check(production=False):
             tests = data.get("tests", [])
             commit = data.get("source_commit", "")
             valid = (bool(re.fullmatch(r"[0-9a-f]{40}", commit)) and
-                     data.get("passed") == len(MANDATORY) and
+                     data.get("passed") == len(mandatory) and
                      data.get("failed") == 0 and data.get("blocked") == 0 and
-                     len(tests) == len(MANDATORY) and
-                     sorted(t.get("test_id") for t in tests) == sorted(MANDATORY) and
+                     len(tests) == len(mandatory) and
+                     sorted(t.get("test_id") for t in tests) == sorted(mandatory) and
                      all(t.get("status") == "PASS" for t in tests))
             if valid:
                 evidence_ok = True
@@ -209,7 +218,7 @@ def check(production=False):
     acceptance_ok = evidence_ok
     evidence_ok = acceptance_ok and regression_ok
     add(3, evidence_ok, ";".join(evidence_paths) or "tests/results",
-        "Original ten-test acceptance evidence and current regression suites checked; Word not executed by CI",
+        "Authoritative Acceptance-stage inventory and current regression suites checked; Word not executed by CI",
         pending=(not production and not evidence_ok))
     checks[-1]["applicable_checks"] = [{"name": "acceptance", "status": "PASS" if acceptance_ok else "NOT VERIFIED", "evidence": "tests/results/acceptance-results.json"}, {"name": "regression", "status": "PASS" if regression_ok else "FAIL", "evidence": "release-evidence/regression-results.json"}]
 
