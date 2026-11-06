@@ -23,6 +23,8 @@ def exemptions():
         raise ValueError("Invalid generated-evidence directory exemption")
     if evidence & editorial or any(p.startswith("tests/results/") for p in editorial):
         raise ValueError("Invalid editorial exemptions")
+    if "config/release-input-exemptions.json" in editorial or "config/release-input-exemptions.json" in evidence:
+        raise ValueError("Fingerprint exclusion policy must never exclude itself")
     return evidence, editorial
 
 EVIDENCE = {"acceptance-results.json", "code-coverage.json"}
