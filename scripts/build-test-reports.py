@@ -9,15 +9,24 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 
 ROOT = Path(__file__).resolve().parent.parent
-REQUIRED = {f"AT-{i:03d}" for i in range(1, 9)} | {"AT-010", "AT-011"}
+def required_acceptance_ids():
+    inventory = json.loads((ROOT / "config/traceability.json").read_text(encoding="utf-8-sig"))
+    entries = [x["id"] for x in inventory["acceptance_tests"]
+               if x.get("stage") == "Acceptance" and x.get("status") == "required"]
+    if not entries or len(entries) != len(set(entries)):
+        raise ValueError("Invalid authoritative Acceptance inventory")
+    return set(entries)
+
+
 
 def main():
     data = json.loads((ROOT / "tests/results/acceptance-results.json").read_text(encoding="utf-8-sig"))
     version = json.loads((ROOT / "config/traceability.json").read_text(encoding="utf-8-sig"))["version"]
+    required = required_acceptance_ids()
     tests = data["tests"]
-    if data["version"] != version or len(tests) != 10 or {t["test_id"] for t in tests} != REQUIRED:
+    if data["version"] != version or len(tests) != len(required) or {t["test_id"] for t in tests} != required:
         raise ValueError("Invalid acceptance version or test coverage")
-    if any(t["status"] != "PASS" for t in tests) or data["passed"] != 10 or data["failed"] or data["blocked"]:
+    if any(t["status"] != "PASS" for t in tests) or data["passed"] != len(required) or data["failed"] or data["blocked"]:
         raise ValueError("Acceptance evidence is not fully passing")
     if not isinstance(data.get("source_commit"), str) or len(data["source_commit"]) != 40:
         raise ValueError("Missing tested source commit")
@@ -25,7 +34,7 @@ def main():
     (ROOT / "info").mkdir(exist_ok=True)
     for filename, detail in (("test-results.pdf", False), ("test-evidence.pdf", True)):
         story = [Paragraph("Acceptance test evidence" if detail else "Acceptance test results", styles["Title"])]
-        for key in ("version", "source_commit", "run_id", "timestamp_utc", "word_version", "package_sha256"):
+        for key in ("version", "source_commit", "run_id", "timestamp_utc", "word_version", "acceptance_zip_sha256"):
             story.append(Paragraph(key + ": " + str(data.get(key, "not recorded")), styles["Normal"]))
         story.append(Spacer(1, 12))
         for test in sorted(tests, key=lambda t: t["test_id"]):
