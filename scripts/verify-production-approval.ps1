@@ -19,10 +19,20 @@ foreach($id in $required){
  $records=@($e.tests | Where-Object {$_.test_id -eq $id})
  if($records.Count -ne 1 -or $records[0].status -ne 'PASS'){throw "Production blocked: expected one PASS for $id"}
 }
+$diagnosticsPath='tests/results/coverage-diagnostics.json'
+if(-not (Test-Path -LiteralPath $diagnosticsPath -PathType Leaf)){throw 'Production blocked: diagnostics missing'}
+$d=Get-Content -LiteralPath $diagnosticsPath -Raw | ConvertFrom-Json
+if($d.status -ne 'PASS' -or $d.source_commit -cne $e.source_commit){throw 'Production blocked: diagnostics provenance mismatch'}
+$expectedDiagnostics=@('src/compare-formatting.ps1','src/archive-previous-outputs.ps1')
+if(@($d.files).Count -ne $expectedDiagnostics.Count){throw 'Production blocked: diagnostics inventory mismatch'}
+foreach($name in $expectedDiagnostics){
+ $entries=@($d.files | Where-Object { $_.path -ceq $name })
+ if($entries.Count -ne 1 -or $entries[0].measurement -ne 'MEASURED' -or $entries[0].invalid_hit_count -ne 0 -or $entries[0].hit_file_count -lt 1){throw "Production blocked: invalid diagnostics for $name"}
+}
 $coveragePath='tests/results/code-coverage.json'
 if(-not (Test-Path -LiteralPath $coveragePath -PathType Leaf)){throw 'Production blocked: code coverage JSON missing'}
 $c=Get-Content -LiteralPath $coveragePath -Raw | ConvertFrom-Json
-if($c.schema_version -ne 1 -or $c.application -ne 'virtual-admin' -or $c.version -ne $Version -or $c.source_commit -cne $e.source_commit){throw 'Production blocked: coverage provenance mismatch'}
+if($c.release_input_fingerprint -cne $e.release_input_fingerprint -or $c.schema_version -ne 1 -or $c.application -ne 'virtual-admin' -or $c.version -ne $Version -or $c.source_commit -cne $e.source_commit){throw 'Production blocked: coverage provenance mismatch'}
 if($e.acceptance_zip_sha256 -notmatch '^[0-9a-f]{64}$' -or $c.acceptance_zip_sha256 -cne $e.acceptance_zip_sha256){throw 'Production blocked: acceptance ZIP SHA-256 missing or inconsistent between evidence files'}
 $expected=@('src/compare-formatting.ps1','src/archive-previous-outputs.ps1','run-virtual-admin.bat')
 if(@($c.files).Count -ne $expected.Count){throw 'Production blocked: incomplete code coverage inventory'}
