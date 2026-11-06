@@ -14,7 +14,7 @@ def fail(message):
 def read(path):
     return json.loads((ROOT / path).read_text(encoding="utf-8-sig"))
 def governing_devstan_version():
-    text = (ROOT / "docs/devstan.md").read_text(encoding="utf-8-sig")
+    text = (ROOT / "docs/development-standards.md").read_text(encoding="utf-8-sig")
     match = re.search(r"(?m)^\| \d{4}-\d{2}-\d{2} \| v(\d+\.\d+) \|", text)
     if not match:
         raise ValueError("Governing Devstan version missing")
