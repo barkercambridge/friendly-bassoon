@@ -36,6 +36,8 @@ try {
   @{name='devstan-admin-4';action={New-Item -ItemType Directory -Path 'scripts' -Force | Out-Null; Set-Content 'scripts/verify-devstan.py' 'administrative update' -Encoding ASCII};expected=$false},
   @{name='devstan-admin-5';action={New-Item -ItemType Directory -Path 'tests' -Force | Out-Null; Set-Content 'tests/test-devstan-info-rules.py' 'administrative update' -Encoding ASCII};expected=$false},
   @{name='evidence-only-upload';action={New-Item -ItemType Directory -Path 'tests/results' -Force | Out-Null; Set-Content 'tests/results/acceptance-results.json' '{}' -Encoding ASCII};expected=$true},
+  @{name='new-coverage-diagnostics';action={New-Item -ItemType Directory -Path 'tests/results' -Force | Out-Null; Set-Content 'tests/results/coverage-diagnostics.json' '{}' -Encoding ASCII};expected=$true},
+  @{name='unexpected-evidence';action={New-Item -ItemType Directory -Path 'tests/results' -Force | Out-Null; Set-Content 'tests/results/extra.json' '{}' -Encoding ASCII};expected=$true},
   @{name='modified-source';action={Set-Content src/app.ps1 'Write-Host modified' -Encoding ASCII};expected=$false},
   @{name='added-source';action={Set-Content src/new.ps1 'new' -Encoding ASCII};expected=$false},
   @{name='deleted-source';action={Remove-Item src/app.ps1};expected=$false},
