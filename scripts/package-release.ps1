@@ -15,7 +15,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 # FR-012 / R04: traceability.json is the sole authoritative release version.
-$traceabilityPath = Join-Path (Split-Path -Parent $PSScriptRoot) 'traceability.json'
+$traceabilityPath = Join-Path (Split-Path -Parent $PSScriptRoot) 'config/traceability.json'
 if (-not (Test-Path -LiteralPath $traceabilityPath -PathType Leaf)) {
     throw 'Authoritative traceability.json is missing.'
 }
@@ -52,7 +52,7 @@ if ($Edition -eq 'acceptance') {
         'tests/measure-code-coverage.ps1',
         'tests/compile-code-coverage.ps1',
         'tests/test-format-checks-alignment.ps1',
-        'traceability.json'
+        'config/traceability.json'
     )
 }
 else {
@@ -75,7 +75,7 @@ try {
         $destinationPath = switch ($file) {
             'README.md' { 'docs/README.md' }
             'AGENTS.md' { 'docs/AGENTS.md' }
-            'traceability.json' { 'docs/traceability.json' }
+            'config/traceability.json' { 'config/traceability.json' }
             'tests/run-acceptance-tests.bat' { 'run-acceptance-tests.bat' }
             default { $file }
         }
