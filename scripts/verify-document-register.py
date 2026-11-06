@@ -79,6 +79,8 @@ def validate(root, check_release_files=False):
                     declared[kind] = path
             if not declared:
                 errors.append("No DevStan authoritative sources defined")
+            if "acceptance-test-results" in assignments:
+                declared["acceptance-test-results"] = assignments["acceptance-test-results"]
             if declared != assignments:
                 errors.append("Authoritative source mappings differ from DevStan")
     # The latest version-history row is authoritative for each versioned document.
