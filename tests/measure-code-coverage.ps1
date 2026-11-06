@@ -1,3 +1,4 @@
+# FR-013, FR-014: Acceptance code coverage and diagnostics.
 # FR-013: Collect line-level execution evidence from the released comparison engine.
 param(
  [Parameter(Mandatory=$true)][string]$EnginePath,
