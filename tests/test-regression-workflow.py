@@ -62,6 +62,24 @@ class RegressionWorkflowTests(unittest.TestCase):
             (module.RESULTS / "code-coverage.json").unlink()
             self.assertEqual(module.freshness()[0], "INVALID")
 
+    def test_fingerprint_policy_cannot_exclude_itself(self):
+        import importlib.util
+        import json
+        import tempfile
+        spec = importlib.util.spec_from_file_location("freshness_policy", ROOT / "scripts/acceptance-evidence-freshness.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        original = json.loads((ROOT / "config/release-input-exemptions.json").read_text(encoding="utf-8"))
+        with tempfile.TemporaryDirectory() as temporary:
+            policy_path = Path(temporary) / "release-input-exemptions.json"
+            module.POLICY_PATH = policy_path
+            for category in ("editorial_paths", "evidence_paths"):
+                policy = json.loads(json.dumps(original))
+                policy[category].append("config/release-input-exemptions.json")
+                policy_path.write_text(json.dumps(policy), encoding="utf-8")
+                with self.assertRaises(ValueError):
+                    module.exemptions()
+
     def test_generated_results_directory_does_not_change_fingerprint(self):
         import importlib.util
         import subprocess
