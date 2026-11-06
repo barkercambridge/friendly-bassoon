@@ -13,7 +13,7 @@ rl_config.pageCompression = 0
 root = Path(__file__).resolve().parent.parent
 raw = (root / "config/format-checks.json").read_bytes()
 checks = json.loads(raw.decode("utf-8-sig"))["checks"]
-version = json.loads((root / "traceability.json").read_text(encoding="utf-8-sig"))["version"]
+version = json.loads((root / "config/traceability.json").read_text(encoding="utf-8-sig"))["version"]
 if not isinstance(version, str) or not re.fullmatch(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)", version):
     raise SystemExit("Invalid application version in traceability.json")
 ids = [str(c["id"]) for c in checks]
