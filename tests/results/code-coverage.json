@@ -1,11 +1,11 @@
 {
     "schema_version":  1,
     "application":  "virtual-admin",
-    "version":  "0.4",
-    "source_commit":  "ff63d7bc0505ca17bce7cd87291a075c6084bff3",
-    "release_input_fingerprint":  "adde1074eae818dda5ec77eee8fa874c5543575717c31b4efbb3c912403f7da7",
-    "acceptance_zip_sha256":  "38319e9eab9ecabc560064679d984174557674910342be652ebd7902bfe72ca3",
-    "timestamp_utc":  "2026-11-06T16:22:23.2169732Z",
+    "version":  "0.5",
+    "source_commit":  "494943b0d97e182b9de865438320cd50156340f6",
+    "release_input_fingerprint":  "2a06c088129a64345b4232af0c330956019be4b97d457166803e210b79313ee1",
+    "acceptance_zip_sha256":  "007417a95d742e852c2d3a58275a1196485d396e2abdd0fec7f4f4b01095d828",
+    "timestamp_utc":  "2026-11-06T16:51:21.5808756Z",
     "coverage_method":  "PowerShell statement-line breakpoints in released comparison engine and archive helper; batch launcher unmeasured",
     "exclusions":  [
                        {
