@@ -316,7 +316,7 @@ try {
  if($null -ne $word -and [Runtime.InteropServices.Marshal]::IsComObject($word)){[void][Runtime.InteropServices.Marshal]::ReleaseComObject($word)}
  [GC]::Collect();[GC]::WaitForPendingFinalizers()
  if(Test-Path -LiteralPath $work){try{Remove-Item -LiteralPath $work -Recurse -Force}catch{Record 'CLEANUP' 'FAIL' $_.Exception.Message}}
- foreach($id in $ids){if(-not @($results|Where-Object test_id -eq $id).Count){Record $id 'BLOCKED' 'Test was not executed'}}
+ foreach($id in $ids){if($id -ne 'AT-012' -and -not @($results|Where-Object test_id -eq $id).Count){Record $id 'BLOCKED' 'Test was not executed'}}
  $pass=@($results|Where-Object status -eq 'PASS').Count
  $fail=@($results|Where-Object status -eq 'FAIL').Count
  $blocked=@($results|Where-Object status -eq 'BLOCKED').Count
@@ -336,6 +336,77 @@ try {
   $fail++
   $record.failed=$fail
  }
+ # FR-013, FR-014: AT-012 verifies the shipped PowerShell runtime, package provenance and actual measured execution.
+ if(-not @($results | Where-Object test_id -eq 'AT-012').Count){
+  Write-Stage 'Verifying PowerShell syntax, provenance and measured coverage (AT-012).'
+  try {
+   Assert ($PSVersionTable.PSVersion.Major -eq 5 -and $PSVersionTable.PSVersion.Minor -eq 1) 'Windows PowerShell 5.1 required'
+   Assert ([string]$buildMetadata.release_input_fingerprint -match '^[0-9a-fA-F]{64}
+   $diagnosticHits=Join-Path $ResultsDirectory 'coverage-hit-files'
+   New-Item -ItemType Directory -Path $diagnosticHits -Force | Out-Null
+   Copy-Item -Path (Join-Path $coverageDirectory '*.hits') -Destination $diagnosticHits -ErrorAction SilentlyContinue
+  }
+  Remove-Item -LiteralPath $coverageDirectory -Recurse -Force -ErrorAction SilentlyContinue
+ }
+ $base=Join-Path $ResultsDirectory 'acceptance-results'
+ $record|ConvertTo-Json -Depth 8|Set-Content -LiteralPath ($base+'.json') -Encoding UTF8
+ Write-Host "Evidence: $base.json"
+ Write-Host "PASS=$pass FAIL=$fail BLOCKED=$blocked"
+ if($fail -gt 0 -or $blocked -gt 0){exit 1}
+}
+) 'Release-input fingerprint missing or invalid'
+   Assert ($sourceCommit -match '^[0-9a-f]{40}
+   $diagnosticHits=Join-Path $ResultsDirectory 'coverage-hit-files'
+   New-Item -ItemType Directory -Path $diagnosticHits -Force | Out-Null
+   Copy-Item -Path (Join-Path $coverageDirectory '*.hits') -Destination $diagnosticHits -ErrorAction SilentlyContinue
+  }
+  Remove-Item -LiteralPath $coverageDirectory -Recurse -Force -ErrorAction SilentlyContinue
+ }
+ $base=Join-Path $ResultsDirectory 'acceptance-results'
+ $record|ConvertTo-Json -Depth 8|Set-Content -LiteralPath ($base+'.json') -Encoding UTF8
+ Write-Host "Evidence: $base.json"
+ Write-Host "PASS=$pass FAIL=$fail BLOCKED=$blocked"
+ if($fail -gt 0 -or $blocked -gt 0){exit 1}
+}
+ -and $packageSha256 -match '^[0-9a-f]{64}
+   $diagnosticHits=Join-Path $ResultsDirectory 'coverage-hit-files'
+   New-Item -ItemType Directory -Path $diagnosticHits -Force | Out-Null
+   Copy-Item -Path (Join-Path $coverageDirectory '*.hits') -Destination $diagnosticHits -ErrorAction SilentlyContinue
+  }
+  Remove-Item -LiteralPath $coverageDirectory -Recurse -Force -ErrorAction SilentlyContinue
+ }
+ $base=Join-Path $ResultsDirectory 'acceptance-results'
+ $record|ConvertTo-Json -Depth 8|Set-Content -LiteralPath ($base+'.json') -Encoding UTF8
+ Write-Host "Evidence: $base.json"
+ Write-Host "PASS=$pass FAIL=$fail BLOCKED=$blocked"
+ if($fail -gt 0 -or $blocked -gt 0){exit 1}
+}
+) 'Tested package provenance incomplete'
+   $syntaxFiles=@(Get-ChildItem -LiteralPath (Join-Path $packageRoot 'src'),(Join-Path $packageRoot 'tests') -Recurse -File -Filter '*.ps1')
+   Assert ($syntaxFiles.Count -gt 0) 'No shipped PowerShell test or application scripts'
+   foreach($scriptFile in $syntaxFiles){
+    $tokens=$null;$parseErrors=$null
+    [void][System.Management.Automation.Language.Parser]::ParseFile($scriptFile.FullName,[ref]$tokens,[ref]$parseErrors)
+    Assert (@($parseErrors).Count -eq 0) ("PowerShell syntax invalid: "+$scriptFile.FullName)
+    $bytes=[IO.File]::ReadAllBytes($scriptFile.FullName)
+    $bom=$bytes.Length -ge 3 -and $bytes[0] -eq 239 -and $bytes[1] -eq 187 -and $bytes[2] -eq 191
+    Assert ($bom -or -not @($bytes | Where-Object {$_ -ge 128}).Count) ("PowerShell 5.1 encoding invalid: "+$scriptFile.FullName)
+   }
+   $coverage=Get-Content -LiteralPath (Join-Path $ResultsDirectory 'code-coverage.json') -Raw | ConvertFrom-Json
+   $diagnostics=Get-Content -LiteralPath (Join-Path $ResultsDirectory 'coverage-diagnostics.json') -Raw | ConvertFrom-Json
+   Assert ($coverage.source_commit -eq $sourceCommit -and $coverage.acceptance_zip_sha256 -eq $packageSha256 -and $coverage.release_input_fingerprint -eq $buildMetadata.release_input_fingerprint -and $coverage.version -eq $buildMetadata.version) 'Coverage provenance differs from tested release'
+   Assert ($diagnostics.source_commit -eq $sourceCommit -and $diagnostics.status -eq 'PASS') 'Coverage diagnostics missing or failed'
+   foreach($relative in @('src/compare-formatting.ps1','src/archive-previous-outputs.ps1')){
+    $measured=@($coverage.files | Where-Object {$_.path -eq $relative -and $_.measurement -eq 'MEASURED' -and @($_.covered_lines).Count -gt 0 -and $_.hit_file_count -gt 0})
+    Assert ($measured.Count -eq 1) ("Actual measured execution missing: "+$relative)
+   }
+   Record 'AT-012' 'PASS' 'PowerShell 5.1 syntax/encoding, package provenance and measured coverage with separate diagnostics verified'
+  } catch {Record 'AT-012' 'FAIL' $_.Exception.Message}
+ }
+ $pass=@($results | Where-Object status -eq 'PASS').Count
+ $fail=@($results | Where-Object status -eq 'FAIL').Count
+ $blocked=@($results | Where-Object status -eq 'BLOCKED').Count
+ $record.passed=$pass;$record.failed=$fail;$record.blocked=$blocked;$record.tests=@($results.ToArray())
  if(Test-Path -LiteralPath $coverageDirectory){
   if($fail -gt 0){
    $diagnosticHits=Join-Path $ResultsDirectory 'coverage-hit-files'
