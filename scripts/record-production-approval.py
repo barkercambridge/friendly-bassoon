@@ -20,6 +20,14 @@ def governing_devstan_version():
         raise ValueError("Governing Devstan version missing")
     return match.group(1)
 
+def required_acceptance_ids():
+    inventory = json.loads((ROOT / "config/traceability.json").read_text(encoding="utf-8-sig"))
+    entries = [x["id"] for x in inventory["acceptance_tests"]
+               if x.get("stage") == "Acceptance" and x.get("status") == "required"]
+    if not entries or len(entries) != len(set(entries)):
+        raise ValueError("Invalid authoritative Acceptance inventory")
+    return set(entries)
+
 def main():
     report = read("release-evidence/devstan.json")
     sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
@@ -45,14 +53,14 @@ def main():
         fail("source equivalence not established")
     version = report["version"]
     paths = [ROOT / "tests/results/acceptance-results.json"] if (ROOT / "tests/results/acceptance-results.json").is_file() else []
-    required = {f"AT-{i:03d}" for i in range(1, 9)} | {"AT-010", "AT-011"}
+    required = required_acceptance_ids()
     match = None
     for path in paths:
         data = json.loads(path.read_text(encoding="utf-8-sig"))
         tests = data.get("tests", [])
         if (data.get("version") == version and data.get("source_commit") == tested and
-            data.get("passed") == 10 and data.get("failed") == 0 and data.get("blocked") == 0 and
-            len(tests) == 10 and {x.get("test_id") for x in tests} == required and
+            data.get("passed") == len(required) and data.get("failed") == 0 and data.get("blocked") == 0 and
+            len(tests) == len(required) and {x.get("test_id") for x in tests} == required and
             all(x.get("status") == "PASS" for x in tests)):
             match = (path,)
             break
