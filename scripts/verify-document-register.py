@@ -66,9 +66,14 @@ def validate(root, check_release_files=False):
             section = policy.split("### Principal authoritative sources", 1)[1].split("\n## ", 1)[0]
             declared = {}
             for line in section.splitlines():
-                match = re.fullmatch(r"\| ([a-z][a-z0-9-]*) \| `([^`]+)` \|", line.strip())
+                match = re.fullmatch(r"\| ([^|]+?) \| `([^`]+)` \|", line.strip())
                 if match:
                     kind, path = match.groups()
+                    kind = {"Development Standards": "development-rules", "Functional Specification": "functional-requirements"}.get(kind, kind)
+                    if path.startswith(("app-repo:", "standards-repo:")):
+                        path = path.split(":", 1)[1]
+                    if kind == "central-document-inventory":
+                        continue
                     if kind in declared:
                         errors.append("Duplicate DevStan authoritative source: " + kind)
                     declared[kind] = path
