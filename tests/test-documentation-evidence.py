@@ -60,7 +60,10 @@ class AlignmentTests(unittest.TestCase):
         spec_text = spec_path.read_text(encoding="utf-8")
         marker = "| AT-001 |"
         original = next(line for line in spec_text.splitlines() if line.startswith(marker))
-        new_row = original.replace("| AT-001 |", "| AT-099 |", 1)
+        cells = original.split("|")
+        cells[1] = " AT-099 "
+        cells[2] = " " + ", ".join(candidate["requirements"]) + " "
+        new_row = "|".join(cells)
         spec_path.write_text(spec_text.replace(original, original + "\n" + new_row, 1), encoding="utf-8")
         problems = checker.verify(self.root, production=True)
         self.assertTrue(any("missing, extra or duplicate AT IDs" in problem for problem in problems), problems)
