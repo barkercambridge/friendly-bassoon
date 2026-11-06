@@ -3,13 +3,13 @@ on:
   workflow_dispatch:
     inputs:
       edition:
-        description: 'Choose Acceptance Testing or Production before starting (cannot change during run)'
+        description: 'Choose Acceptance or Production before starting (cannot change during run)'
         required: true
         type: choice
         options:
-          - Acceptance Testing
+          - Acceptance
           - Production
-        default: Acceptance Testing
+        default: Acceptance
 permissions:
   contents: write
   actions: read
@@ -17,7 +17,7 @@ permissions:
 jobs:
   verify-and-package:
     name: ${{ inputs.edition }}
-    if: github.event_name == 'workflow_dispatch' && (inputs.edition == 'Acceptance Testing' || inputs.edition == 'Production')
+    if: github.event_name == 'workflow_dispatch' && (inputs.edition == 'Acceptance' || inputs.edition == 'Production')
     runs-on: windows-latest
     timeout-minutes: 30
     steps:
@@ -96,34 +96,34 @@ jobs:
       - name: Verify edition-specific acceptance evidence
         shell: pwsh
         run: |
-          if ('${{ inputs.edition }}' -eq 'Acceptance Testing') {
+          if ('${{ inputs.edition }}' -eq 'Acceptance') {
             python scripts/verify-documentation-evidence.py --acceptance-build
           } else {
             python scripts/verify-documentation-evidence.py --production
           }
           if ($LASTEXITCODE -ne 0) { throw 'Edition-specific acceptance evidence validation failed' }
       - name: Note Word acceptance tests require interactive desktop Word
-        if: inputs.edition == 'Acceptance Testing'
+        if: inputs.edition == 'Acceptance'
         shell: pwsh
         run: |
           Write-Host 'AT-001 through AT-008, AT-010 and AT-011 have NOT been run on this GitHub-hosted runner.'
           Write-Host 'Use run-acceptance-tests.bat at the ZIP root on an interactive Windows desktop with Microsoft Word.'
           Write-Host 'This package is for acceptance testing, not production approval.'
       - name: Package acceptance-test distribution
-        if: inputs.edition == 'Acceptance Testing'
+        if: inputs.edition == 'Acceptance'
         shell: powershell
         run: |
           & .\scripts\package-release.ps1 -Version '${{ steps.version.outputs.value }}' -Commit '${{ github.sha }}' -Edition acceptance
           if (-not (Test-Path -LiteralPath "dist/virtual-admin-acceptance-v${{ steps.version.outputs.value }}.zip")) { throw 'Acceptance ZIP missing' }
           if (-not (Test-Path -LiteralPath "dist/virtual-admin-acceptance-v${{ steps.version.outputs.value }}.sha256")) { throw 'Acceptance checksum missing' }
       - name: Verify acceptance ZIP layout and info/ PDF register
-        if: inputs.edition == 'Acceptance Testing'
+        if: inputs.edition == 'Acceptance'
         shell: powershell
         run: |
           & .\\tests\\test-package-archive.ps1 -ArchivePath "dist/virtual-admin-acceptance-v${{ steps.version.outputs.value }}.zip" -Edition acceptance
           if ($LASTEXITCODE -ne 0) { throw 'Acceptance release layout verification failed' }
       - name: Upload acceptance-test distribution
-        if: inputs.edition == 'Acceptance Testing'
+        if: inputs.edition == 'Acceptance'
         uses: actions/upload-artifact@v4
         with:
           name: virtual-admin-acceptance
@@ -132,7 +132,7 @@ jobs:
             dist/virtual-admin-acceptance-*.sha256
           if-no-files-found: error
       - name: Publish acceptance GitHub prerelease
-        if: inputs.edition == 'Acceptance Testing'
+        if: inputs.edition == 'Acceptance'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
