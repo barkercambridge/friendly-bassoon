@@ -267,7 +267,7 @@ def check(production=False):
     # R08: verify edition-specific production deliverables before the approval gate.
     results_dir = ROOT / "tests/results"
     evidence_format_ok = not results_dir.exists() or (
-        results_dir.is_dir() and all(p.is_file() and p.name in ("acceptance-results.json", "code-coverage.json")
+        results_dir.is_dir() and all(p.is_file() and p.name in ("acceptance-results.json", "code-coverage.json", "coverage-diagnostics.json")
                                      for p in results_dir.iterdir())
     )
     if production:
