@@ -21,8 +21,9 @@ New-Item -ItemType Directory -Path $coverageDirectory -Force | Out-Null
 $results=New-Object 'System.Collections.Generic.List[object]'
 $word=$null
 $work=Join-Path ([IO.Path]::GetTempPath()) ('virtual-admin-test-'+[guid]::NewGuid().ToString('N'))
-$ids=@('AT-001','AT-002','AT-003','AT-004','AT-005','AT-006','AT-007','AT-008','AT-010','AT-011')
 $traceability=Get-Content -LiteralPath (Join-Path $packageRoot 'config\traceability.json') -Raw | ConvertFrom-Json
+$ids=@($traceability.acceptance_tests | Where-Object { $_.status -eq 'required' -and $_.stage -eq 'Acceptance' } | ForEach-Object { [string]$_.id })
+if($ids.Count -eq 0 -or @($ids | Select-Object -Unique).Count -ne $ids.Count){throw 'Invalid authoritative Acceptance test inventory'}
 $mapping=@{}
 foreach($requirement in $traceability.requirements){foreach($testId in @($requirement.tests)){if(-not $mapping.ContainsKey($testId)){$mapping[$testId]=@()};$mapping[$testId]+=[string]$requirement.id}}
 foreach($testId in $ids){if(-not $mapping.ContainsKey($testId)){throw "Mandatory acceptance test has no FR mapping: $testId"}}
