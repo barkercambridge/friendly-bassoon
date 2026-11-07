@@ -35,7 +35,8 @@ foreach($relative in $files){
   $reason=if($hitFiles.Count -eq 0){'No coverage hit files were created'}elseif($invalidHits.Count -gt 0){'Coverage hit files contain nonnumeric entries'}elseif($observed.Count -eq 0){'Coverage hit files contain no recorded lines'}else{$null}
   $hit=@($executable | Where-Object {$_ -in $observed})
   $miss=@($executable | Where-Object {$_ -notin $observed})
-  $records+=@{path=$relative;sha256=$hash;diagnostic_reason=$reason;hit_file_count=$hitFiles.Count;invalid_hit_count=$invalidHits.Count;measurement=$(if($relative -in @('src/compare-formatting.ps1','src/archive-previous-outputs.ps1') -and $observed.Count -gt 0 -and $invalidHits.Count -eq 0){'MEASURED'}else{'NOT MEASURED'});executable_lines=@($executable);covered_lines=@($hit);uncovered_lines=@($miss);coverage_percentage=$(if($executable.Count -gt 0){[math]::Round(100.0*$hit.Count/$executable.Count,2)}else{$null});excluded=$false}
+  $measurement=if($reason){'NOT MEASURED'}else{'MEASURED'}
+  $records+=@{path=$relative;sha256=$hash;diagnostic_reason=$reason;hit_file_count=$hitFiles.Count;invalid_hit_count=$invalidHits.Count;measurement=$measurement;executable_lines=@($executable);covered_lines=@($hit);uncovered_lines=@($miss);coverage_percentage=$(if($measurement -eq 'MEASURED' -and $executable.Count -gt 0){[math]::Round(100.0*$hit.Count/$executable.Count,2)}else{$null});excluded=$false}
  } else {
   $records+=@{path=$relative;sha256=$hash;measurement='NOT MEASURED';reason='Batch launcher execution coverage instrumentation not available';executable_lines=@();covered_lines=@();uncovered_lines=@();coverage_percentage=$null;excluded=$true}
  }
@@ -46,7 +47,7 @@ if (-not $metadata.release_input_fingerprint -or ([string]$metadata.release_inpu
 $report=[ordered]@{
  schema_version=1;application='virtual-admin';version=$Version;source_commit=$SourceCommit;release_input_fingerprint=$metadata.release_input_fingerprint;acceptance_zip_sha256=$AcceptanceZipSha256
  timestamp_utc=(Get-Date).ToUniversalTime().ToString('o')
- coverage_method='PowerShell statement-line breakpoints in released comparison engine and archive helper; batch launcher unmeasured'
+ coverage_method='PowerShell statement-line breakpoints in released comparison engine and archive helper; Batch files excluded from application code coverage'
  exclusions=@($records | Where-Object {$_.excluded} | ForEach-Object {@{path=$_.path;reason=$_.reason}})
  files=@($records)
 }
