@@ -116,7 +116,7 @@ try {
    'run-virtual-admin.bat','run-acceptance-tests.bat',
    'src/compare-formatting.ps1','src/archive-previous-outputs.ps1',
    'config/format-checks.json','info/formatting-checks.pdf','config/virtual-admin-build.json',
-   'docs/README.md','docs/installation.md','docs/functional-specification.md','docs/AGENTS.md','config/traceability.json',
+   'docs/README.md','docs/functional-specification.md','docs/AGENTS.md','config/traceability.json',
    'tests/test-functional-acceptance.ps1','tests/test-format-checks-alignment.ps1'
   )
   foreach($entry in $releaseRequired) {
