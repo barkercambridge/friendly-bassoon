@@ -353,6 +353,9 @@ class RegressionWorkflowTests(unittest.TestCase):
         preflight = (ROOT / "scripts/preflight.py").read_text(encoding="utf-8")
         verifier = (ROOT / "scripts/verify-devstan.py").read_text(encoding="utf-8")
         report = (ROOT / "scripts/build-traceability.py").read_text(encoding="utf-8")
+        self.assertIn('executable_files', preflight)
+        self.assertIn('coverage_tools', preflight)
+        self.assertIn('conflicts with executable inventory', preflight)
         for role in roles:
             self.assertIn(role, preflight)
             self.assertIn(role, verifier)
