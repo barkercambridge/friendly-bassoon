@@ -10,7 +10,9 @@ Requires Windows, desktop Microsoft Word and Windows PowerShell 5.1. No administ
 2. Double-click `run-virtual-admin.bat`.
 3. Open the generated `<document name>-HIGHLIGHT.docx` and accompanying `activity.docx`. On each subsequent launch, any previous highlighted DOCX and `activity.docx` are automatically timestamped and moved to `old/` before comparison. If the check specification is missing, invalid or contains an unsupported check, inspect `activity.docx` in the same directory.
 
-For custom document paths, see [installation instructions](docs/installation.md).
+For custom document paths, run `powershell.exe -NoProfile -File .\src\compare-formatting.ps1 -TemplatePath 'C:\path\template.dotx' -DocumentPath 'C:\path\target.docx'` from the application directory.
+
+To install, download or extract the application files without changing their folder structure, and ensure desktop Microsoft Word is installed and has been opened under your Windows account. To upgrade, replace the application scripts while preserving your documents. To uninstall, remove the scripts; input documents and generated outputs remain in place. Downloaded scripts may require **Properties → Unblock** before use.
 
 ## Status
 **Current application status: acceptance testing pending; production is not approved.** The current version is defined in `app-repo:config/traceability.json`. Historical results below do not apply to the current implementation.
