@@ -193,26 +193,26 @@ def produce(root, edition):
     for entry in read_json(root / "docs/document-register.json")["documents"]:
         if entry["verification"] == "required":
             p = root / entry["path"]
-            files.append({"path": entry["path"], "sha256": sha256(p), "role": "controlled-document"})
+            files.append({"path": entry["path"], "sha256": sha256(p)})
     for path in sorted((root / "tests/results").glob("*.json")):
         if path.suffix == ".json":
-            files.append({"path": path.relative_to(root).as_posix(), "sha256": sha256(path), "role": "code-coverage-evidence" if path.name == "code-coverage.json" else "acceptance-evidence"})
+            files.append({"path": path.relative_to(root).as_posix(), "sha256": sha256(path)})
     if edition == "production":
         for name in ("info/test-results.pdf", "info/test-evidence.pdf", "info/test-coverage.pdf"):
             file = root / name
             if not file.is_file():
                 raise ValueError("Missing production report: " + name)
-            files.append({"path": name, "sha256": sha256(file), "role": "production-test-report"})
+            files.append({"path": name, "sha256": sha256(file)})
     workbook = root / "info/traceability.xlsx"
     if not workbook.is_file():
         raise ValueError("Missing release traceability workbook: info/traceability.xlsx")
-    files.append({"path": "info/traceability.xlsx", "sha256": sha256(workbook), "role": "traceability-workbook"})
+    files.append({"path": "info/traceability.xlsx", "sha256": sha256(workbook)})
     for path in sorted(evidence_dir.glob("*")):
         if path.is_file() and path.name != "evidence-manifest.json":
-            files.append({"path": path.relative_to(root).as_posix(), "sha256": sha256(path), "role": "release-evidence"})
+            files.append({"path": path.relative_to(root).as_posix(), "sha256": sha256(path)})
     for path in sorted((root / "dist").glob("*")) if (root / "dist").is_dir() else []:
         if path.is_file():
-            files.append({"path": path.relative_to(root).as_posix(), "sha256": sha256(path), "role": "distribution"})
+            files.append({"path": path.relative_to(root).as_posix(), "sha256": sha256(path)})
     manifest = {
         "schema_version": 1, "application": "virtual-admin", "version": rtm["version"],
         "source_commit": head, "edition": edition,
