@@ -14,7 +14,8 @@
       "test_implementation": [
         "tests/test-functional-acceptance.ps1"
       ],
-      "coverage_instrumentation": []
+      "coverage_instrumentation": [],
+      "batch": []
     },
     {
       "id": "FR-002",
@@ -22,13 +23,14 @@
         "AT-006",
         "AT-007"
       ],
-      "implementation_source": [
-        "run-virtual-admin.bat"
-      ],
+      "implementation_source": [],
       "test_implementation": [
         "tests/test-functional-acceptance.ps1"
       ],
-      "coverage_instrumentation": []
+      "coverage_instrumentation": [],
+      "batch": [
+        "run-virtual-admin.bat"
+      ]
     },
     {
       "id": "FR-003",
@@ -36,13 +38,14 @@
         "AT-006",
         "AT-007"
       ],
-      "implementation_source": [
-        "run-virtual-admin.bat"
-      ],
+      "implementation_source": [],
       "test_implementation": [
         "tests/test-functional-acceptance.ps1"
       ],
-      "coverage_instrumentation": []
+      "coverage_instrumentation": [],
+      "batch": [
+        "run-virtual-admin.bat"
+      ]
     },
     {
       "id": "FR-004",
@@ -55,7 +58,8 @@
       "test_implementation": [
         "tests/test-functional-acceptance.ps1"
       ],
-      "coverage_instrumentation": []
+      "coverage_instrumentation": [],
+      "batch": []
     },
     {
       "id": "FR-005",
@@ -68,7 +72,8 @@
       "test_implementation": [
         "tests/test-functional-acceptance.ps1"
       ],
-      "coverage_instrumentation": []
+      "coverage_instrumentation": [],
+      "batch": []
     },
     {
       "id": "FR-006",
@@ -77,26 +82,29 @@
       ],
       "implementation_source": [
         "src/compare-formatting.ps1",
-        "src/archive-previous-outputs.ps1",
-        "run-virtual-admin.bat"
+        "src/archive-previous-outputs.ps1"
       ],
       "test_implementation": [
         "tests/test-functional-acceptance.ps1"
       ],
-      "coverage_instrumentation": []
+      "coverage_instrumentation": [],
+      "batch": [
+        "run-virtual-admin.bat"
+      ]
     },
     {
       "id": "FR-007",
       "tests": [
         "AT-001"
       ],
-      "implementation_source": [
-        "run-virtual-admin.bat"
-      ],
+      "implementation_source": [],
       "test_implementation": [
         "tests/test-functional-acceptance.ps1"
       ],
-      "coverage_instrumentation": []
+      "coverage_instrumentation": [],
+      "batch": [
+        "run-virtual-admin.bat"
+      ]
     },
     {
       "id": "FR-008",
@@ -104,7 +112,8 @@
       "tests": [],
       "implementation_source": [],
       "test_implementation": [],
-      "coverage_instrumentation": []
+      "coverage_instrumentation": [],
+      "batch": []
     },
     {
       "id": "FR-009",
@@ -117,20 +126,22 @@
       "test_implementation": [
         "tests/test-functional-acceptance.ps1"
       ],
-      "coverage_instrumentation": []
+      "coverage_instrumentation": [],
+      "batch": []
     },
     {
       "id": "FR-010",
       "tests": [
         "AT-006"
       ],
-      "implementation_source": [
-        "run-virtual-admin.bat"
-      ],
+      "implementation_source": [],
       "test_implementation": [
         "tests/test-functional-acceptance.ps1"
       ],
-      "coverage_instrumentation": []
+      "coverage_instrumentation": [],
+      "batch": [
+        "run-virtual-admin.bat"
+      ]
     },
     {
       "id": "FR-011",
@@ -143,7 +154,8 @@
       "test_implementation": [
         "tests/test-functional-acceptance.ps1"
       ],
-      "coverage_instrumentation": []
+      "coverage_instrumentation": [],
+      "batch": []
     },
     {
       "id": "FR-012",
@@ -157,7 +169,8 @@
       "test_implementation": [
         "tests/test-format-checks-alignment.ps1"
       ],
-      "coverage_instrumentation": []
+      "coverage_instrumentation": [],
+      "batch": []
     },
     {
       "id": "FR-013",
@@ -173,7 +186,8 @@
       ],
       "coverage_instrumentation": [
         "tests/measure-code-coverage.ps1"
-      ]
+      ],
+      "batch": []
     },
     {
       "id": "FR-014",
@@ -189,7 +203,8 @@
       "coverage_instrumentation": [
         "tests/measure-code-coverage.ps1",
         "tests/compile-code-coverage.ps1"
-      ]
+      ],
+      "batch": []
     },
     {
       "id": "FR-015",
@@ -203,7 +218,8 @@
       "test_implementation": [
         "tests/test-functional-acceptance.ps1"
       ],
-      "coverage_instrumentation": []
+      "coverage_instrumentation": [],
+      "batch": []
     },
     {
       "id": "FR-016",
@@ -218,7 +234,8 @@
       "test_implementation": [
         "tests/test-functional-acceptance.ps1"
       ],
-      "coverage_instrumentation": []
+      "coverage_instrumentation": [],
+      "batch": []
     }
   ],
   "regression_suites": [
