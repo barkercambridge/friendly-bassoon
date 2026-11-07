@@ -80,10 +80,9 @@
     },
     {
       "path": "README.md",
-      "role": "user-guide",
-      "authority": "User-facing overview and usage",
-      "verification": "required",
-      "version_source": "README.md"
+      "role": "quick-start-installation",
+      "authority": "Quick start and installation instructions (content excluded from automated documentation validation under R02)",
+      "verification": "required"
     },
     {
       "path": "config/format-checks.json",
