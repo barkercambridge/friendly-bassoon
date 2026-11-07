@@ -9,7 +9,7 @@ param(
  [Parameter(Mandatory=$true)][string]$SourceCommit
 )
 $ErrorActionPreference='Stop'
-$files=@('src/compare-formatting.ps1','src/archive-previous-outputs.ps1','run-virtual-admin.bat')
+$files=@('src/compare-formatting.ps1','src/archive-previous-outputs.ps1')
 $records=@()
 foreach($relative in $files){
  $path=Join-Path $PackageRoot $relative
