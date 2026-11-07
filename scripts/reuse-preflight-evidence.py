@@ -47,7 +47,7 @@ def main():
     if run.get("conclusion") != "success":
         raise RuntimeError("Preflight did not pass: " + str(run.get("html_url")))
     run_id = str(run["id"])
-    print("Reusing successful push preflight: " + str(run.get("html_url")))
+    print("Reusing successful main preflight: " + str(run.get("html_url")))
     gh("run", "download", run_id, "--repo", repo, "--name", ARTIFACT, "--dir", "release-evidence")
     for filename in ("powershell-syntax.json", "regression-results.json", "preflight-results.json"):
         path = Path("release-evidence") / filename
