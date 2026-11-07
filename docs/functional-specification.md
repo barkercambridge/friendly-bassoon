@@ -82,6 +82,7 @@ Application-specific release editions, packaging and reporting are defined in FR
 
 ## 10. Change history
 
+| v3.51 | 2026-11-07 | Align FR-012 generated PDF document classification with DevStan v8.46; release inclusion remains mandatory. |
 | v3.50 | 2026-11-06 | Define authoritative staged acceptance inventory; implement AT-012 validation; retain AT-013 Production verification pending. |
 | v3.49 | 2026-11-06 | Align FR-016 Production-only release and evidence reports with Development Standards R08 and FR-015; correct contradictory Acceptance report requirements. |
 | Version | Date | Summary |
