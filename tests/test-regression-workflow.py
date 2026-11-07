@@ -10,6 +10,26 @@ WORKFLOW = ROOT / ".github/workflows/release.yml"
 SPEC = ROOT / "docs/functional-specification.md"
 
 class RegressionWorkflowTests(unittest.TestCase):
+    def test_preflight_rejects_missing_and_obsolete_package_inputs(self):
+        import importlib.util
+        import tempfile
+        import shutil
+        spec = importlib.util.spec_from_file_location("package_preflight", ROOT / "scripts/preflight.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        self.assertEqual(module.validate_package_inputs(ROOT), [])
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "scripts").mkdir()
+            (root / "docs").mkdir()
+            shutil.copyfile(ROOT / "scripts/package-release.ps1", root / "scripts/package-release.ps1")
+            shutil.copyfile(ROOT / "docs/document-register.json", root / "docs/document-register.json")
+            source = (root / "scripts/package-release.ps1").read_text(encoding="utf-8")
+            source = source.replace("'docs/functional-specification.md',", "'docs/obsolete-installation.md',")
+            (root / "scripts/package-release.ps1").write_text(source, encoding="utf-8")
+            problems = module.validate_package_inputs(root)
+            self.assertTrue(any("Obsolete or unregistered package document: docs/obsolete-installation.md" in p for p in problems))
+
     def test_r04_failed_coverage_measurement_has_no_percentage(self):
         compiler = (ROOT / "tests/compile-code-coverage.ps1").read_text(encoding="utf-8")
         verifier = (ROOT / "scripts/verify-devstan.py").read_text(encoding="utf-8")
