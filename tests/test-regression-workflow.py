@@ -335,7 +335,7 @@ class RegressionWorkflowTests(unittest.TestCase):
 
     def test_r04_traceability_roles_are_separate_and_enforced(self):
         inventory = json.loads((ROOT / "config/traceability.json").read_text(encoding="utf-8"))
-        roles = ("implementation_source", "test_implementation", "coverage_instrumentation")
+        roles = ("implementation_source", "test_implementation", "coverage_instrumentation", "batch")
         global_roles = {}
         for row in inventory["requirements"]:
             self.assertTrue(all(isinstance(row.get(role), list) for role in roles), row["id"])
@@ -344,12 +344,13 @@ class RegressionWorkflowTests(unittest.TestCase):
             self.assertTrue(all((ROOT / path).is_file() for path in paths), row["id"])
             for role in roles:
                 for path in row[role]:
+                    self.assertEqual(path.lower().endswith((".bat", ".cmd")), role == "batch", path)
                     self.assertEqual(global_roles.setdefault(path, role), role, path)
             if row.get("status") == "planned":
                 self.assertFalse(paths, row["id"])
             else:
-                self.assertTrue(row["implementation_source"], row["id"])
-                self.assertTrue(row["test_implementation"], row["id"])
+                self.assertTrue(row["implementation_source"] or row["batch"], row["id"])
+                self.assertTrue(row["test_implementation"] or row["batch"], row["id"])
         preflight = (ROOT / "scripts/preflight.py").read_text(encoding="utf-8")
         verifier = (ROOT / "scripts/verify-devstan.py").read_text(encoding="utf-8")
         report = (ROOT / "scripts/build-traceability.py").read_text(encoding="utf-8")
