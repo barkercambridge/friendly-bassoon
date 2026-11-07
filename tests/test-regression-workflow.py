@@ -41,6 +41,7 @@ class RegressionWorkflowTests(unittest.TestCase):
             problems = module.validate_package_inputs(root)
             self.assertTrue(any("Duplicate acceptance package manifest entry" in p for p in problems))
             manifest["editions"]["acceptance"].pop()
+            manifest["editions"]["acceptance"][0]["source"] = "docs/renamed-entry.md"
             manifest["editions"]["acceptance"][0]["destination"] = "docs/renamed-entry.md"
             manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
             problems = module.validate_package_inputs(root)
