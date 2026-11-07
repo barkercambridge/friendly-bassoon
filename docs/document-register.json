@@ -86,17 +86,19 @@
     {
       "path": "info/formatting-checks.pdf",
       "authority": "Project-specific readable register defined by functional specification FR-012",
-      "verification": "required",
+      "verification": "generated",
       "requirement": "FR-012",
       "purpose": "Human-readable mirror of formatting configuration",
-      "generator": "scripts/build-formatting-checks.py"
+      "generator": "scripts/build-formatting-checks.py",
+      "release_required": true
     },
     {
       "path": "info/release.pdf",
       "authority": "DevStan R08 production-only Git-derived release changes report",
       "verification": "generated",
       "purpose": "Changes since the previous application release",
-      "generator": "scripts/build-release-notes.py"
+      "generator": "scripts/build-release-notes.py",
+      "release_required": true
     },
     {
       "path": "scripts/verify-devstan.py",
@@ -178,28 +180,32 @@
       "authority": "DevStan R08 production report generated from verified acceptance JSON",
       "verification": "generated",
       "purpose": "Human-readable production acceptance results",
-      "generator": "scripts/build-test-reports.py"
+      "generator": "scripts/build-test-reports.py",
+      "release_required": true
     },
     {
       "path": "info/test-evidence.pdf",
       "authority": "DevStan R08 production report generated from verified acceptance JSON",
       "verification": "generated",
       "purpose": "Human-readable production supporting test evidence",
-      "generator": "scripts/build-test-reports.py"
+      "generator": "scripts/build-test-reports.py",
+      "release_required": true
     },
     {
       "path": "info/traceability.xlsx",
       "authority": "DevStan R08 release-generated FR, AT and Devstan traceability evidence",
       "verification": "generated",
       "purpose": "Excel FR, AT and Devstan traceability evidence",
-      "generator": "scripts/build-traceability.py"
+      "generator": "scripts/build-traceability.py",
+      "release_required": true
     },
     {
       "path": "info/test-coverage.pdf",
       "authority": "DevStan R08 production report generated from verified acceptance code coverage JSON",
       "verification": "generated",
       "purpose": "Human-readable production code coverage report",
-      "generator": "scripts/build-test-reports.py"
+      "generator": "scripts/build-test-reports.py",
+      "release_required": true
     },
     {
       "path": "tests/results/code-coverage.json",
