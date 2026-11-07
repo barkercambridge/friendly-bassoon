@@ -231,6 +231,11 @@
       "path": "scripts/fetch-central-docs.py",
       "authority": "Fail-closed authenticated retrieval and Git blob integrity verification",
       "verification": "required"
+    },
+    {
+      "path": "config/package-manifest.json",
+      "authority": "Authoritative edition-specific release package source and archive-destination inventory (DevStan R08)",
+      "verification": "required"
     }
   ],
   "version_authorities": [
