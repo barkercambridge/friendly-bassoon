@@ -76,7 +76,7 @@ def validate(root, check_release_files=False):
             section = policy.split("### Principal authoritative sources", 1)[1].split("\n## ", 1)[0]
             declared = {}
             for line in section.splitlines():
-                match = re.fullmatch(r"\| ([^|]+?) \| `([^`]+)` \|(?: [^|]* \|)?", line.strip())
+                match = re.fullmatch(r"\| ([^|]+?) \| `([^`]+)`(?: — [^|]+)? \|(?: [^|]* \|)?", line.strip())
                 if match:
                     kind, path = match.groups()
                     kind = {"Development Standards": "development-rules", "Functional Specification": "functional-requirements", "Python syntax defect records": "python-syntax-defects", "Development defect records": "development-defects"}.get(kind, kind)
