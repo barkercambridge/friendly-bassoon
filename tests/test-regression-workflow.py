@@ -14,26 +14,42 @@ class RegressionWorkflowTests(unittest.TestCase):
         import importlib.util
         import tempfile
         import shutil
+        import json
         spec = importlib.util.spec_from_file_location("package_preflight", ROOT / "scripts/preflight.py")
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         self.assertEqual(module.validate_package_inputs(ROOT), [])
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            (root / "scripts").mkdir()
-            (root / "tests").mkdir()
-            (root / "docs").mkdir()
-            (root / ".github/workflows").mkdir(parents=True)
-            shutil.copyfile(ROOT / ".github/workflows/release.yml", root / ".github/workflows/release.yml")
-            shutil.copyfile(ROOT / ".github/workflows/preflight.yml", root / ".github/workflows/preflight.yml")
-            shutil.copyfile(ROOT / "scripts/package-release.ps1", root / "scripts/package-release.ps1")
-            shutil.copyfile(ROOT / "tests/test-package-archive.ps1", root / "tests/test-package-archive.ps1")
-            shutil.copyfile(ROOT / "docs/document-register.json", root / "docs/document-register.json")
-            source = (root / "scripts/package-release.ps1").read_text(encoding="utf-8")
-            source = source.replace("'docs/functional-specification.md',", "'docs/obsolete-installation.md',")
-            (root / "scripts/package-release.ps1").write_text(source, encoding="utf-8")
+            for directory in ("scripts", "tests", "docs", "config", ".github/workflows"):
+                (root / directory).mkdir(parents=True, exist_ok=True)
+            for path in (".github/workflows/release.yml", ".github/workflows/preflight.yml",
+                         "scripts/package-release.ps1", "tests/test-package-archive.ps1",
+                         "tests/test-functional-acceptance.ps1", "docs/document-register.json",
+                         "config/package-manifest.json"):
+                shutil.copyfile(ROOT / path, root / path)
+            manifest_path = root / "config/package-manifest.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["editions"]["acceptance"].append(
+                {"source": "docs/obsolete-installation.md", "destination": "docs/obsolete-installation.md"})
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
             problems = module.validate_package_inputs(root)
             self.assertTrue(any("Obsolete or unregistered package document: docs/obsolete-installation.md" in p for p in problems))
+            manifest["editions"]["acceptance"].pop()
+            manifest["editions"]["acceptance"].append(manifest["editions"]["acceptance"][0].copy())
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            problems = module.validate_package_inputs(root)
+            self.assertTrue(any("Duplicate acceptance package manifest entry" in p for p in problems))
+            manifest["editions"]["acceptance"].pop()
+            manifest["editions"]["acceptance"][0]["destination"] = "docs/renamed-entry.md"
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            problems = module.validate_package_inputs(root)
+            self.assertTrue(any("Missing acceptance release package input" in p for p in problems))
+            consumer = root / "tests/test-functional-acceptance.ps1"
+            consumer.write_text(consumer.read_text(encoding="utf-8").replace(
+                "$packageManifest.editions.acceptance", "$legacyRequired"), encoding="utf-8")
+            problems = module.validate_package_inputs(root)
+            self.assertTrue(any("Package consumer does not derive expectations from manifest" in p for p in problems))
 
     def test_r04_failed_coverage_measurement_has_no_percentage(self):
         compiler = (ROOT / "tests/compile-code-coverage.ps1").read_text(encoding="utf-8")
