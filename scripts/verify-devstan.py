@@ -136,7 +136,7 @@ def check(production=False):
         if requirement.get("status", "").lower() == "planned":
             continue
         fr_id = requirement["id"]
-        for source in requirement.get("implementation_source", []):
+        for source in requirement.get("implementation_source", []) + requirement.get("batch", []):
             path = ROOT / source
             prefix = comment_prefixes.get(path.suffix.lower())
             if prefix is None or not path.is_file():
