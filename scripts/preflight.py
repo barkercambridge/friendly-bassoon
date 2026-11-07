@@ -50,6 +50,7 @@ def main():
     rtm = json.loads((ROOT / "config/traceability.json").read_text(encoding="utf-8-sig"))
     # R04: independently validate all three classified roles before regression execution.
     roles = ("implementation_source", "test_implementation", "coverage_instrumentation")
+    global_roles = {}
     for requirement in rtm["requirements"]:
         planned = requirement.get("status") == "planned"
         if not all(isinstance(requirement.get(role), list) for role in roles):
@@ -58,6 +59,11 @@ def main():
         paths = [p for role in roles for p in requirement[role]]
         if len(paths) != len(set(paths)) or any(not isinstance(p, str) or not p or not (ROOT / p).is_file() for p in paths):
             errors.append(f"{requirement['id']}: invalid or overlapping R04 paths")
+        for role in roles:
+            for path in requirement[role]:
+                if path in global_roles and global_roles[path] != role:
+                    errors.append(f"{path}: prohibited multi-role file ({global_roles[path]}, {role})")
+                global_roles[path] = role
         if planned and paths:
             errors.append(f"{requirement['id']}: planned requirement has implementation mappings")
         if not planned and (not requirement["implementation_source"] or not requirement["test_implementation"]):
