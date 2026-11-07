@@ -25,13 +25,14 @@ try {
   }
   if($Edition -eq 'production' -and @($paths | Where-Object { $_ -ceq 'info/release.pdf' }).Count -ne 1) {throw 'Expected exactly one release.pdf in production info/'}
   if($Edition -eq 'acceptance' -and @($paths | Where-Object { $_ -ceq 'info/release.pdf' }).Count -ne 0) {throw 'Acceptance ZIP must not contain release.pdf'}
-  $required=@('run-virtual-admin.bat','src/compare-formatting.ps1','src/archive-previous-outputs.ps1','config/format-checks.json','info/formatting-checks.pdf','config/virtual-admin-build.json','docs/AGENTS.md','docs/README.md','docs/functional-specification.md')
-  if($Edition -eq 'production') { $required+=@('info/release.pdf','info/traceability.xlsx','info/test-results.pdf','info/test-evidence.pdf','info/test-coverage.pdf') }
-  if($Edition -eq 'acceptance') {
-   $required+=@('run-acceptance-tests.bat','docs/README.md','docs/functional-specification.md','docs/AGENTS.md','config/traceability.json','tests/test-functional-acceptance.ps1','tests/measure-code-coverage.ps1','tests/compile-code-coverage.ps1','tests/test-format-checks-alignment.ps1')
-  }
+  # R08: Read authoritative expectations; never maintain a second archive-entry list.
+  $manifestPath=Join-Path (Split-Path -Parent $PSScriptRoot) 'config/package-manifest.json'
+  $manifest=Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+  $required=@($manifest.editions.$Edition | ForEach-Object { [string]$_.destination }) +
+    @($manifest.generated | ForEach-Object { [string]$_.destination }) + @('config/package-manifest.json')
   if($Edition -eq 'acceptance' -and @($paths | Where-Object { $_ -in @('info/traceability.xlsx','info/test-results.pdf','info/test-evidence.pdf','info/test-coverage.pdf') }).Count -gt 0) { throw 'Acceptance ZIP contains production-only traceability or test evidence' }
   foreach($name in $required) {if(-not $seen.ContainsKey($name)){throw "Required archive entry missing: $name"}}
+  foreach($name in $paths) {if($name -cnotin $required){throw "Unexpected archive entry: $name"}}
   if($Edition -eq 'production' -and @($paths | Where-Object { $_ -match '^tests/' -or $_ -eq 'run-acceptance-tests.bat' }).Count -gt 0) {
    throw 'Production ZIP contains acceptance-testing files'
   }
