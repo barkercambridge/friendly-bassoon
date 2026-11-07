@@ -88,13 +88,15 @@
       "authority": "Project-specific readable register defined by functional specification FR-012",
       "verification": "required",
       "requirement": "FR-012",
-      "purpose": "Human-readable mirror of formatting configuration"
+      "purpose": "Human-readable mirror of formatting configuration",
+      "generator": "scripts/build-formatting-checks.py"
     },
     {
       "path": "info/release.pdf",
       "authority": "DevStan R08 production-only Git-derived release changes report",
       "verification": "generated",
-      "purpose": "Changes since the previous application release"
+      "purpose": "Changes since the previous application release",
+      "generator": "scripts/build-release-notes.py"
     },
     {
       "path": "scripts/verify-devstan.py",
@@ -175,25 +177,29 @@
       "path": "info/test-results.pdf",
       "authority": "DevStan R08 production report generated from verified acceptance JSON",
       "verification": "generated",
-      "purpose": "Human-readable production acceptance results"
+      "purpose": "Human-readable production acceptance results",
+      "generator": "scripts/build-test-reports.py"
     },
     {
       "path": "info/test-evidence.pdf",
       "authority": "DevStan R08 production report generated from verified acceptance JSON",
       "verification": "generated",
-      "purpose": "Human-readable production supporting test evidence"
+      "purpose": "Human-readable production supporting test evidence",
+      "generator": "scripts/build-test-reports.py"
     },
     {
       "path": "info/traceability.xlsx",
       "authority": "DevStan R08 release-generated FR, AT and Devstan traceability evidence",
       "verification": "generated",
-      "purpose": "Excel FR, AT and Devstan traceability evidence"
+      "purpose": "Excel FR, AT and Devstan traceability evidence",
+      "generator": "scripts/build-traceability.py"
     },
     {
       "path": "info/test-coverage.pdf",
       "authority": "DevStan R08 production report generated from verified acceptance code coverage JSON",
       "verification": "generated",
-      "purpose": "Human-readable production code coverage report"
+      "purpose": "Human-readable production code coverage report",
+      "generator": "scripts/build-test-reports.py"
     },
     {
       "path": "tests/results/code-coverage.json",
