@@ -143,7 +143,8 @@
     {
       "path": "release-evidence/devstan.json",
       "authority": "Generated per-run Devstan verification",
-      "verification": "generated"
+      "verification": "generated",
+      "generator": "scripts/verify-devstan.py"
     },
     {
       "path": "release-evidence/devstan-reviews.json",
@@ -153,22 +154,26 @@
     {
       "path": "release-evidence/production-approval.json",
       "authority": "Generated only after production gates PASS",
-      "verification": "generated"
+      "verification": "generated",
+      "generator": "scripts/record-production-approval.py"
     },
     {
       "path": "release-evidence/source-equivalence.json",
       "authority": "Generated tested-to-release commit comparison",
-      "verification": "generated"
+      "verification": "generated",
+      "generator": "scripts/verify-source-equivalence.ps1"
     },
     {
       "path": "release-evidence/powershell-syntax.json",
       "authority": "Generated Windows PowerShell 5.1 parser results",
-      "verification": "generated"
+      "verification": "generated",
+      "generator": ".github/workflows/preflight.yml"
     },
     {
       "path": "release-evidence/evidence-manifest.json",
       "authority": "Generated checksums and provenance for release evidence",
-      "verification": "generated"
+      "verification": "generated",
+      "generator": "scripts/verify-document-register.py"
     },
     {
       "path": "tests/test-document-register.py",
