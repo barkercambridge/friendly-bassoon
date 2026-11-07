@@ -86,13 +86,6 @@
       "version_source": "README.md"
     },
     {
-      "path": "docs/installation.md",
-      "role": "installation-guide",
-      "authority": "Installation and upgrade instructions",
-      "verification": "required",
-      "version_source": "docs/installation.md"
-    },
-    {
       "path": "config/format-checks.json",
       "role": "formatting-config",
       "authority": "Project-specific required file defined by functional specification FR-012",
