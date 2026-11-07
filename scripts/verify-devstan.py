@@ -111,8 +111,13 @@ def check(production=False):
     mappings = []
     for r in rtm["requirements"]:
         planned = r.get("status", "").lower() == "planned"
-        sources, tests = r.get("source", []), r.get("tests", [])
-        mappings.append(planned or (bool(sources) and bool(tests) and all((ROOT / p).is_file() for p in sources)
+        sources, tests = r.get("implementation_source", []), r.get("tests", [])
+        roles = ("implementation_source", "test_implementation", "coverage_instrumentation")
+        classified = all(isinstance(r.get(role), list) for role in roles)
+        role_paths = [p for role in roles for p in r.get(role, [])]
+        classified = classified and len(role_paths) == len(set(role_paths)) and all((ROOT / p).is_file() for p in role_paths)
+        classified = classified and (planned or bool(r.get("test_implementation")))
+        mappings.append(classified and (planned or (bool(sources) and bool(tests) and all((ROOT / p).is_file() for p in sources)
                                      and all(t in mandatory or t in pending_acceptance or any(a.get("id") == t and a.get("stage") == "Production" for a in rtm.get("acceptance_tests", [])) for t in tests)))
     # FR-linked comments are mandatory in mapped executable source, not data files.
     # Match actual comment lines rather than FR identifiers in strings or code.
@@ -122,7 +127,7 @@ def check(production=False):
         if requirement.get("status", "").lower() == "planned":
             continue
         fr_id = requirement["id"]
-        for source in requirement.get("source", []):
+        for source in requirement.get("implementation_source", []):
             path = ROOT / source
             prefix = comment_prefixes.get(path.suffix.lower())
             if prefix is None or not path.is_file():
