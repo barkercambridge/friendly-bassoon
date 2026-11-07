@@ -52,6 +52,39 @@ def validate_package_inputs(root):
                 continue
             if not (root / path).is_file():
                 errors.append(f"Missing {name} release package input: {path}")
+    # R03: Audit release-archive test expectations against actual package definitions.
+    archive_test = (root / "tests/test-package-archive.ps1").read_text(encoding="utf-8-sig")
+    expected_blocks = (
+        ("common", r"\\$required\\s*=\\s*@\\(([^)]*)\\)"),
+        ("production", r"if\\(\\$Edition -eq 'production'\\)\\s*\\{\\s*\\$required\\s*\\+=\\s*@\\(([^)]*)\\)"),
+        ("acceptance", r"if\\(\\$Edition -eq 'acceptance'\\)\\s*\\{\\s*\\$required\\s*\\+=\\s*@\\(([^)]*)\\)"),
+    )
+    package_blocks = {}
+    for name, expression in blocks:
+        match = re.search(expression.replace("\\\\", "\\"), source)
+        if match:
+            package_blocks[name] = set(re.findall(r"'([^']+)'", match.group(1)))
+    expected = {}
+    for name, expression in expected_blocks:
+        match = re.search(expression, archive_test)
+        if not match:
+            errors.append(f"Cannot audit {name} archive-test expectations")
+            continue
+        expected[name] = set(re.findall(r"'([^']+)'", match.group(1)))
+    staged = lambda path: {
+        "README.md": "docs/README.md",
+        "AGENTS.md": "docs/AGENTS.md",
+        "tests/run-acceptance-tests.bat": "run-acceptance-tests.bat",
+    }.get(path, path)
+    if len(package_blocks) == 3 and len(expected) == 3:
+        common = {staged(p) for p in package_blocks["common"]} | {"config/virtual-admin-build.json"}
+        for edition in ("acceptance", "production"):
+            actual = common | {staged(p) for p in package_blocks[edition]}
+            required = expected["common"] | expected[edition]
+            for stale in sorted(required - actual):
+                errors.append(f"Obsolete {edition} archive-test expectation: {stale}")
+            for unchecked in sorted(actual - required):
+                errors.append(f"Unverified {edition} package entry in archive test: {unchecked}")
     for entry in register["documents"]:
         if entry.get("release_required") is True and entry["path"] not in packaged:
             errors.append(f"Required release output not included in package definitions: {entry['path']}")
