@@ -192,15 +192,17 @@ class RegressionWorkflowTests(unittest.TestCase):
         self.assertNotIn("git commit", step)
         self.assertNotIn("git push", step)
 
-    def test_release_reuses_only_matching_successful_push_preflight(self):
+    def test_release_reuses_only_matching_successful_main_preflight(self):
         workflow = WORKFLOW.read_text(encoding="utf-8")
         reuse = (ROOT / "scripts/reuse-preflight-evidence.py").read_text(encoding="utf-8")
         self.assertNotIn("uses: ./.github/workflows/preflight.yml", workflow)
         self.assertIn("python scripts/reuse-preflight-evidence.py", workflow)
         self.assertIn("actions: write", workflow)
         self.assertIn('run.get("head_sha") == sha', reuse)
-        self.assertIn('run.get("event") == "push"', reuse)
+        self.assertIn('run.get("event") in ("push", "workflow_dispatch")', reuse)
         self.assertIn('run.get("head_branch") == "main"', reuse)
+        self.assertIn('WAIT_SECONDS = 90', reuse)
+        self.assertNotIn('"event=push"', reuse)
         self.assertIn('run.get("conclusion") != "success"', reuse)
         self.assertIn('evidence.get("source_commit") != sha', reuse)
         self.assertIn('gh("run", "download"', reuse)
