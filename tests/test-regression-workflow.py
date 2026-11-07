@@ -335,11 +335,16 @@ class RegressionWorkflowTests(unittest.TestCase):
     def test_r04_traceability_roles_are_separate_and_enforced(self):
         inventory = json.loads((ROOT / "config/traceability.json").read_text(encoding="utf-8"))
         roles = ("implementation_source", "test_implementation", "coverage_instrumentation")
+        global_roles = {}
         for row in inventory["requirements"]:
             self.assertTrue(all(isinstance(row.get(role), list) for role in roles), row["id"])
             paths = [path for role in roles for path in row[role]]
             self.assertEqual(len(paths), len(set(paths)), row["id"])
             self.assertTrue(all((ROOT / path).is_file() for path in paths), row["id"])
+            for role in roles:
+                for path in row[role]:
+                    self.assertIn(path, global_roles.keys() | {path})
+                    self.assertEqual(global_roles.setdefault(path, role), role, path)
             if row.get("status") == "planned":
                 self.assertFalse(paths, row["id"])
             else:
