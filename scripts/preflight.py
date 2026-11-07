@@ -55,9 +55,9 @@ def validate_package_inputs(root):
     # R03: Audit release-archive test expectations against actual package definitions.
     archive_test = (root / "tests/test-package-archive.ps1").read_text(encoding="utf-8-sig")
     expected_blocks = (
-        ("common", r"\\$required\\s*=\\s*@\\(([^)]*)\\)"),
-        ("production", r"if\\(\\$Edition -eq 'production'\\)\\s*\\{\\s*\\$required\\s*\\+=\\s*@\\(([^)]*)\\)"),
-        ("acceptance", r"if\\(\\$Edition -eq 'acceptance'\\)\\s*\\{\\s*\\$required\\s*\\+=\\s*@\\(([^)]*)\\)"),
+        ("common", r"\$required\s*=\s*@\(([^)]*)\)"),
+        ("production", r"if\(\$Edition -eq 'production'\)\s*\{\s*\$required\s*\+=\s*@\(([^)]*)\)"),
+        ("acceptance", r"if\(\$Edition -eq 'acceptance'\)\s*\{\s*\$required\s*\+=\s*@\(([^)]*)\)"),
     )
     package_blocks = {}
     for name, expression in blocks:
