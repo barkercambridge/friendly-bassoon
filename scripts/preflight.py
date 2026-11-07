@@ -21,7 +21,7 @@ def validate_package_inputs(root):
     generators = {
         "info/formatting-checks.pdf": ("scripts/build-formatting-checks.py", "info/formatting-checks.pdf"),
         "info/release.pdf": ("scripts/build-release-notes.py", "info/release.pdf"),
-        "info/traceability.xlsx": ("scripts/build-traceability-workbook.py", "info/traceability.xlsx"),
+        "info/traceability.xlsx": ("scripts/build-traceability.py", "info/traceability.xlsx"),
         "info/test-results.pdf": ("scripts/build-test-reports.py", "info/test-results.pdf"),
         "info/test-evidence.pdf": ("scripts/build-test-reports.py", "info/test-evidence.pdf"),
         "info/test-coverage.pdf": ("scripts/build-test-reports.py", "info/test-coverage.pdf"),
