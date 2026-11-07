@@ -64,13 +64,13 @@ class DocumentRegisterTests(unittest.TestCase):
         self.assertTrue(any("Unregistered authoritative source" in x for x in module.validate(self.root)))
 
     def test_missing_document_version_history_fails(self):
-        path = self.root / "docs/installation.md"
-        path.write_text("# Installation\\n")
+        path = self.root / "docs/functional-specification.md"
+        path.write_text("# Functional Specification\\n")
         self.assertTrue(any("Missing document version history" in x for x in module.validate(self.root)))
 
     def test_invalid_document_version_history_fails(self):
-        path = self.root / "docs/installation.md"
-        path.write_text(path.read_text().replace("| v1.0 |", "| invalid |"))
+        path = self.root / "docs/functional-specification.md"
+        path.write_text(path.read_text().replace("| v3.50 |", "| invalid |"))
         self.assertTrue(any("Missing current document version" in x for x in module.validate(self.root)))
 
     def test_duplicated_revision_date_in_header_fails(self):
@@ -79,8 +79,8 @@ class DocumentRegisterTests(unittest.TestCase):
         self.assertTrue(any("Duplicated document revision date in header" in x for x in module.validate(self.root)))
 
     def test_document_title_version_fails(self):
-        path = self.root / "docs/installation.md"
-        path.write_text("# Installation v1.0\\n" + path.read_text())
+        path = self.root / "docs/functional-specification.md"
+        path.write_text("# Functional Specification v1.0\\n" + path.read_text())
         self.assertTrue(any("Document title contains version" in x for x in module.validate(self.root)))
 
     def test_release_version_authority_mismatch_fails(self):
@@ -97,10 +97,10 @@ class DocumentRegisterTests(unittest.TestCase):
         path.write_text(path.read_text().replace("docs/development-standards.md", "docs/other-standard.md"))
         self.assertTrue(any("Missing authoritative Devstan reference: AGENTS.md" in x for x in module.validate(self.root)))
 
-    def test_missing_readme_governing_reference_fails(self):
+    def test_readme_content_is_not_governance_validated(self):
         path = self.root / "README.md"
-        path.write_text(path.read_text().replace("docs/development-standards.md", "docs/other-standard.md"))
-        self.assertTrue(any("Missing authoritative Devstan reference: README.md" in x for x in module.validate(self.root)))
+        path.write_text("# Quick start\\nInstall and run the launcher.\\n")
+        self.assertEqual(module.validate(self.root), [])
 
     def test_missing_application_version_source_fails(self):
         path = self.root / "docs/functional-specification.md"
@@ -130,7 +130,7 @@ class DocumentRegisterTests(unittest.TestCase):
         self.assertEqual(module.validate(self.root), [])
 
     def test_missing_required_file_fails(self):
-        (self.root / "docs/installation.md").unlink()
+        (self.root / "README.md").unlink()
         self.assertTrue(any("Missing required" in x for x in module.validate(self.root)))
 
     def test_duplicate_reference_fails(self):
