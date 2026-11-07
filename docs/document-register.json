@@ -54,14 +54,14 @@
     {
       "path": "docs/development-defect-register.md",
       "role": "development-defect-register",
-      "authority": "Validated runtime copy of shared defect lessons from pinned miniature-memory commit; application incident history remains in Git",
+      "authority": "Validated runtime copy of the central register for confirmed development defects except Python syntax-specific incidents; governed by DevStan R07",
       "verification": "required",
       "version_source": "docs/development-defect-register.md"
     },
     {
       "path": "docs/python-defect-register.md",
       "role": "python-defect-register",
-      "authority": "Validated runtime copy of pinned miniature-memory/docs/python-defect-register.md",
+      "authority": "Validated runtime copy of the central register for confirmed Python syntax-specific incidents; governed by DevStan R07",
       "verification": "required",
       "version_source": "docs/python-defect-register.md"
     },
