@@ -21,11 +21,13 @@ class RegressionWorkflowTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             (root / "scripts").mkdir()
+            (root / "tests").mkdir()
             (root / "docs").mkdir()
             (root / ".github/workflows").mkdir(parents=True)
             shutil.copyfile(ROOT / ".github/workflows/release.yml", root / ".github/workflows/release.yml")
             shutil.copyfile(ROOT / ".github/workflows/preflight.yml", root / ".github/workflows/preflight.yml")
             shutil.copyfile(ROOT / "scripts/package-release.ps1", root / "scripts/package-release.ps1")
+            shutil.copyfile(ROOT / "tests/test-package-archive.ps1", root / "tests/test-package-archive.ps1")
             shutil.copyfile(ROOT / "docs/document-register.json", root / "docs/document-register.json")
             source = (root / "scripts/package-release.ps1").read_text(encoding="utf-8")
             source = source.replace("'docs/functional-specification.md',", "'docs/obsolete-installation.md',")
