@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "editions": {
+    "acceptance": [
+      {
+        "source": "src/compare-formatting.ps1",
+        "destination": "src/compare-formatting.ps1"
+      },
+      {
+        "source": "src/archive-previous-outputs.ps1",
+        "destination": "src/archive-previous-outputs.ps1"
+      },
+      {
+        "source": "config/format-checks.json",
+        "destination": "config/format-checks.json"
+      },
+      {
+        "source": "info/formatting-checks.pdf",
+        "destination": "info/formatting-checks.pdf"
+      },
+      {
+        "source": "README.md",
+        "destination": "docs/README.md"
+      },
+      {
+        "source": "docs/functional-specification.md",
+        "destination": "docs/functional-specification.md"
+      },
+      {
+        "source": "AGENTS.md",
+        "destination": "docs/AGENTS.md"
+      },
+      {
+        "source": "run-virtual-admin.bat",
+        "destination": "run-virtual-admin.bat"
+      },
+      {
+        "source": "tests/run-acceptance-tests.bat",
+        "destination": "run-acceptance-tests.bat"
+      },
+      {
+        "source": "tests/test-functional-acceptance.ps1",
+        "destination": "tests/test-functional-acceptance.ps1"
+      },
+      {
+        "source": "tests/measure-code-coverage.ps1",
+        "destination": "tests/measure-code-coverage.ps1"
+      },
+      {
+        "source": "tests/compile-code-coverage.ps1",
+        "destination": "tests/compile-code-coverage.ps1"
+      },
+      {
+        "source": "tests/test-format-checks-alignment.ps1",
+        "destination": "tests/test-format-checks-alignment.ps1"
+      },
+      {
+        "source": "config/traceability.json",
+        "destination": "config/traceability.json"
+      }
+    ],
+    "production": [
+      {
+        "source": "src/compare-formatting.ps1",
+        "destination": "src/compare-formatting.ps1"
+      },
+      {
+        "source": "src/archive-previous-outputs.ps1",
+        "destination": "src/archive-previous-outputs.ps1"
+      },
+      {
+        "source": "config/format-checks.json",
+        "destination": "config/format-checks.json"
+      },
+      {
+        "source": "info/formatting-checks.pdf",
+        "destination": "info/formatting-checks.pdf"
+      },
+      {
+        "source": "README.md",
+        "destination": "docs/README.md"
+      },
+      {
+        "source": "docs/functional-specification.md",
+        "destination": "docs/functional-specification.md"
+      },
+      {
+        "source": "AGENTS.md",
+        "destination": "docs/AGENTS.md"
+      },
+      {
+        "source": "run-virtual-admin.bat",
+        "destination": "run-virtual-admin.bat"
+      },
+      {
+        "source": "info/release.pdf",
+        "destination": "info/release.pdf"
+      },
+      {
+        "source": "info/traceability.xlsx",
+        "destination": "info/traceability.xlsx"
+      },
+      {
+        "source": "info/test-results.pdf",
+        "destination": "info/test-results.pdf"
+      },
+      {
+        "source": "info/test-evidence.pdf",
+        "destination": "info/test-evidence.pdf"
+      },
+      {
+        "source": "info/test-coverage.pdf",
+        "destination": "info/test-coverage.pdf"
+      }
+    ]
+  },
+  "generated": [
+    {
+      "destination": "config/virtual-admin-build.json",
+      "generator": "scripts/package-release.ps1"
+    }
+  ]
+}
