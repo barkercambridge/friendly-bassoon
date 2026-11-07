@@ -44,6 +44,20 @@ class DocumentRegisterTests(unittest.TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
+    def test_evidence_manifest_entries_have_no_role(self):
+        import ast
+        source = (ROOT / "scripts/verify-document-register.py").read_text(encoding="utf-8")
+        tree = ast.parse(source)
+        produce = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == "produce")
+        file_entries = [
+            node for node in ast.walk(produce)
+            if isinstance(node, ast.Dict) and any(isinstance(key, ast.Constant) and key.value == "sha256" for key in node.keys)
+        ]
+        self.assertGreater(len(file_entries), 0)
+        for entry in file_entries:
+            keys = {key.value for key in entry.keys if isinstance(key, ast.Constant)}
+            self.assertEqual(keys, {"path", "sha256"})
+
     def test_document_register_uses_no_role_field(self):
         self.assertTrue(all("role" not in entry for entry in self.register["documents"]))
         self.assertEqual(module.validate(self.root), [])
