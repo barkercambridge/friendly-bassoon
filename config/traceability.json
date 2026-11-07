@@ -5,157 +5,222 @@
   "requirements": [
     {
       "id": "FR-001",
-      "source": [
-        "src/compare-formatting.ps1"
-      ],
       "tests": [
         "AT-001"
-      ]
+      ],
+      "implementation_source": [
+        "src/compare-formatting.ps1"
+      ],
+      "test_implementation": [
+        "tests/test-functional-acceptance.ps1"
+      ],
+      "coverage_instrumentation": []
     },
     {
       "id": "FR-002",
-      "source": [
-        "run-virtual-admin.bat"
-      ],
       "tests": [
         "AT-006",
         "AT-007"
-      ]
+      ],
+      "implementation_source": [
+        "run-virtual-admin.bat"
+      ],
+      "test_implementation": [
+        "tests/test-functional-acceptance.ps1"
+      ],
+      "coverage_instrumentation": []
     },
     {
       "id": "FR-003",
-      "source": [
-        "run-virtual-admin.bat"
-      ],
       "tests": [
         "AT-006",
         "AT-007"
-      ]
+      ],
+      "implementation_source": [
+        "run-virtual-admin.bat"
+      ],
+      "test_implementation": [
+        "tests/test-functional-acceptance.ps1"
+      ],
+      "coverage_instrumentation": []
     },
     {
       "id": "FR-004",
-      "source": [
-        "src/compare-formatting.ps1"
-      ],
       "tests": [
         "AT-002"
-      ]
+      ],
+      "implementation_source": [
+        "src/compare-formatting.ps1"
+      ],
+      "test_implementation": [
+        "tests/test-functional-acceptance.ps1"
+      ],
+      "coverage_instrumentation": []
     },
     {
       "id": "FR-005",
-      "source": [
-        "src/compare-formatting.ps1"
-      ],
       "tests": [
         "AT-004"
-      ]
+      ],
+      "implementation_source": [
+        "src/compare-formatting.ps1"
+      ],
+      "test_implementation": [
+        "tests/test-functional-acceptance.ps1"
+      ],
+      "coverage_instrumentation": []
     },
     {
       "id": "FR-006",
-      "source": [
+      "tests": [
+        "AT-003"
+      ],
+      "implementation_source": [
         "src/compare-formatting.ps1",
         "src/archive-previous-outputs.ps1",
         "run-virtual-admin.bat"
       ],
-      "tests": [
-        "AT-003"
-      ]
+      "test_implementation": [
+        "tests/test-functional-acceptance.ps1"
+      ],
+      "coverage_instrumentation": []
     },
     {
       "id": "FR-007",
-      "source": [
-        "run-virtual-admin.bat"
-      ],
       "tests": [
         "AT-001"
-      ]
+      ],
+      "implementation_source": [
+        "run-virtual-admin.bat"
+      ],
+      "test_implementation": [
+        "tests/test-functional-acceptance.ps1"
+      ],
+      "coverage_instrumentation": []
     },
     {
       "id": "FR-008",
       "status": "planned",
-      "source": [],
-      "tests": []
+      "tests": [],
+      "implementation_source": [],
+      "test_implementation": [],
+      "coverage_instrumentation": []
     },
     {
       "id": "FR-009",
-      "source": [
-        "src/compare-formatting.ps1"
-      ],
       "tests": [
         "AT-005"
-      ]
+      ],
+      "implementation_source": [
+        "src/compare-formatting.ps1"
+      ],
+      "test_implementation": [
+        "tests/test-functional-acceptance.ps1"
+      ],
+      "coverage_instrumentation": []
     },
     {
       "id": "FR-010",
-      "source": [
-        "run-virtual-admin.bat"
-      ],
       "tests": [
         "AT-006"
-      ]
+      ],
+      "implementation_source": [
+        "run-virtual-admin.bat"
+      ],
+      "test_implementation": [
+        "tests/test-functional-acceptance.ps1"
+      ],
+      "coverage_instrumentation": []
     },
     {
       "id": "FR-011",
-      "source": [
-        "src/compare-formatting.ps1"
-      ],
       "tests": [
         "AT-008"
-      ]
+      ],
+      "implementation_source": [
+        "src/compare-formatting.ps1"
+      ],
+      "test_implementation": [
+        "tests/test-functional-acceptance.ps1"
+      ],
+      "coverage_instrumentation": []
     },
     {
       "id": "FR-012",
-      "source": [
-        "config/format-checks.json",
-        "scripts/build-formatting-checks.py",
-        "tests/test-format-checks-alignment.ps1"
-      ],
       "tests": [
         "AT-010",
         "AT-011"
-      ]
+      ],
+      "implementation_source": [
+        "config/format-checks.json",
+        "scripts/build-formatting-checks.py"
+      ],
+      "test_implementation": [
+        "tests/test-format-checks-alignment.ps1"
+      ],
+      "coverage_instrumentation": []
     },
     {
       "id": "FR-013",
-      "source": [
-        "tests/test-functional-acceptance.ps1",
-        "tests/measure-code-coverage.ps1"
-      ],
       "tests": [
         "AT-012"
+      ],
+      "implementation_source": [
+        "scripts/verify-acceptance-implementation.py",
+        "scripts/preflight.py"
+      ],
+      "test_implementation": [
+        "tests/test-functional-acceptance.ps1"
+      ],
+      "coverage_instrumentation": [
+        "tests/measure-code-coverage.ps1"
       ]
     },
     {
       "id": "FR-014",
-      "source": [
-        "tests/measure-code-coverage.ps1",
-        "tests/compile-code-coverage.ps1"
-      ],
       "tests": [
         "AT-012"
+      ],
+      "implementation_source": [
+        "scripts/verify-devstan.py"
+      ],
+      "test_implementation": [
+        "tests/test-functional-acceptance.ps1"
+      ],
+      "coverage_instrumentation": [
+        "tests/measure-code-coverage.ps1",
+        "tests/compile-code-coverage.ps1"
       ]
     },
     {
       "id": "FR-015",
-      "source": [
-        "scripts/package-release.ps1",
-        ".github/workflows/release.yml"
-      ],
       "tests": [
         "AT-011",
         "AT-013"
-      ]
+      ],
+      "implementation_source": [
+        "scripts/package-release.ps1",
+        ".github/workflows/release.yml"
+      ],
+      "test_implementation": [
+        "tests/test-functional-acceptance.ps1"
+      ],
+      "coverage_instrumentation": []
     },
     {
       "id": "FR-016",
-      "source": [
+      "tests": [
+        "AT-013"
+      ],
+      "implementation_source": [
         "scripts/build-release-notes.py",
         "scripts/build-test-reports.py",
         "scripts/build-traceability.py"
       ],
-      "tests": [
-        "AT-013"
-      ]
+      "test_implementation": [
+        "tests/test-functional-acceptance.ps1"
+      ],
+      "coverage_instrumentation": []
     }
   ],
   "regression_suites": [
