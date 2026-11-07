@@ -189,6 +189,10 @@ def check(production=False):
                     if percentage is None or row.get("coverage_percentage") is None or abs(float(row["coverage_percentage"]) - percentage) > 0.011:
                         coverage_ok = False
                         break
+                elif row["measurement"] == "NOT MEASURED":
+                    if row.get("coverage_percentage") is not None or not (row.get("diagnostic_reason") or row.get("reason")):
+                        coverage_ok = False
+                        break
                 elif not row.get("reason") and not row.get("excluded"):
                     coverage_ok = False
                     break
