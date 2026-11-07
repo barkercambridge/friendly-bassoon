@@ -46,6 +46,13 @@ class RegressionWorkflowTests(unittest.TestCase):
             manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
             problems = module.validate_package_inputs(root)
             self.assertTrue(any("Missing acceptance release package input" in p for p in problems))
+            manifest["editions"]["acceptance"] = [
+                item for item in manifest["editions"]["acceptance"]
+                if item["source"] != "info/formatting-checks.pdf"
+            ]
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            problems = module.validate_package_inputs(root)
+            self.assertTrue(any("Required release output not included in package definitions: info/formatting-checks.pdf" in p for p in problems))
             consumer = root / "tests/test-functional-acceptance.ps1"
             consumer.write_text(consumer.read_text(encoding="utf-8").replace(
                 "$packageManifest.editions.acceptance", "$legacyRequired"), encoding="utf-8")
