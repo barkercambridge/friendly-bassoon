@@ -44,6 +44,10 @@ class DocumentRegisterTests(unittest.TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
+    def test_document_register_uses_no_role_field(self):
+        self.assertTrue(all("role" not in entry for entry in self.register["documents"]))
+        self.assertEqual(module.validate(self.root), [])
+
     def test_missing_authoritative_mapping_fails(self):
         self.register["authoritative_sources"].pop()
         (self.root / "docs/document-register.json").write_text(json.dumps(self.register))
@@ -155,7 +159,7 @@ class DocumentRegisterTests(unittest.TestCase):
 
     def test_unsupported_project_document_fails(self):
         self.register["documents"].append({
-            "path": "config/unknown.json", "role": "unknown", "authority": "unspecified",
+            "path": "config/unknown.json", "authority": "unspecified",
             "verification": "required", "requirement": "FR-012", "purpose": "Unspecified"})
         (self.root / "docs/document-register.json").write_text(json.dumps(self.register))
         self.assertTrue(any("Unsupported project document" in x for x in module.validate(self.root)))
