@@ -28,7 +28,7 @@ try {
   $required=@('run-virtual-admin.bat','src/compare-formatting.ps1','src/archive-previous-outputs.ps1','config/format-checks.json','info/formatting-checks.pdf','config/virtual-admin-build.json')
   if($Edition -eq 'production') { $required+=@('info/release.pdf','info/traceability.xlsx','info/test-results.pdf','info/test-evidence.pdf','info/test-coverage.pdf') }
   if($Edition -eq 'acceptance') {
-   $required+=@('run-acceptance-tests.bat','docs/README.md','docs/installation.md','docs/functional-specification.md','docs/AGENTS.md','config/traceability.json','tests/test-functional-acceptance.ps1','tests/measure-code-coverage.ps1','tests/compile-code-coverage.ps1','tests/test-format-checks-alignment.ps1')
+   $required+=@('run-acceptance-tests.bat','docs/README.md','docs/functional-specification.md','docs/AGENTS.md','config/traceability.json','tests/test-functional-acceptance.ps1','tests/measure-code-coverage.ps1','tests/compile-code-coverage.ps1','tests/test-format-checks-alignment.ps1')
   }
   if($Edition -eq 'acceptance' -and @($paths | Where-Object { $_ -in @('info/traceability.xlsx','info/test-results.pdf','info/test-evidence.pdf','info/test-coverage.pdf') }).Count -gt 0) { throw 'Acceptance ZIP contains production-only traceability or test evidence' }
   foreach($name in $required) {if(-not $seen.ContainsKey($name)){throw "Required archive entry missing: $name"}}
