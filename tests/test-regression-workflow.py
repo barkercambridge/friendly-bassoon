@@ -24,6 +24,7 @@ class RegressionWorkflowTests(unittest.TestCase):
             (root / "docs").mkdir()
             (root / ".github/workflows").mkdir(parents=True)
             shutil.copyfile(ROOT / ".github/workflows/release.yml", root / ".github/workflows/release.yml")
+            shutil.copyfile(ROOT / ".github/workflows/preflight.yml", root / ".github/workflows/preflight.yml")
             shutil.copyfile(ROOT / "scripts/package-release.ps1", root / "scripts/package-release.ps1")
             shutil.copyfile(ROOT / "docs/document-register.json", root / "docs/document-register.json")
             source = (root / "scripts/package-release.ps1").read_text(encoding="utf-8")
