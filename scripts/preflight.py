@@ -11,6 +11,29 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
+def validate_package_inputs(root):
+    """Check both release editions before packaging; generated reports are deferred."""
+    source = (root / "scripts/package-release.ps1").read_text(encoding="utf-8-sig")
+    register = json.loads((root / "docs/document-register.json").read_text(encoding="utf-8-sig"))
+    registered = {entry["path"]: entry["verification"] for entry in register["documents"]}
+    errors = []
+    blocks = (
+        ("common", r"(?s)\\$commonFiles\\s*=\\s*@\\((.*?)\\)\\s*if \\(\\$Edition"),
+        ("acceptance", r"(?s)if \\(\\$Edition -eq 'acceptance'\\) \\{\\s*\\$files = \\$commonFiles \\+ @\\((.*?)\\)"),
+        ("production", r"(?s)else \\{\\s*\\$files = \\$commonFiles \\+ @\\((.*?)\\)"),
+    )
+    for name, expression in blocks:
+        match = re.search(expression.replace("\\\\", "\\"), source)
+        if not match:
+            errors.append(f"Cannot identify {name} release package inputs")
+            continue
+        for path in re.findall(r"'([^']+)'", match.group(1)):
+            if path.startswith("docs/") and path not in registered:
+                errors.append(f"Obsolete or unregistered package document: {path}")
+            if registered.get(path) != "generated" and not (root / path).is_file():
+                errors.append(f"Missing {name} release package input: {path}")
+    return errors
+
 def main():
     import yaml
     errors = []
@@ -34,6 +57,7 @@ def main():
             py_compile.compile(str(path), cfile=str(path.parent / "__pycache__" / (path.stem + ".preflight.pyc")), doraise=True)
         except (SyntaxError, OSError, py_compile.PyCompileError) as exc:
             errors.append(f"Python syntax {path.relative_to(ROOT)}: {exc}")
+    errors.extend(validate_package_inputs(ROOT))
     # R04: reject executable references to the obsolete repository-root traceability file.
     obsolete = re.compile(r'(?:ROOT|root|Path\(__file__\)\.resolve\(\)\.parent(?:\.parent)?|Path\(["\x27]\.["\x27]\))\s*/\s*["\x27]traceability\.json["\x27]|Path\(["\x27]traceability\.json["\x27]\)')
     for source in sorted((ROOT / "scripts").glob("*.py")):
