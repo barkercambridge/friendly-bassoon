@@ -71,7 +71,7 @@ class DocumentRegisterTests(unittest.TestCase):
 
     def test_invalid_document_version_history_fails(self):
         path = self.root / "docs/functional-specification.md"
-        content = path.read_text()
+        content = path.read_text(encoding="utf-8")
         heading = "## 10. Change history"
         self.assertIn(heading, content)
         before, history = content.split(heading, 1)
@@ -79,7 +79,7 @@ class DocumentRegisterTests(unittest.TestCase):
         # the verifier even if the current row were invalid.
         history, count = re.subn(r"(?m)^\\| v\\d+\\.\\d+ \\|", "| invalid |", history)
         self.assertGreater(count, 0, "Expected version-history entries to invalidate")
-        path.write_text(before + heading + history)
+        path.write_text(before + heading + history, encoding="utf-8")
         self.assertTrue(any("Missing current document version" in x for x in module.validate(self.root)))
 
     def test_duplicated_revision_date_in_header_fails(self):
