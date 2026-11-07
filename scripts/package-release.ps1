@@ -35,28 +35,11 @@ if ($LASTEXITCODE -ne 0 -or $checkedOutCommit -cne $Commit) {
     throw 'Package source commit does not match the checked-out Git commit.'
 }
 
-$commonFiles = @(
-    'src/compare-formatting.ps1','src/archive-previous-outputs.ps1',
-    'config/format-checks.json',
-    'info/formatting-checks.pdf',
-    'README.md',
-    'docs/functional-specification.md',
-    'AGENTS.md'
-)
-if ($Edition -eq 'acceptance') {
-    $files = $commonFiles + @(
-        'run-virtual-admin.bat',
-        'tests/run-acceptance-tests.bat',
-        'tests/test-functional-acceptance.ps1',
-        'tests/measure-code-coverage.ps1',
-        'tests/compile-code-coverage.ps1',
-        'tests/test-format-checks-alignment.ps1',
-        'config/traceability.json'
-    )
-}
-else {
-    $files = $commonFiles + @('run-virtual-admin.bat', 'info/release.pdf', 'info/traceability.xlsx', 'info/test-results.pdf', 'info/test-evidence.pdf', 'info/test-coverage.pdf')
-}
+# R08: One authoritative manifest for both editions and all package validators.
+$manifestPath = Join-Path (Split-Path -Parent $PSScriptRoot) 'config/package-manifest.json'
+$manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+$files = @($manifest.editions.$Edition)
+if ($files.Count -eq 0) { throw "Empty package manifest for $Edition" }
 
 # A release is invalid when the report is missing or differs from JSON.
 & (Join-Path $PSScriptRoot '..\\tests\\test-format-checks-alignment.ps1') -Version $Version
@@ -66,18 +49,13 @@ $stage = Join-Path $env:TEMP ('virtual-admin-package-' + [guid]::NewGuid().ToStr
 New-Item -ItemType Directory -Force -Path $stage | Out-Null
 
 try {
-    foreach ($file in $files) {
+    foreach ($entry in $files) {
+        $file = [string]$entry.source
         if (-not (Test-Path -LiteralPath $file -PathType Leaf)) {
             throw "Missing package file: $file"
         }
         # Only Windows batch files are allowed at the ZIP root.
-        $destinationPath = switch ($file) {
-            'README.md' { 'docs/README.md' }
-            'AGENTS.md' { 'docs/AGENTS.md' }
-            'config/traceability.json' { 'config/traceability.json' }
-            'tests/run-acceptance-tests.bat' { 'run-acceptance-tests.bat' }
-            default { $file }
-        }
+        $destinationPath = [string]$entry.destination
         $destination = Join-Path $stage $destinationPath
         New-Item -ItemType Directory -Force -Path (Split-Path $destination -Parent) | Out-Null
         Copy-Item -LiteralPath $file -Destination $destination
@@ -87,6 +65,8 @@ try {
             Set-Content -LiteralPath $destination -Value $readme -Encoding UTF8
         }
     }
+
+    Copy-Item -LiteralPath $manifestPath -Destination (Join-Path $stage 'config/package-manifest.json')
 
     $releaseInputFingerprint = (& python scripts/acceptance-evidence-freshness.py --print-fingerprint $Commit | Out-String).Trim()
     if ($LASTEXITCODE -ne 0 -or $releaseInputFingerprint.Length -ne 64) { throw 'Cannot calculate release-input fingerprint' }
