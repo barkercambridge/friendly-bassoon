@@ -40,7 +40,6 @@ $commonFiles = @(
     'config/format-checks.json',
     'info/formatting-checks.pdf',
     'README.md',
-    'docs/installation.md',
     'docs/functional-specification.md',
     'AGENTS.md'
 )
@@ -84,7 +83,7 @@ try {
         Copy-Item -LiteralPath $file -Destination $destination
         if ($file -eq 'README.md') {
             $readme = Get-Content -LiteralPath $destination -Raw
-            $readme = $readme.Replace('(docs/installation.md)', '(installation.md)').Replace('(docs/functional-specification.md)', '(functional-specification.md)').Replace('(AGENTS.md)', '(AGENTS.md)')
+            $readme = $readme.Replace('(docs/functional-specification.md)', '(functional-specification.md)').Replace('(AGENTS.md)', '(AGENTS.md)')
             Set-Content -LiteralPath $destination -Value $readme -Encoding UTF8
         }
     }
