@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# FR-013: Verify executable acceptance-test coverage.
 """R03: fail closed when a required Acceptance test has no executable result path."""
 import json
 from pathlib import Path
