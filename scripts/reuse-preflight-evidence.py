@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail-closed reuse of the successful push preflight for this exact release commit."""
+"""Fail-closed reuse of a successful main preflight for this exact release commit."""
 import json
 import os
 from pathlib import Path
@@ -10,7 +10,7 @@ import time
 
 ARTIFACT = "virtual-admin-preflight-evidence"
 WORKFLOW = "preflight.yml"
-WAIT_SECONDS = 600
+WAIT_SECONDS = 90
 POLL_SECONDS = 15
 
 def gh(*args):
@@ -21,7 +21,7 @@ def gh(*args):
 
 def select_run(runs, sha):
     matches = [run for run in runs if run.get("head_sha") == sha
-               and run.get("event") == "push" and run.get("head_branch") == "main"]
+               and run.get("event") in ("push", "workflow_dispatch") and run.get("head_branch") == "main"]
     return max(matches, key=lambda run: run.get("id", 0), default=None)
 
 def main():
@@ -35,14 +35,14 @@ def main():
     run = None
     while True:
         response = json.loads(gh("api", f"repos/{repo}/actions/workflows/{WORKFLOW}/runs",
-                                 "-f", "event=push", "-f", "head_sha=" + sha,
+                                 "-f", "head_sha=" + sha,
                                  "-f", "per_page=100", "--method", "GET"))
         run = select_run(response.get("workflow_runs", []), sha)
         if run and run.get("status") == "completed":
             break
         if time.monotonic() >= deadline:
-            raise RuntimeError("No completed push preflight for this exact commit within 10 minutes")
-        print("Waiting for main-push preflight for " + sha[:12], flush=True)
+            raise RuntimeError("No completed main preflight for this exact commit within 90 seconds")
+        print("Waiting for main preflight for " + sha[:12], flush=True)
         time.sleep(POLL_SECONDS)
     if run.get("conclusion") != "success":
         raise RuntimeError("Preflight did not pass: " + str(run.get("html_url")))
