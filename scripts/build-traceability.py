@@ -25,19 +25,19 @@ standards = standards_report.get("checks", []) if args.edition == "production" e
 wb = Workbook()
 requirements = wb.active
 requirements.title = "Requirements"
-requirements.append(["FR", "Status", "AT required", "INF approval", "Implementation source", "Test implementation", "Coverage instrumentation", "AT"])
+requirements.append(["FR", "Status", "AT required", "INF approval", "Implementation source", "Test implementation", "Coverage instrumentation", "Batch", "AT"])
 for item in rtm["requirements"]:
     status = item.get("status", "active").lower()
     approved_inf = status == "inf" and item.get("inf_approved") is True and bool(item.get("inf_approval_reference"))
     at_required = status != "planned" and not approved_inf
     requirements.append([item["id"], status, "YES" if at_required else "NO",
                          item.get("inf_approval_reference", "") if approved_inf else "",
-                         ", ".join(item.get("implementation_source", [])), ", ".join(item.get("test_implementation", [])), ", ".join(item.get("coverage_instrumentation", [])), ", ".join(item.get("tests", []))])
+                         ", ".join(item.get("implementation_source", [])), ", ".join(item.get("test_implementation", [])), ", ".join(item.get("coverage_instrumentation", [])), ", ".join(item.get("batch", [])), ", ".join(item.get("tests", []))])
 
 deps = wb.create_sheet("Source Dependencies")
 deps.append(["FR", "Classification", "File"])
 for item in rtm["requirements"]:
-    for role in ("implementation_source", "test_implementation", "coverage_instrumentation"):
+    for role in ("implementation_source", "test_implementation", "coverage_instrumentation", "batch"):
         for source in item.get(role, []):
             deps.append([item["id"], role, source])
 
