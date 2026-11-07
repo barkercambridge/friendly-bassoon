@@ -43,7 +43,7 @@ FR-012 defines the application-specific formatting configuration and its PDF rep
 | Document path | Governing FR | Purpose | Required status |
 |---|---|---|---|
 | `app-repo:config/format-checks.json` | FR-012 | Machine-readable formatting checks | required |
-| `info/formatting-checks.pdf` | FR-012 | Human-readable mirror of formatting configuration | required |
+| `info/formatting-checks.pdf` | FR-012 | Human-readable mirror of formatting configuration | generated |
 
 ## 5. Acceptance test matrix
 The required Acceptance and Production test inventory, stage, implementation and FR mappings are maintained in `app-repo:config/traceability.json`. Test runners and verifiers derive required test IDs from that inventory, not duplicate hard-coded lists. Production-stage AT-013 verification is independent of interactive Acceptance test results.
