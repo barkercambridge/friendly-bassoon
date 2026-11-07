@@ -23,17 +23,26 @@ def validate_package_inputs(root):
         ("acceptance", r"(?s)if \\(\\$Edition -eq 'acceptance'\\) \\{\\s*\\$files = \\$commonFiles \\+ @\\((.*?)\\)"),
         ("production", r"(?s)else \\{\\s*\\$files = \\$commonFiles \\+ @\\((.*?)\\)"),
     )
+    packaged = set()
+    for entry in register["documents"]:
+        if entry.get("verification") == "generated" and not entry.get("generator"):
+            errors.append(f"Generated file lacks declared generator: {entry['path']}")
+        if entry.get("generator") and entry.get("verification") != "generated":
+            errors.append(f"Generator declared for non-generated file: {entry['path']}")
+        if "release_required" in entry and not isinstance(entry["release_required"], bool):
+            errors.append(f"Invalid release_required declaration: {entry['path']}")
     for name, expression in blocks:
         match = re.search(expression.replace("\\\\", "\\"), source)
         if not match:
             errors.append(f"Cannot identify {name} release package inputs")
             continue
         for path in re.findall(r"'([^']+)'", match.group(1)):
+            packaged.add(path)
             if path.startswith("docs/") and path not in registered:
                 errors.append(f"Obsolete or unregistered package document: {path}")
             entry = registered.get(path, {})
             generator = entry.get("generator")
-            if generator:
+            if generator and entry.get("verification") == "generated":
                 if not (root / generator).is_file() or generator not in release_workflow:
                     errors.append(f"Generated package input has no validated release generator: {path}")
                 continue
@@ -42,6 +51,9 @@ def validate_package_inputs(root):
                 continue
             if not (root / path).is_file():
                 errors.append(f"Missing {name} release package input: {path}")
+    for entry in register["documents"]:
+        if entry.get("release_required") is True and entry["path"] not in packaged:
+            errors.append(f"Required release output not included in package definitions: {entry['path']}")
     return errors
 
 def main():
