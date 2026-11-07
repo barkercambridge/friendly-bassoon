@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# FR-013: Validate Windows acceptance and regression prerequisites.
 """Read-only, fail-closed validation before release preparation."""
 import pathlib
 import datetime as dt
