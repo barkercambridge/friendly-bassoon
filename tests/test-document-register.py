@@ -3,6 +3,7 @@
 import importlib.util
 import json
 import pathlib
+import re
 import shutil
 import tempfile
 import unittest
@@ -70,7 +71,10 @@ class DocumentRegisterTests(unittest.TestCase):
 
     def test_invalid_document_version_history_fails(self):
         path = self.root / "docs/functional-specification.md"
-        path.write_text(path.read_text().replace("| v3.50 |", "| invalid |"))
+        content = path.read_text()
+        content, count = re.subn(r"(?m)^(\\| v\\d+\\.\\d+ \\|)", "| invalid |", content, count=1)
+        self.assertEqual(count, 1, "Expected a version-history entry to invalidate")
+        path.write_text(content)
         self.assertTrue(any("Missing current document version" in x for x in module.validate(self.root)))
 
     def test_duplicated_revision_date_in_header_fails(self):
