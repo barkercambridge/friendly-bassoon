@@ -332,5 +332,26 @@ class RegressionWorkflowTests(unittest.TestCase):
         ast.parse(approval)
         ast.parse(verifier)
 
+    def test_r04_traceability_roles_are_separate_and_enforced(self):
+        inventory = json.loads((ROOT / "config/traceability.json").read_text(encoding="utf-8"))
+        roles = ("implementation_source", "test_implementation", "coverage_instrumentation")
+        for row in inventory["requirements"]:
+            self.assertTrue(all(isinstance(row.get(role), list) for role in roles), row["id"])
+            paths = [path for role in roles for path in row[role]]
+            self.assertEqual(len(paths), len(set(paths)), row["id"])
+            self.assertTrue(all((ROOT / path).is_file() for path in paths), row["id"])
+            if row.get("status") == "planned":
+                self.assertFalse(paths, row["id"])
+            else:
+                self.assertTrue(row["implementation_source"], row["id"])
+                self.assertTrue(row["test_implementation"], row["id"])
+        preflight = (ROOT / "scripts/preflight.py").read_text(encoding="utf-8")
+        verifier = (ROOT / "scripts/verify-devstan.py").read_text(encoding="utf-8")
+        report = (ROOT / "scripts/build-traceability.py").read_text(encoding="utf-8")
+        for role in roles:
+            self.assertIn(role, preflight)
+            self.assertIn(role, verifier)
+            self.assertIn(role, report)
+
 if __name__ == "__main__":
     unittest.main()
