@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "repository": "barkercambridge/miniature-memory",
-  "commit": "7669eaa1ad154f3583dbe0facd0d06d46b19f247",
+  "commit": "0969a548bca333d32a59450843daeaea3426794e",
   "documents": [
     "docs/development-standards.md",
     "docs/python-defect-register.md",
     "docs/development-standards-register.json",
     "docs/development-defect-register.md"
   ],
-  "note": "Pinned DevStan v8.49. Shared documents are materialized from the pinned central commit. The application inventory remains docs/document-register.json; the central register is saved under external/miniature-memory/docs/development-standards-register.json."
+  "note": "Pinned DevStan v8.51. Shared documents are materialized from the pinned central commit. The application inventory remains docs/document-register.json; the central register is saved under external/miniature-memory/docs/development-standards-register.json."
 }
