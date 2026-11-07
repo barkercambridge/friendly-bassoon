@@ -34,6 +34,16 @@ def validate(root, check_release_files=False):
             continue
         if not entry.get("authority") or entry.get("verification") not in allowed:
             errors.append("Incomplete register entry: " + path)
+        if entry.get("generator") and entry.get("verification") != "generated":
+            errors.append("Generator declared for non-generated file: " + path)
+        if entry.get("verification") == "generated":
+            generator = entry.get("generator")
+            if not isinstance(generator, str) or not generator or not (root / generator).is_file():
+                errors.append("Missing generated-file producer: " + path)
+            if "release_required" in entry and not isinstance(entry["release_required"], bool):
+                errors.append("Invalid release_required value: " + path)
+        elif "release_required" in entry and not isinstance(entry["release_required"], bool):
+            errors.append("Invalid release_required value: " + path)
         if entry.get("verification") == "required" and (check_release_files or not path.startswith("info/")) and not (root / path).is_file():
             errors.append("Missing required document: " + path)
         if entry.get("verification") == "pattern" and not list(root.glob(path)):
