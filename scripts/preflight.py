@@ -47,6 +47,20 @@ def main():
     if not (ROOT / "config/traceability.json").is_file():
         errors.append("Authoritative application version file missing")
     rtm = json.loads((ROOT / "config/traceability.json").read_text(encoding="utf-8-sig"))
+    # R04: independently validate all three classified roles before regression execution.
+    roles = ("implementation_source", "test_implementation", "coverage_instrumentation")
+    for requirement in rtm["requirements"]:
+        planned = requirement.get("status") == "planned"
+        if not all(isinstance(requirement.get(role), list) for role in roles):
+            errors.append(f"{requirement['id']}: missing R04 traceability classifications")
+            continue
+        paths = [p for role in roles for p in requirement[role]]
+        if len(paths) != len(set(paths)) or any(not isinstance(p, str) or not p or not (ROOT / p).is_file() for p in paths):
+            errors.append(f"{requirement['id']}: invalid or overlapping R04 paths")
+        if planned and paths:
+            errors.append(f"{requirement['id']}: planned requirement has implementation mappings")
+        if not planned and (not requirement["implementation_source"] or not requirement["test_implementation"]):
+            errors.append(f"{requirement['id']}: missing implementation or test classification")
     valid_fr = {r["id"] for r in rtm["requirements"]}
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     if not re.fullmatch(r"[0-9a-f]{40}", commit):
