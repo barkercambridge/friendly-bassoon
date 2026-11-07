@@ -197,7 +197,7 @@ class RegressionWorkflowTests(unittest.TestCase):
         reuse = (ROOT / "scripts/reuse-preflight-evidence.py").read_text(encoding="utf-8")
         self.assertNotIn("uses: ./.github/workflows/preflight.yml", workflow)
         self.assertIn("python scripts/reuse-preflight-evidence.py", workflow)
-        self.assertIn("actions: read", workflow)
+        self.assertIn("actions: write", workflow)
         self.assertIn('run.get("head_sha") == sha', reuse)
         self.assertIn('run.get("event") == "push"', reuse)
         self.assertIn('run.get("head_branch") == "main"', reuse)
