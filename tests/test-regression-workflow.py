@@ -310,6 +310,14 @@ class RegressionWorkflowTests(unittest.TestCase):
         self.assertIn("acceptance_zip_sha256", acceptance)
         self.assertIn("acceptance_zip_sha256", coverage)
 
+    def test_production_coverage_inventory_matches_instrumented_sources(self):
+        verifier = (ROOT / "scripts/verify-production-approval.ps1").read_text(encoding="utf-8")
+        compiler = (ROOT / "tests/compile-code-coverage.ps1").read_text(encoding="utf-8")
+        expected = "$expected=@('src/compare-formatting.ps1','src/archive-previous-outputs.ps1')"
+        self.assertIn(expected, verifier)
+        self.assertIn("$files=@('src/compare-formatting.ps1','src/archive-previous-outputs.ps1')", compiler)
+        self.assertNotIn("'run-virtual-admin.bat')", verifier)
+
     def test_coverage_is_required_for_production_and_invalidated_on_changes(self):
         verifier = (ROOT / "scripts/verify-production-approval.ps1").read_text(encoding="utf-8")
         preflight_workflow = (ROOT / ".github/workflows/preflight.yml").read_text(encoding="utf-8")
