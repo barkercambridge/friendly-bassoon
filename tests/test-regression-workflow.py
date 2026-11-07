@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Guard against regression runs rewriting controlled documentation (Devstan R07)."""
+import json
 import ast
 from pathlib import Path
 import unittest
