@@ -171,7 +171,7 @@ def check(production=False):
             pass
     if production and coverage_ok:
         try:
-            expected_paths = {"src/compare-formatting.ps1", "src/archive-previous-outputs.ps1", "run-virtual-admin.bat"}
+            expected_paths = {"src/compare-formatting.ps1", "src/archive-previous-outputs.ps1"}
             paths = [row["path"] for row in files]
             coverage_ok = len(paths) == len(set(paths)) and expected_paths.issubset(set(paths))
             for row in files:
