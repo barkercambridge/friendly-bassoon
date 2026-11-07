@@ -34,7 +34,8 @@ if(-not (Test-Path -LiteralPath $coveragePath -PathType Leaf)){throw 'Production
 $c=Get-Content -LiteralPath $coveragePath -Raw | ConvertFrom-Json
 if($c.release_input_fingerprint -cne $e.release_input_fingerprint -or $c.schema_version -ne 1 -or $c.application -ne 'virtual-admin' -or $c.version -ne $Version -or $c.source_commit -cne $e.source_commit){throw 'Production blocked: coverage provenance mismatch'}
 if($e.acceptance_zip_sha256 -notmatch '^[0-9a-f]{64}$' -or $c.acceptance_zip_sha256 -cne $e.acceptance_zip_sha256){throw 'Production blocked: acceptance ZIP SHA-256 missing or inconsistent between evidence files'}
-$expected=@('src/compare-formatting.ps1','src/archive-previous-outputs.ps1','run-virtual-admin.bat')
+# Batch launcher coverage is explicitly excluded by FR-014; only instrumented PowerShell files are inventoried.
+$expected=@('src/compare-formatting.ps1','src/archive-previous-outputs.ps1')
 if(@($c.files).Count -ne $expected.Count){throw 'Production blocked: incomplete code coverage inventory'}
 foreach($name in $expected){
  $entries=@($c.files | Where-Object {$_.path -ceq $name})
