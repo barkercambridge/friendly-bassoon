@@ -38,11 +38,11 @@ jobs:
           if ($version -notmatch '^(0|[1-9][0-9]*)[.](0|[1-9][0-9]*)$') { throw 'Invalid authoritative application version' }
           $major = [int]$Matches[1]
           $minor = [int]$Matches[2]
+          $publishedJson = & gh release list --limit 1000 --json tagName
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot enumerate existing releases; refusing to guess version availability' }
+          $published = @($publishedJson | ConvertFrom-Json | ForEach-Object { $_.tagName })
           $changed = $false
-          while ($true) {
-            $tag = "acceptance-v$version"
-            & gh release view $tag --json tagName 2>$null | Out-Null
-            if ($LASTEXITCODE -ne 0) { break }
+          while ("acceptance-v$version" -in $published) {
             $minor++
             $version = "$major.$minor"
             $changed = $true
