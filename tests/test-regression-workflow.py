@@ -247,9 +247,12 @@ class RegressionWorkflowTests(unittest.TestCase):
         package = (ROOT / "scripts/package-release.ps1").read_text(encoding="utf-8")
         archive = (ROOT / "tests/test-package-archive.ps1").read_text(encoding="utf-8")
         acceptance = (ROOT / "tests/test-functional-acceptance.ps1").read_text(encoding="utf-8")
-        common = package.split("$commonFiles = @(", 1)[1].split("\n)", 1)[0]
-        self.assertNotIn("'info/release.pdf'", common)
-        self.assertIn("'run-virtual-admin.bat', 'info/release.pdf', 'info/traceability.xlsx'", package)
+        import json
+        manifest = json.loads((ROOT / "config/package-manifest.json").read_text(encoding="utf-8"))
+        acceptance_entries = {entry["destination"] for entry in manifest["editions"]["acceptance"]}
+        production_entries = {entry["destination"] for entry in manifest["editions"]["production"]}
+        self.assertNotIn("info/release.pdf", acceptance_entries)
+        self.assertIn("info/release.pdf", production_entries)
         self.assertIn("Acceptance ZIP must not contain release.pdf", archive)
         self.assertIn("Expected exactly one release.pdf in production info/", archive)
         self.assertIn("Acceptance package must not contain production-only release.pdf", acceptance)
@@ -277,13 +280,17 @@ class RegressionWorkflowTests(unittest.TestCase):
         self.assertNotIn('python scripts/build-traceability.py --edition acceptance', workflow)
         self.assertIn('python scripts/build-traceability.py --edition production', workflow)
         self.assertLess(workflow.index('Verify current acceptance JSON and tested-source equivalence'), workflow.index('Compile production Excel test evidence'))
-        self.assertIn("$files = $commonFiles + @('run-virtual-admin.bat', 'info/release.pdf', 'info/traceability.xlsx'", packager)
-        self.assertNotIn("    'info/traceability.xlsx',", packager.split('$commonFiles = @(', 1)[1].split(')', 1)[0])
+        import json
+        manifest = json.loads((ROOT / "config/package-manifest.json").read_text(encoding="utf-8"))
+        production = {entry["destination"] for entry in manifest["editions"]["production"]}
+        acceptance = {entry["destination"] for entry in manifest["editions"]["acceptance"]}
+        self.assertIn("info/traceability.xlsx", production)
+        self.assertNotIn("info/traceability.xlsx", acceptance)
         self.assertGreater(workflow.index('python scripts/build-traceability.py'), workflow.index('Verify current acceptance JSON and tested-source equivalence'))
         self.assertNotIn('Generate acceptance evidence manifest', workflow)
-        self.assertIn('info/test-coverage.pdf', packager)
-        self.assertIn('tests/measure-code-coverage.ps1', packager)
-        self.assertIn('tests/compile-code-coverage.ps1', packager)
+        self.assertIn('info/test-coverage.pdf', str(manifest))
+        self.assertIn('tests/measure-code-coverage.ps1', str(manifest))
+        self.assertIn('tests/compile-code-coverage.ps1', str(manifest))
 
     def test_final_manifest_gate_and_acceptance_zip_provenance(self):
         workflow = WORKFLOW.read_text(encoding="utf-8")
@@ -307,7 +314,7 @@ class RegressionWorkflowTests(unittest.TestCase):
         self.assertIn("fingerprint(tested)", freshness)
         self.assertIn("fingerprint(current)", freshness)
         self.assertIn("acceptance-evidence-freshness.py", WORKFLOW.read_text(encoding="utf-8"))
-        self.assertIn("info/test-coverage.pdf", packager)
+        self.assertIn("info/test-coverage.pdf", (ROOT / "config/package-manifest.json").read_text(encoding="utf-8"))
         self.assertIn("info/test-coverage.pdf", reports)
         self.assertIn('glob("*.json")', (ROOT / "scripts/verify-document-register.py").read_text(encoding="utf-8"))
         self.assertIn("compile-code-coverage.ps1", (ROOT / "tests/test-functional-acceptance.ps1").read_text(encoding="utf-8"))
