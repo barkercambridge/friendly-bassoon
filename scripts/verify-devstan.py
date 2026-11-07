@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# FR-014: Validate authoritative coverage evidence and traceability.
 """Evidence-based Devstan assessment. Does not execute Word acceptance tests."""
 import argparse
 import datetime as dt
