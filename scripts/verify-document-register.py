@@ -32,7 +32,7 @@ def validate(root, check_release_files=False):
         if not isinstance(path, str) or not path or pathlib.PurePosixPath(path).is_absolute() or ".." in pathlib.PurePosixPath(path).parts:
             errors.append("Invalid document path: " + repr(path))
             continue
-        if not entry.get("role") or not entry.get("authority") or entry.get("verification") not in allowed:
+        if not entry.get("authority") or entry.get("verification") not in allowed:
             errors.append("Incomplete register entry: " + path)
         if entry.get("verification") == "required" and (check_release_files or not path.startswith("info/")) and not (root / path).is_file():
             errors.append("Missing required document: " + path)
@@ -193,7 +193,7 @@ def produce(root, edition):
     for entry in read_json(root / "docs/document-register.json")["documents"]:
         if entry["verification"] == "required":
             p = root / entry["path"]
-            files.append({"path": entry["path"], "sha256": sha256(p), "role": entry["role"]})
+            files.append({"path": entry["path"], "sha256": sha256(p), "role": "controlled-document"})
     for path in sorted((root / "tests/results").glob("*.json")):
         if path.suffix == ".json":
             files.append({"path": path.relative_to(root).as_posix(), "sha256": sha256(path), "role": "code-coverage-evidence" if path.name == "code-coverage.json" else "acceptance-evidence"})
