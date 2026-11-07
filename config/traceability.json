@@ -152,7 +152,6 @@
         "AT-011"
       ],
       "implementation_source": [
-        "config/format-checks.json",
         "scripts/build-formatting-checks.py"
       ],
       "test_implementation": [
@@ -199,8 +198,7 @@
         "AT-013"
       ],
       "implementation_source": [
-        "scripts/package-release.ps1",
-        ".github/workflows/release.yml"
+        "scripts/package-release.ps1"
       ],
       "test_implementation": [
         "tests/test-functional-acceptance.ps1"
