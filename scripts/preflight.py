@@ -89,7 +89,7 @@ def validate_package_inputs(root):
             continue
         if "config/package-manifest.json" not in content or marker not in content:
             errors.append(f"Package consumer does not derive expectations from manifest: {path}")
-        if re.search(r"\\$(?:commonFiles|releaseRequired|required)\\s*(?:\\+?=)\\s*@\\(\\s*['\\\"](?:docs/|src/|info/|config/|tests/)", content):
+        if re.search(r"\$(?:commonFiles|releaseRequired|required)\s*(?:\+?=)\s*@\(\s*['\"](?:docs/|src/|info/|config/|tests/)", content):
             errors.append(f"Prohibited hard-coded package inventory: {path}")
     package_source = (root / "scripts/package-release.ps1").read_text(encoding="utf-8-sig")
     if "Copy-Item -LiteralPath $manifestPath" not in package_source:
