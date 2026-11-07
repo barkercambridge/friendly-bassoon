@@ -118,7 +118,7 @@ def check(production=False):
         classified = classified and len(role_paths) == len(set(role_paths)) and all((ROOT / p).is_file() for p in role_paths)
         classified = classified and (planned or bool(r.get("test_implementation")))
         mappings.append(classified and (planned or (bool(sources) and bool(tests) and all((ROOT / p).is_file() for p in sources)
-                                     and all(t in mandatory or t in pending_acceptance or any(a.get("id") == t and a.get("stage") == "Production" for a in rtm.get("acceptance_tests", [])) for t in tests)))
+                                     and all(t in mandatory or t in pending_acceptance or any(a.get("id") == t and a.get("stage") == "Production" for a in rtm.get("acceptance_tests", [])) for t in tests))))
     # FR-linked comments are mandatory in mapped executable source, not data files.
     # Match actual comment lines rather than FR identifiers in strings or code.
     comment_prefixes = {".ps1": "#", ".py": "#", ".bat": "rem", ".cmd": "rem"}
