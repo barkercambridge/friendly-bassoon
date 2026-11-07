@@ -110,6 +110,7 @@ def check(production=False):
         pending=not production and not preflight_ok)
     pending_acceptance = set(re.findall(r"(?m)^\|\s*(AT-\d{3})\s*\[Pending\]", spec))
     mappings = []
+    global_roles = {}
     for r in rtm["requirements"]:
         planned = r.get("status", "").lower() == "planned"
         sources, tests = r.get("implementation_source", []), r.get("tests", [])
@@ -117,6 +118,11 @@ def check(production=False):
         classified = all(isinstance(r.get(role), list) for role in roles)
         role_paths = [p for role in roles for p in r.get(role, [])]
         classified = classified and len(role_paths) == len(set(role_paths)) and all((ROOT / p).is_file() for p in role_paths)
+        for role in roles:
+            for path in r.get(role, []):
+                if path in global_roles and global_roles[path] != role:
+                    classified = False
+                global_roles[path] = role
         classified = classified and (planned or bool(r.get("test_implementation")))
         mappings.append(classified and (planned or (bool(sources) and bool(tests) and all((ROOT / p).is_file() for p in sources)
                                      and all(t in mandatory or t in pending_acceptance or any(a.get("id") == t and a.get("stage") == "Production" for a in rtm.get("acceptance_tests", [])) for t in tests))))
