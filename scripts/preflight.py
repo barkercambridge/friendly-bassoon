@@ -18,6 +18,7 @@ def validate_package_inputs(root):
     registered = {entry["path"]: entry for entry in register["documents"]}
     errors = []
     release_workflow = (root / ".github/workflows/release.yml").read_text(encoding="utf-8-sig")
+    preflight_workflow = (root / ".github/workflows/preflight.yml").read_text(encoding="utf-8-sig")
     blocks = (
         ("common", r"(?s)\\$commonFiles\\s*=\\s*@\\((.*?)\\)\\s*if \\(\\$Edition"),
         ("acceptance", r"(?s)if \\(\\$Edition -eq 'acceptance'\\) \\{\\s*\\$files = \\$commonFiles \\+ @\\((.*?)\\)"),
@@ -43,7 +44,7 @@ def validate_package_inputs(root):
             entry = registered.get(path, {})
             generator = entry.get("generator")
             if generator and entry.get("verification") == "generated":
-                if not (root / generator).is_file() or generator not in release_workflow:
+                if not (root / generator).is_file() or (generator not in release_workflow and generator not in preflight_workflow):
                     errors.append(f"Generated package input has no validated release generator: {path}")
                 continue
             if entry.get("verification") == "generated":
