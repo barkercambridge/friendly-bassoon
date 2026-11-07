@@ -10,6 +10,15 @@ WORKFLOW = ROOT / ".github/workflows/release.yml"
 SPEC = ROOT / "docs/functional-specification.md"
 
 class RegressionWorkflowTests(unittest.TestCase):
+    def test_r04_failed_coverage_measurement_has_no_percentage(self):
+        compiler = (ROOT / "tests/compile-code-coverage.ps1").read_text(encoding="utf-8")
+        verifier = (ROOT / "scripts/verify-devstan.py").read_text(encoding="utf-8")
+        self.assertIn("if($measurement -eq 'MEASURED' -and $executable.Count -gt 0)", compiler)
+        self.assertIn("if($reason){'NOT MEASURED'}else{'MEASURED'}", compiler)
+        self.assertIn('row["measurement"] == "NOT MEASURED"', verifier)
+        self.assertIn('row.get("coverage_percentage") is not None', verifier)
+        self.assertIn("Batch files excluded from application code coverage", compiler)
+
     def test_mandatory_workflows_and_independent_freshness_gate(self):
         preflight = (ROOT / ".github/workflows/preflight.yml").read_text(encoding="utf-8")
         release = WORKFLOW.read_text(encoding="utf-8")
