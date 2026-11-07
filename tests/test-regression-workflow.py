@@ -343,7 +343,6 @@ class RegressionWorkflowTests(unittest.TestCase):
             self.assertTrue(all((ROOT / path).is_file() for path in paths), row["id"])
             for role in roles:
                 for path in row[role]:
-                    self.assertIn(path, global_roles.keys() | {path})
                     self.assertEqual(global_roles.setdefault(path, role), role, path)
             if row.get("status") == "planned":
                 self.assertFalse(paths, row["id"])
