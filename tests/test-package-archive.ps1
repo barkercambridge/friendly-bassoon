@@ -25,7 +25,7 @@ try {
   }
   if($Edition -eq 'production' -and @($paths | Where-Object { $_ -ceq 'info/release.pdf' }).Count -ne 1) {throw 'Expected exactly one release.pdf in production info/'}
   if($Edition -eq 'acceptance' -and @($paths | Where-Object { $_ -ceq 'info/release.pdf' }).Count -ne 0) {throw 'Acceptance ZIP must not contain release.pdf'}
-  $required=@('run-virtual-admin.bat','src/compare-formatting.ps1','src/archive-previous-outputs.ps1','config/format-checks.json','info/formatting-checks.pdf','config/virtual-admin-build.json')
+  $required=@('run-virtual-admin.bat','src/compare-formatting.ps1','src/archive-previous-outputs.ps1','config/format-checks.json','info/formatting-checks.pdf','config/virtual-admin-build.json','docs/AGENTS.md','docs/README.md','docs/functional-specification.md')
   if($Edition -eq 'production') { $required+=@('info/release.pdf','info/traceability.xlsx','info/test-results.pdf','info/test-evidence.pdf','info/test-coverage.pdf') }
   if($Edition -eq 'acceptance') {
    $required+=@('run-acceptance-tests.bat','docs/README.md','docs/functional-specification.md','docs/AGENTS.md','config/traceability.json','tests/test-functional-acceptance.ps1','tests/measure-code-coverage.ps1','tests/compile-code-coverage.ps1','tests/test-format-checks-alignment.ps1')
