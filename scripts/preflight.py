@@ -17,7 +17,6 @@ def validate_package_inputs(root):
     register = json.loads((root / "docs/document-register.json").read_text(encoding="utf-8-sig"))
     registered = {entry["path"]: entry["verification"] for entry in register["documents"]}
     errors = []
-    build_generated = {"info/formatting-checks.pdf"}
     blocks = (
         ("common", r"(?s)\\$commonFiles\\s*=\\s*@\\((.*?)\\)\\s*if \\(\\$Edition"),
         ("acceptance", r"(?s)if \\(\\$Edition -eq 'acceptance'\\) \\{\\s*\\$files = \\$commonFiles \\+ @\\((.*?)\\)"),
@@ -31,7 +30,11 @@ def validate_package_inputs(root):
         for path in re.findall(r"'([^']+)'", match.group(1)):
             if path.startswith("docs/") and path not in registered:
                 errors.append(f"Obsolete or unregistered package document: {path}")
-            if registered.get(path) != "generated" and path not in build_generated and not (root / path).is_file():
+            if registered.get(path) == "generated":
+                if path not in source:
+                    errors.append(f"Generated package input not declared in packaging script: {path}")
+                continue
+            if not (root / path).is_file():
                 errors.append(f"Missing {name} release package input: {path}")
     return errors
 
