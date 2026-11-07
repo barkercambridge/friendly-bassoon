@@ -1,17 +1,14 @@
 {
     "schema_version":  1,
     "application":  "virtual-admin",
-    "version":  "0.5",
-    "source_commit":  "494943b0d97e182b9de865438320cd50156340f6",
-    "release_input_fingerprint":  "2a06c088129a64345b4232af0c330956019be4b97d457166803e210b79313ee1",
-    "acceptance_zip_sha256":  "007417a95d742e852c2d3a58275a1196485d396e2abdd0fec7f4f4b01095d828",
-    "timestamp_utc":  "2026-11-06T16:51:21.5808756Z",
-    "coverage_method":  "PowerShell statement-line breakpoints in released comparison engine and archive helper; batch launcher unmeasured",
+    "version":  "0.7",
+    "source_commit":  "577e53d0665643a4b9ee83c469d88bb639493c06",
+    "release_input_fingerprint":  "d3e76159e2deb1bd23d878579ea77d78f3aeba28f91f87eb7ebd6d60c3d3ea40",
+    "acceptance_zip_sha256":  "701f6838cb831d8c7a46bf9f17c0b2058abd0b8146d92ae2bd9dc3b0de597c54",
+    "timestamp_utc":  "2026-11-07T13:33:46.2429678Z",
+    "coverage_method":  "PowerShell statement-line breakpoints in released comparison engine and archive helper; Batch files excluded from application code coverage",
     "exclusions":  [
-                       {
-                           "path":  "run-virtual-admin.bat",
-                           "reason":  "Batch launcher execution coverage instrumentation not available"
-                       }
+
                    ],
     "files":  [
                   {
@@ -689,23 +686,6 @@
                                             24
                                         ],
                       "measurement":  "MEASURED",
-                      "uncovered_lines":  [
-
-                                          ]
-                  },
-                  {
-                      "excluded":  true,
-                      "path":  "run-virtual-admin.bat",
-                      "coverage_percentage":  null,
-                      "executable_lines":  [
-
-                                           ],
-                      "sha256":  "50ce89594dd2ed78d47747f9487e618d65aa763a0d029d20ea412c546450ca4e",
-                      "reason":  "Batch launcher execution coverage instrumentation not available",
-                      "covered_lines":  [
-
-                                        ],
-                      "measurement":  "NOT MEASURED",
                       "uncovered_lines":  [
 
                                           ]
