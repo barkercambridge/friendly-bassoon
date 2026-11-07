@@ -68,6 +68,32 @@ def main():
             errors.append(f"{requirement['id']}: planned requirement has implementation mappings")
         if not planned and (not requirement["implementation_source"] or not requirement["test_implementation"]):
             errors.append(f"{requirement['id']}: missing implementation or test classification")
+    # R04: audit every executable repository file, not only FR-mapped files.
+    # Coverage tools are a dedicated subset of tests/, and all other test files
+    # contain Test implementation. Application and operational scripts are
+    # Implementation source. Each path has exactly one permitted classification.
+    coverage_tools = {"tests/measure-code-coverage.ps1", "tests/compile-code-coverage.ps1"}
+    executable_extensions = {".py", ".ps1", ".bat", ".cmd"}
+    executable_files = {
+        p.relative_to(ROOT).as_posix() for folder in ("src", "scripts", "tests")
+        for p in (ROOT / folder).rglob("*")
+        if p.is_file() and p.suffix.lower() in executable_extensions
+    }
+    executable_files.update(
+        p.relative_to(ROOT).as_posix() for p in ROOT.glob("*")
+        if p.is_file() and p.suffix.lower() in executable_extensions
+    )
+    for path in sorted(executable_files):
+        role = ("coverage_instrumentation" if path in coverage_tools else
+                "test_implementation" if path.startswith("tests/") else
+                "implementation_source")
+        if path in global_roles and global_roles[path] != role:
+            errors.append(f"{path}: R04 role {global_roles[path]} conflicts with executable inventory {role}")
+    for path in sorted(coverage_tools - executable_files):
+        errors.append(f"{path}: missing required Coverage instrumentation")
+    for path in sorted(global_roles):
+        if pathlib.PurePosixPath(path).suffix.lower() in executable_extensions and path not in executable_files:
+            errors.append(f"{path}: mapped executable absent from inventory")
     valid_fr = {r["id"] for r in rtm["requirements"]}
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     if not re.fullmatch(r"[0-9a-f]{40}", commit):
