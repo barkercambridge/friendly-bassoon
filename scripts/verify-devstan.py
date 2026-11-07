@@ -114,17 +114,19 @@ def check(production=False):
     for r in rtm["requirements"]:
         planned = r.get("status", "").lower() == "planned"
         sources, tests = r.get("implementation_source", []), r.get("tests", [])
-        roles = ("implementation_source", "test_implementation", "coverage_instrumentation")
+        roles = ("implementation_source", "test_implementation", "coverage_instrumentation", "batch")
         classified = all(isinstance(r.get(role), list) for role in roles)
         role_paths = [p for role in roles for p in r.get(role, [])]
         classified = classified and len(role_paths) == len(set(role_paths)) and all((ROOT / p).is_file() for p in role_paths)
         for role in roles:
             for path in r.get(role, []):
+                if path.lower().endswith((".bat", ".cmd")) != (role == "batch"):
+                    classified = False
                 if path in global_roles and global_roles[path] != role:
                     classified = False
                 global_roles[path] = role
-        classified = classified and (planned or bool(r.get("test_implementation")))
-        mappings.append(classified and (planned or (bool(sources) and bool(tests) and all((ROOT / p).is_file() for p in sources)
+        classified = classified and (planned or bool(r.get("test_implementation") or r.get("batch")))
+        mappings.append(classified and (planned or (bool(sources or r.get("batch")) and bool(tests) and all((ROOT / p).is_file() for p in sources)
                                      and all(t in mandatory or t in pending_acceptance or any(a.get("id") == t and a.get("stage") == "Production" for a in rtm.get("acceptance_tests", [])) for t in tests))))
     # FR-linked comments are mandatory in mapped executable source, not data files.
     # Match actual comment lines rather than FR identifiers in strings or code.
