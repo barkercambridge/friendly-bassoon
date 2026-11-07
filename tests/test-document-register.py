@@ -27,6 +27,10 @@ class DocumentRegisterTests(unittest.TestCase):
                 path = self.root / item["path"]
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.touch()
+            elif item["verification"] == "generated" and item.get("generator"):
+                producer = self.root / item["generator"]
+                producer.parent.mkdir(parents=True, exist_ok=True)
+                producer.touch()
             elif item["verification"] == "pattern":
                 path = self.root / item["path"].replace("*", "sample")
                 path.parent.mkdir(parents=True, exist_ok=True)
@@ -138,7 +142,9 @@ class DocumentRegisterTests(unittest.TestCase):
         entry = next(x for x in self.register["documents"] if x["path"] == "info/formatting-checks.pdf")
         self.assertEqual(entry["requirement"], "FR-012")
         self.assertEqual(entry["purpose"], "Human-readable mirror of formatting configuration")
-        self.assertEqual(entry["verification"], "required")
+        self.assertEqual(entry["verification"], "generated")
+        self.assertTrue(entry["release_required"])
+        self.assertEqual(entry["generator"], "scripts/build-formatting-checks.py")
 
     def test_release_pdf_is_production_only_generated_report(self):
         entry = next(x for x in self.register["documents"] if x["path"] == "info/release.pdf")
