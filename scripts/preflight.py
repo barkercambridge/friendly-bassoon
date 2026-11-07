@@ -49,7 +49,7 @@ def main():
         errors.append("Authoritative application version file missing")
     rtm = json.loads((ROOT / "config/traceability.json").read_text(encoding="utf-8-sig"))
     # R04: independently validate all three classified roles before regression execution.
-    roles = ("implementation_source", "test_implementation", "coverage_instrumentation")
+    roles = ("implementation_source", "test_implementation", "coverage_instrumentation", "batch")
     global_roles = {}
     for requirement in rtm["requirements"]:
         planned = requirement.get("status") == "planned"
@@ -66,7 +66,7 @@ def main():
                 global_roles[path] = role
         if planned and paths:
             errors.append(f"{requirement['id']}: planned requirement has implementation mappings")
-        if not planned and (not requirement["implementation_source"] or not requirement["test_implementation"]):
+        if not planned and (not (requirement["implementation_source"] or requirement["batch"]) or not (requirement["test_implementation"] or requirement["batch"])):
             errors.append(f"{requirement['id']}: missing implementation or test classification")
     # R04: audit every executable repository file, not only FR-mapped files.
     # Coverage tools are a dedicated subset of tests/, and all other test files
@@ -84,7 +84,8 @@ def main():
         if p.is_file() and p.suffix.lower() in executable_extensions
     )
     for path in sorted(executable_files):
-        role = ("coverage_instrumentation" if path in coverage_tools else
+        role = ("batch" if path.lower().endswith((".bat", ".cmd")) else
+                "coverage_instrumentation" if path in coverage_tools else
                 "test_implementation" if path.startswith("tests/") else
                 "implementation_source")
         if path in global_roles and global_roles[path] != role:
@@ -92,6 +93,8 @@ def main():
     for path in sorted(coverage_tools - executable_files):
         errors.append(f"{path}: missing required Coverage instrumentation")
     for path in sorted(global_roles):
+        if path.lower().endswith((".bat", ".cmd")) and global_roles[path] != "batch":
+            errors.append(f"{path}: Batch file must have Batch classification")
         if pathlib.PurePosixPath(path).suffix.lower() in executable_extensions and path not in executable_files:
             errors.append(f"{path}: mapped executable absent from inventory")
     valid_fr = {r["id"] for r in rtm["requirements"]}
