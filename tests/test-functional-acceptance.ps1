@@ -111,16 +111,18 @@ try {
  $formatSpec=Get-Content -LiteralPath $specification -Raw | ConvertFrom-Json
  Write-Stage 'Checking extracted release package layout (AT-011).'
  try {
-  $releaseRequired=@(
-   'tests/measure-code-coverage.ps1','tests/compile-code-coverage.ps1',
-   'run-virtual-admin.bat','run-acceptance-tests.bat',
-   'src/compare-formatting.ps1','src/archive-previous-outputs.ps1',
-   'config/format-checks.json','info/formatting-checks.pdf','config/virtual-admin-build.json',
-   'docs/README.md','docs/functional-specification.md','docs/AGENTS.md','config/traceability.json',
-   'tests/test-functional-acceptance.ps1','tests/test-format-checks-alignment.ps1'
-  )
+  # R08: Verify the extracted edition against the package's authoritative manifest.
+  $manifestPath=Join-Path $packageRoot 'config/package-manifest.json'
+  Assert (Test-Path -LiteralPath $manifestPath -PathType Leaf) 'Authoritative package manifest missing'
+  $packageManifest=Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+  $releaseRequired=@($packageManifest.editions.acceptance | ForEach-Object { [string]$_.destination }) +
+    @($packageManifest.generated | ForEach-Object { [string]$_.destination }) + @('config/package-manifest.json')
   foreach($entry in $releaseRequired) {
    Assert (Test-Path -LiteralPath (Join-Path $packageRoot $entry) -PathType Leaf) ("Release package missing: "+$entry)
+  }
+  $actualEntries=@(Get-ChildItem -LiteralPath $packageRoot -Recurse -File | ForEach-Object { $_.FullName.Substring($packageRoot.Length).TrimStart([char]92,[char]47).Replace([char]92,[char]47) })
+  foreach($entry in $actualEntries) {
+   Assert ($entry -cin $releaseRequired) ("Unexpected release package file: "+$entry)
   }
   $rootNonBatch=@(Get-ChildItem -LiteralPath $packageRoot -File | Where-Object {$_.Extension -ne '.bat'})
   Assert ($rootNonBatch.Count -eq 0) ('Unexpected files at package root: '+($rootNonBatch.Name -join ', '))
