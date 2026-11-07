@@ -12,19 +12,17 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 def validate_package_inputs(root):
-    """Check both release editions before packaging; generated reports are deferred."""
-    source = (root / "scripts/package-release.ps1").read_text(encoding="utf-8-sig")
-    register = json.loads((root / "docs/document-register.json").read_text(encoding="utf-8-sig"))
-    registered = {entry["path"]: entry for entry in register["documents"]}
+    """R08: validate authoritative package manifest and its consumers."""
     errors = []
+    manifest_path = root / "config/package-manifest.json"
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
+        register = json.loads((root / "docs/document-register.json").read_text(encoding="utf-8-sig"))
+    except (OSError, ValueError) as exc:
+        return [f"Cannot read authoritative package inventory: {exc}"]
+    registered = {entry["path"]: entry for entry in register["documents"]}
     release_workflow = (root / ".github/workflows/release.yml").read_text(encoding="utf-8-sig")
     preflight_workflow = (root / ".github/workflows/preflight.yml").read_text(encoding="utf-8-sig")
-    blocks = (
-        ("common", r"(?s)\\$commonFiles\\s*=\\s*@\\((.*?)\\)\\s*if \\(\\$Edition"),
-        ("acceptance", r"(?s)if \\(\\$Edition -eq 'acceptance'\\) \\{\\s*\\$files = \\$commonFiles \\+ @\\((.*?)\\)"),
-        ("production", r"(?s)else \\{\\s*\\$files = \\$commonFiles \\+ @\\((.*?)\\)"),
-    )
-    packaged = set()
     for entry in register["documents"]:
         if entry.get("verification") == "generated" and not entry.get("generator"):
             errors.append(f"Generated file lacks declared generator: {entry['path']}")
@@ -32,62 +30,70 @@ def validate_package_inputs(root):
             errors.append(f"Generator declared for non-generated file: {entry['path']}")
         if "release_required" in entry and not isinstance(entry["release_required"], bool):
             errors.append(f"Invalid release_required declaration: {entry['path']}")
-    for name, expression in blocks:
-        match = re.search(expression.replace("\\\\", "\\"), source)
-        if not match:
-            errors.append(f"Cannot identify {name} release package inputs")
-            continue
-        for path in re.findall(r"'([^']+)'", match.group(1)):
-            packaged.add(path)
-            if path.startswith("docs/") and path not in registered:
-                errors.append(f"Obsolete or unregistered package document: {path}")
-            entry = registered.get(path, {})
+    if manifest.get("schema_version") != 1 or set(manifest.get("editions", {})) != {"acceptance", "production"}:
+        errors.append("Invalid package manifest schema or editions")
+        return errors
+    packaged = set()
+    for edition, entries in manifest["editions"].items():
+        sources, destinations = set(), set()
+        for item in entries:
+            source, destination = item.get("source"), item.get("destination")
+            if not isinstance(source, str) or not isinstance(destination, str) or not source or not destination:
+                errors.append(f"Invalid {edition} package manifest entry: {item}")
+                continue
+            if source in sources or destination in destinations:
+                errors.append(f"Duplicate {edition} package manifest entry: {destination}")
+            sources.add(source)
+            destinations.add(destination)
+            packaged.add(source)
+            if source.startswith("docs/") and source not in registered:
+                errors.append(f"Obsolete or unregistered package document: {source}")
+            if source.startswith("/") or destination.startswith("/") or ".." in source.split("/") or ".." in destination.split("/"):
+                errors.append(f"Unsafe {edition} package path: {source} -> {destination}")
+            if "/" not in destination and not destination.endswith(".bat"):
+                errors.append(f"Invalid ZIP root entry: {destination}")
+            entry = registered.get(source, {})
             generator = entry.get("generator")
-            if generator and entry.get("verification") == "generated":
-                if not (root / generator).is_file() or (generator not in release_workflow and generator not in preflight_workflow):
-                    errors.append(f"Generated package input has no validated release generator: {path}")
-                continue
             if entry.get("verification") == "generated":
-                errors.append(f"Generated package input lacks declared generator: {path}")
-                continue
-            if not (root / path).is_file():
-                errors.append(f"Missing {name} release package input: {path}")
-    # R03: Audit release-archive test expectations against actual package definitions.
-    archive_test = (root / "tests/test-package-archive.ps1").read_text(encoding="utf-8-sig")
-    expected_blocks = (
-        ("common", r"\$required\s*=\s*@\(([^)]*)\)"),
-        ("production", r"if\(\$Edition -eq 'production'\)\s*\{\s*\$required\s*\+=\s*@\(([^)]*)\)"),
-        ("acceptance", r"if\(\$Edition -eq 'acceptance'\)\s*\{\s*\$required\s*\+=\s*@\(([^)]*)\)"),
-    )
-    package_blocks = {}
-    for name, expression in blocks:
-        match = re.search(expression.replace("\\\\", "\\"), source)
-        if match:
-            package_blocks[name] = set(re.findall(r"'([^']+)'", match.group(1)))
-    expected = {}
-    for name, expression in expected_blocks:
-        match = re.search(expression, archive_test)
-        if not match:
-            errors.append(f"Cannot audit {name} archive-test expectations")
-            continue
-        expected[name] = set(re.findall(r"'([^']+)'", match.group(1)))
-    staged = lambda path: {
-        "README.md": "docs/README.md",
-        "AGENTS.md": "docs/AGENTS.md",
-        "tests/run-acceptance-tests.bat": "run-acceptance-tests.bat",
-    }.get(path, path)
-    if len(package_blocks) == 3 and len(expected) == 3:
-        common = {staged(p) for p in package_blocks["common"]} | {"config/virtual-admin-build.json"}
-        for edition in ("acceptance", "production"):
-            actual = common | {staged(p) for p in package_blocks[edition]}
-            required = expected["common"] | expected[edition]
-            for stale in sorted(required - actual):
-                errors.append(f"Obsolete {edition} archive-test expectation: {stale}")
-            for unchecked in sorted(actual - required):
-                errors.append(f"Unverified {edition} package entry in archive test: {unchecked}")
+                if not generator:
+                    errors.append(f"Generated package input lacks declared generator: {source}")
+                elif not (root / generator).is_file() or (generator not in release_workflow and generator not in preflight_workflow):
+                    errors.append(f"Generated package input has no validated release generator: {source}")
+            elif not (root / source).is_file():
+                errors.append(f"Missing {edition} release package input: {source}")
+        if not entries:
+            errors.append(f"Empty {edition} package manifest")
+    generated_destinations = set()
+    for entry in manifest.get("generated", []):
+        destination = entry.get("destination")
+        generator = entry.get("generator")
+        if not destination or destination in generated_destinations or not generator or not (root / generator).is_file():
+            errors.append(f"Invalid generated package manifest entry: {entry}")
+        generated_destinations.add(destination)
+    if "config/virtual-admin-build.json" not in generated_destinations:
+        errors.append("Package build provenance is not declared in manifest")
     for entry in register["documents"]:
         if entry.get("release_required") is True and entry["path"] not in packaged:
             errors.append(f"Required release output not included in package definitions: {entry['path']}")
+    # Reject independent package inventories; validate consumers and the manifest's inclusion.
+    consumers = (
+        ("scripts/package-release.ps1", "$manifest.editions.$Edition"),
+        ("tests/test-package-archive.ps1", "$manifest.editions.$Edition"),
+        ("tests/test-functional-acceptance.ps1", "$packageManifest.editions.acceptance"),
+    )
+    for path, marker in consumers:
+        try:
+            content = (root / path).read_text(encoding="utf-8-sig")
+        except OSError as exc:
+            errors.append(f"Missing package-manifest consumer {path}: {exc}")
+            continue
+        if "config/package-manifest.json" not in content or marker not in content:
+            errors.append(f"Package consumer does not derive expectations from manifest: {path}")
+        if re.search(r"\\$(?:commonFiles|releaseRequired|required)\\s*(?:\\+?=)\\s*@\\(\\s*['\\\"](?:docs/|src/|info/|config/|tests/)", content):
+            errors.append(f"Prohibited hard-coded package inventory: {path}")
+    package_source = (root / "scripts/package-release.ps1").read_text(encoding="utf-8-sig")
+    if "Copy-Item -LiteralPath $manifestPath" not in package_source:
+        errors.append("Package manifest is not included in release ZIP")
     return errors
 
 def main():
