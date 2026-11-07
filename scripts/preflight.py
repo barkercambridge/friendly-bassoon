@@ -17,6 +17,15 @@ def validate_package_inputs(root):
     register = json.loads((root / "docs/document-register.json").read_text(encoding="utf-8-sig"))
     registered = {entry["path"]: entry["verification"] for entry in register["documents"]}
     errors = []
+    release_workflow = (root / ".github/workflows/release.yml").read_text(encoding="utf-8-sig")
+    generators = {
+        "info/formatting-checks.pdf": ("scripts/build-formatting-checks.py", "info/formatting-checks.pdf"),
+        "info/release.pdf": ("scripts/build-release-notes.py", "info/release.pdf"),
+        "info/traceability.xlsx": ("scripts/build-traceability-workbook.py", "info/traceability.xlsx"),
+        "info/test-results.pdf": ("scripts/build-test-reports.py", "info/test-results.pdf"),
+        "info/test-evidence.pdf": ("scripts/build-test-reports.py", "info/test-evidence.pdf"),
+        "info/test-coverage.pdf": ("scripts/build-test-reports.py", "info/test-coverage.pdf"),
+    }
     blocks = (
         ("common", r"(?s)\\$commonFiles\\s*=\\s*@\\((.*?)\\)\\s*if \\(\\$Edition"),
         ("acceptance", r"(?s)if \\(\\$Edition -eq 'acceptance'\\) \\{\\s*\\$files = \\$commonFiles \\+ @\\((.*?)\\)"),
@@ -31,8 +40,9 @@ def validate_package_inputs(root):
             if path.startswith("docs/") and path not in registered:
                 errors.append(f"Obsolete or unregistered package document: {path}")
             if registered.get(path) == "generated":
-                if path not in source:
-                    errors.append(f"Generated package input not declared in packaging script: {path}")
+                generator = generators.get(path)
+                if not generator or not (root / generator[0]).is_file() or generator[0] not in release_workflow:
+                    errors.append(f"Generated package input has no validated release generator: {path}")
                 continue
             if not (root / path).is_file():
                 errors.append(f"Missing {name} release package input: {path}")
